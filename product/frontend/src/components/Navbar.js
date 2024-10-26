@@ -6,20 +6,19 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faFilm } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import Authui from "./authui.js";
 export default function Navbar() {
   return (
     <div className="flex h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] ">
       {/* start */}
-      <div className="w-[30%] flex-shrink-0 ">
+      <div className="w-[50%] md:w-[30%] flex-shrink-0 ">
         <Link
           href={"/"}
           className=" w-full h-full items-start justify-center md:shrink-0"
         >
           <img
             src="/logo.svg"
-            className="w-36 h-full items-center justify-center shrink-0"
+            className="w-36 h-full items-center justify-center hover:bg-slate-300 rounded-full shrink-0"
             alt="Kuma"
           />
         </Link>
@@ -73,7 +72,7 @@ export default function Navbar() {
         </Link>
       </div>{" "}
       {/* end */}
-      <div className="w-[30%] pr-2 items-center hidden md:flex justify-end">
+      <div className="w-[50%] md:w-[30%] pr-2 items-center flex justify-end">
         <Authui />
       </div>
     </div>
