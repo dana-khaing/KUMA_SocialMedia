@@ -4,11 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faFilm } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import Authui from "./authui.js";
 export default function Navbar() {
   return (
-    <div className="flex h-20 pr-4 pl-4 border-solid rounded-3xl border-2 round bg-slate-100">
+    <div className="flex h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] ">
       {/* start */}
       <div className="w-[30%] flex-shrink-0 ">
         <Link
@@ -39,7 +41,11 @@ export default function Navbar() {
           href={"/"}
           className="flex w-28 h-12 items-center justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
         >
-          <FontAwesomeIcon className="w-6 h-6" icon={faUser} size="lg" />
+          <FontAwesomeIcon
+            className="w-[1.75rem] h-[1.75rem]"
+            icon={faUserGroup}
+            size="lg"
+          />
         </Link>
         <Link
           href={"/"}
@@ -47,9 +53,16 @@ export default function Navbar() {
         >
           <FontAwesomeIcon
             className="w-[1.75rem] h-[1.75rem]"
-            icon={faUserGroup}
+            icon={faFilm}
             size="lg"
           />
+        </Link>
+
+        <Link
+          href={"/"}
+          className="flex w-28 h-12 items-center justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
+        >
+          <FontAwesomeIcon className="w-6 h-6" icon={faUser} size="lg" />
         </Link>
 
         <Link
