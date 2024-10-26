@@ -4,11 +4,26 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
 
 export default async function Authui() {
-  const userId = await auth();
+  const userId = (await auth()).userId;
+  const user = await currentUser();
+
   return (
-    <div className="text-[#FF4E01] flex w-full items-center justify-end">
-      {userId ? (
-        <UserButton />
+    <div className="text-[#FF4E01] flex w-full items-center justify-end ">
+      {userId != null ? (
+        <div className="flex gap-3 w-44 h-12 text-center justify-center items-center rounded-full hover:bg-[#FF4E01] hover:text-white">
+          <span className="text-base ml-3 font-semibold hidden sm:block">
+            {/* {user?.username || user?.fullName || "Kuma User"} can use user name to display */}
+            {user?.fullName || "Kuma User"}
+          </span>
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox:
+                  "w-[2.225rem] h-[2.225rem] border-solid border-[1px] border-[#FF4E01] hover:border-white ",
+              },
+            }}
+          />
+        </div>
       ) : (
         <div className="flex w-44 h-12 text-center justify-center items-center rounded-full hover:bg-[#FF4E01] hover:text-white">
           <span>
