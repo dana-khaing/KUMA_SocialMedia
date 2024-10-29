@@ -26,7 +26,7 @@ export default async function Authui() {
           />
         </div>
       ) : (
-        <Button className="flex w-44 h-12 text-center bg-inherit text-[#FF4E01] justify-center items-center rounded-full hover:bg-[#FF4E01] hover:text-white">
+        <Button className="hidden md:flex w-44 h-12 text-center bg-inherit text-[#FF4E01] justify-center items-center rounded-full hover:bg-[#FF4E01] hover:text-white">
           <span>
             <FontAwesomeIcon
               className="w-6 h-6 pr-3"

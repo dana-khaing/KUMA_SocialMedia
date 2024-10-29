@@ -1,10 +1,8 @@
 import Link from "next/link";
 import NavItem from "./navitem.js";
 import Authui from "./authui.js";
-import { auth } from "@clerk/nextjs/server";
 
 export default async function Navbar() {
-  const userId = (await auth()).userId;
   return (
     <div className="flex h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] ">
       {/* start */}
