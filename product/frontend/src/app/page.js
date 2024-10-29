@@ -7,7 +7,7 @@ export default function Home() {
       {/* left */}
       <div className="hidden lg:block flex-col w-[22.5%]"></div>
       {/* center */}
-      <div className="flex flex-col w-full lg:w-[55%] gap-5 h-[200vh]">
+      <div className="flex flex-col w-full lg:w-[55%] gap-5 h-[200vh] px-5 lg:px-0">
         <Stories />
         <Addpost />
         <Newfeed />

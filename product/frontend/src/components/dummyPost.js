@@ -16,7 +16,6 @@ import { Button } from "./ui/button";
 export const DanaummyPost = () => {
   const [liked, setLiked] = useState(false);
   const [loved, setLoved] = useState(false);
-  const [commented, setCommented] = useState(false);
 
   const handleLike = () => {
     if (!loved) {
@@ -68,7 +67,7 @@ export const DanaummyPost = () => {
 
         {/* desc & photo */}
         <div className="p-4 ">
-          <p className="text-black flex mt-3 mb-5">
+          <p className="text-black mb-5">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
             laborum, voluptates, quod, autem quae quos quas voluptatem accusamus
           </p>
