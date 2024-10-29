@@ -33,7 +33,7 @@ const Addpost = async () => {
       </div>
 
       {/* post options */}
-      <div className="flex gap-10 items-center justify-end ">
+      <div className="flex gap-5 items-center justify-end ">
         <div className="flex gap-2 items-center justify-end mt-2">
           <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-10 cursor-pointer gap-2 text-center justify-center">
             <FontAwesomeIcon icon={faCamera} size="lg" />
