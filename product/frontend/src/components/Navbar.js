@@ -4,7 +4,7 @@ import Authui from "./authui.js";
 
 export default async function Navbar() {
   return (
-    <div className="flex h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] ">
+    <div className="flex h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] mb-5">
       {/* start */}
       <div className="w-[50%] md:w-[30%] flex-shrink-0 ">
         <Link
