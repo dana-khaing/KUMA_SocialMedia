@@ -1,20 +1,50 @@
+"use client";
 import React from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock } from "@fortawesome/free-solid-svg-icons";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import DummyPost from "./dummyPost.js";
+import {
+  faClock,
+  faEllipsis,
+  faXmark,
+  faShare,
+  faComment,
+  faThumbsUp,
+  faHeart,
+} from "@fortawesome/free-solid-svg-icons";
 import { Button } from "./ui/button";
 const Newfeed = () => {
+  const [liked, setLiked] = useState(false);
+  const [loved, setLoved] = useState(false);
+  const [commented, setCommented] = useState(false);
+
+  const handleLike = () => {
+    if (!loved) {
+      setLiked(!liked);
+    } else {
+      setLiked(!liked);
+      setLoved(!loved);
+    }
+  };
+  const handleLove = () => {
+    if (!liked) {
+      setLoved(!loved);
+    } else {
+      setLiked(!liked);
+      setLoved(!loved);
+    }
+  };
+
   return (
-    <div className="h-max w-[100%] overflow-auto">
+    <div className="w-[100%] overflow-scroll scrollbar-hide">
       {/* postcard container */}
-      <div className="flex flex-col justify-center items-center gap-5">
+      <div className=" flex flex-col justify-center items-center gap-5">
         {/* postCard */}
         <div className="h-fit shrink-0 rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] px-7 py-5 text-sm">
           {/* user detail*/}
           {/* avator */}
-          <div className="flex gap-3 ">
-            <div className=" flex items-center w-12">
+          <div className="flex gap-3">
+            <div className=" flex items-center justify-center w-12">
               <img
                 src="/stories1.jpg"
                 alt="profile"
@@ -52,9 +82,48 @@ const Newfeed = () => {
               className="w-full h-[20rem] object-cover rounded-xl"
             />
           </div>
-          {/* reaction */}
-          <div></div>
+          {/* reaction bar */}
+          <div>
+            <div className="flex justify-between gap-3">
+              <div className="flex gap-3 items-center">
+                <Button
+                  className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
+                    liked ? "text-blue-600" : "text-black"
+                  }`}
+                  onClick={handleLike}
+                >
+                  <FontAwesomeIcon icon={faThumbsUp} size="sm" />
+                  <span>Like</span>
+                </Button>
+                <Button
+                  className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
+                    loved ? "text-red-600" : "text-black"
+                  }`}
+                  onClick={handleLove}
+                >
+                  <FontAwesomeIcon icon={faHeart} size="sm" />
+                  <span>Love</span>
+                </Button>
+                <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+                  <FontAwesomeIcon icon={faComment} size="sm" />
+                  <span>Comment</span>
+                </Button>
+              </div>
+              <div>
+                <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+                  <FontAwesomeIcon icon={faShare} size="sm" />
+                  <span>Share</span>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
+        <DummyPost />
+        <DummyPost />
+        <DummyPost />
+        <DummyPost />
+        <DummyPost />
+        <DummyPost />
       </div>
     </div>
   );

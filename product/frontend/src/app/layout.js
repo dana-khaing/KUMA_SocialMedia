@@ -30,8 +30,10 @@ export default function RootLayout({ children }) {
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <Navbar />
-          {children}
+          <header className="fixed top-0 left-0 w-full z-50">
+            <Navbar />
+          </header>
+          <main className="mt-20">{children}</main>
         </body>
       </html>
     </ClerkProvider>
