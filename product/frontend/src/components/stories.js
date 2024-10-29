@@ -1,7 +1,7 @@
 import Image from "next/image";
 const Stories = () => {
   return (
-    <div className="w-full h-[10.5rem]  rounded-2xl items-center shadow-md overflow-scroll text-xs bg-slate-50 scrollbar-hide">
+    <div className="w-full h-[8rem] flex-shrink-0 rounded-3xl items-center shadow-md overflow-scroll text-xs border-[1px] bg-slate-50 scrollbar-hide">
       <div className="flex gap-8 items-center m-4 w-max">
         <div className="flex flex-col items-center gap-1 cursor-pointer justify-start h-full w-[5rem]">
           {/* use this first one to use the image component from next js */}
