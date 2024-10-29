@@ -3,18 +3,18 @@ import Addpost from "@/components/addpost";
 import Newfeed from "@/components/newfeed";
 export default function Home() {
   return (
-    <div className="p-5 bg-slate-200 h-screen w-screen flex items-center justify-center gap-5">
+    <div className="p-5  h-screen w-screen flex items-center justify-center gap-5">
       {/* left */}
-      <div className="hidden xl:block flex-col w-[30%]"></div>
+      <div className="hidden lg:block flex-col w-[20%]"></div>
       {/* center */}
-      <div className="flex w-full md:w-[40%] gap-5">
+      <div className="flex flex-col w-full lg:w-[60%] gap-5 h-screen">
         <Stories />
         <Addpost />
         <Newfeed />
       </div>
 
       {/* right */}
-      <div className="hidden lg:flex flex-col w-[30%] "></div>
+      <div className="hidden lg:flex flex-col w-[20%]"></div>
     </div>
   );
 }
