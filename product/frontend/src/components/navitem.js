@@ -7,7 +7,7 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faFilm } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
-const NavItem = async () => {
+export default async function NavItem() {
   const userId = (await auth()).userId;
   return (
     <div>
@@ -62,6 +62,4 @@ const NavItem = async () => {
       ) : null}
     </div>
   );
-};
-
-export default NavItem;
+}
