@@ -17,7 +17,7 @@ const Addpost = async () => {
     <div className="w-full h-fit shrink-0 rounded-2xl flex-col justify-center items-center px-7 py-5 shadow-md overflow-scroll text-sm border-[1px] bg-slate-50">
       {/* avator and textbox */}
       <div className="flex gap-3 ">
-        <div className=" flex items-center w-12">
+        <div className=" flex items-center justify-center w-12">
           <img
             src={imageUrl}
             alt="profile"
@@ -37,27 +37,27 @@ const Addpost = async () => {
         <div className="flex gap-2 items-center justify-end mt-2">
           <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-10 cursor-pointer gap-2 text-center justify-center">
             <FontAwesomeIcon icon={faCamera} size="lg" />
-            <span>Photo</span>
+            <span className="text-black">Photo</span>
           </Button>
           <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
           <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-10 cursor-pointer gap-2 text-center justify-center">
             <FontAwesomeIcon icon={faImage} size="lg" />
-            <span>Image</span>
+            <span className="text-black">Image</span>
           </Button>
           <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
           <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-10 cursor-pointer gap-2 text-center justify-center">
             <FontAwesomeIcon icon={faVideo} size="lg" />
-            <span>Video</span>
+            <span className="text-black">Video</span>
           </Button>
           <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
           <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-10 cursor-pointer gap-2 text-center justify-center">
             <FontAwesomeIcon icon={faSquarePollVertical} size="lg" />
-            <span>Poll</span>
+            <span className="text-black">Poll</span>
           </Button>
           <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
           <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-10 cursor-pointer gap-2 text-center justify-center">
             <FontAwesomeIcon icon={faCalendar} size="lg" />
-            <span>Event</span>
+            <span className="text-black">Event</span>
           </Button>
 
           {/* finally post button */}

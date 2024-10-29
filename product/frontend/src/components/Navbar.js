@@ -4,12 +4,12 @@ import Authui from "./authui.js";
 
 export default async function Navbar() {
   return (
-    <div className="flex h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] mb-5">
+    <div className="flex w-full h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] mb-5">
       {/* start */}
-      <div className="w-[50%] md:w-[30%] flex-shrink-0 ">
+      <div className="w-[50%] md:w-[30%] flex-shrink-0">
         <Link
           href={"/"}
-          className=" w-full h-full items-start justify-center md:shrink-0"
+          className="w-full h-full items-start justify-center md:shrink-0"
         >
           <img
             src="/logo.svg"
@@ -19,11 +19,11 @@ export default async function Navbar() {
         </Link>
       </div>{" "}
       {/* mid */}
-      <div className="w-[40%] items-center ">
+      <div className="w-[40%] items-center">
         <NavItem />
       </div>
       {/* end */}
-      <div className="w-[50%] md:w-[30%] pr-2 items-center flex justify-end ">
+      <div className="w-[50%] md:w-[30%] pr-2 items-center flex justify-end">
         <Authui />
       </div>
     </div>
