@@ -1,4 +1,3 @@
-import React from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
@@ -59,7 +58,6 @@ const Addpost = async () => {
             <FontAwesomeIcon icon={faCalendar} size="lg" />
             <span className="text-black">Event</span>
           </Button>
-
           {/* finally post button */}
         </div>
         <div className="flex items-center  justify-center mt-2">

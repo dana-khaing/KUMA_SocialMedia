@@ -1,3 +1,9 @@
+#### 29 Oct
+
+- I tried to use CurrentUser (severcomponent) and tried to fetch in the use client component.
+- take a lot of time to fix this using useAuth (client sid ecomponent) . Don't work
+- finally, found useUser and can fetch the avator image at the use client component
+
 #### 28 Oct
 
 - start home page ui since it is possible to write auth in the ui branch
