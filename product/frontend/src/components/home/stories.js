@@ -5,9 +5,10 @@ import { Button } from "../ui/button";
 const Stories = () => {
   return (
     <div className="w-full h-fit flex-shrink-0 rounded-3xl items-center shadow-md overflow-scroll text-xs border-[1px] bg-slate-50 scrollbar-hide">
-      <div className="flex gap-1 md:gap-8 items-center m-4 w-max">
+      {/* stories warp */}
+      <div className="flex gap-1 md:gap-5 items-center m-4 w-max ">
+        {/* Add stories for the user */}
         <div className="flex flex-col items-center gap-1 cursor-pointer justify-start h-full w-[5rem]">
-          {/* Add stories for the user with + sign with circle */}
           <div className="w-[4.5rem] h-[4.5rem] rounded-full ring-2 hover:ring-4 ring-[#FF4E01] m-1 flex items-center justify-center">
             <Button className="w-[4rem] h-[4rem] rounded-full bg-white text-black hover:bg-slate-300">
               <FontAwesomeIcon
