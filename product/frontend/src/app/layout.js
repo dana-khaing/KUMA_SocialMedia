@@ -1,5 +1,5 @@
 import localFont from "next/font/local";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/navbar/Navbar";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { ClerkProvider } from "@clerk/nextjs";
