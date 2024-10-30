@@ -13,7 +13,7 @@ const Addpost = async () => {
   const { imageUrl } = user;
 
   return (
-    <div className="w-full h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-5 px-5 shadow-md text-sm border-[1px] bg-slate-50">
+    <div className="w-full h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
       {/* avator and textbox */}
       <div className="flex gap-3 ">
         <div className=" flex items-center justify-center w-12">
@@ -38,12 +38,12 @@ const Addpost = async () => {
       </div>
 
       {/* post options */}
-      <div className=" w-full flex gap-2 items-center justify-start md:justify-center mt-2 overflow-x-auto flex-nowrap scrollbar-hide">
+      <div className=" w-full h-10 flex gap-2 items-center justify-start md:justify-center mt-2 overflow-x-auto flex-nowrap scrollbar-hide">
         <Button className="flex items-center w-24 rounded-full h-fit text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent  cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faCamera} size="lg" />
           <span className="text-black">Photo</span>
         </Button>
-        <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
+        <Separator orientation="vertical" className=" bg-[#FF4E01]" />
         <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faImage} size="lg" />
           <span className="text-black">Image</span>

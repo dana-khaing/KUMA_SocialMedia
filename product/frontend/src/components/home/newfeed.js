@@ -48,7 +48,7 @@ const Newfeed = () => {
       {/* postcard container */}
       <div className=" flex flex-col justify-center items-center gap-5">
         {/* postCard */}
-        <div className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-5 text-sm">
+        <div className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-3 md:py-5 text-sm">
           {/* user detail*/}
           {/* avator */}
           <div className="flex gap-3">
