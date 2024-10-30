@@ -1,6 +1,6 @@
 import Link from "next/link";
 import NavItem from "./navitem.js";
-import Authui from "./authui.js";
+import Useravator from "./useravator.js";
 
 export default async function Navbar() {
   return (
@@ -24,7 +24,7 @@ export default async function Navbar() {
       </div>
       {/* end */}
       <div className="w-[50%] md:w-[30%] pr-2 items-center flex justify-end">
-        <Authui />
+        <Useravator />
       </div>
     </div>
   );

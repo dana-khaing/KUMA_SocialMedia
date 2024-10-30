@@ -12,8 +12,8 @@ import {
   faThumbsUp,
   faHeart,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator.jsx";
+import { Button } from "../ui/button.jsx";
+import { Separator } from "../ui/separator.jsx";
 
 const Newfeed = () => {
   const { user } = useUser();
@@ -44,11 +44,11 @@ const Newfeed = () => {
   };
 
   return (
-    <div className="w-[100%] overflow-scroll scrollbar-hide">
+    <div className="w-full ">
       {/* postcard container */}
       <div className=" flex flex-col justify-center items-center gap-5">
         {/* postCard */}
-        <div className="h-fit shrink-0 rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] px-7 py-5 text-sm">
+        <div className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-5 text-sm">
           {/* user detail*/}
           {/* avator */}
           <div className="flex gap-3">
@@ -102,51 +102,41 @@ const Newfeed = () => {
             />
           </div>
           {/* reaction bar */}
-          <div>
-            <div className="flex justify-between gap-3">
-              <div className="flex gap-3 items-center">
-                <Button
-                  className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
-                    liked ? "text-blue-600" : "text-black"
-                  }`}
-                  onClick={handleLike}
-                >
-                  <FontAwesomeIcon icon={faThumbsUp} size="sm" />
-                  <span>Like</span>
-                </Button>
-                <Separator
-                  className="h-3 bg-slate-400"
-                  orientation="vertical"
-                />
-                <Button
-                  className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
-                    loved ? "text-red-600" : "text-black"
-                  }`}
-                  onClick={handleLove}
-                >
-                  <FontAwesomeIcon icon={faHeart} size="sm" />
-                  <span>Love</span>
-                </Button>
-                <Separator
-                  className="h-3 bg-slate-400"
-                  orientation="vertical"
-                />
-                <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
-                  <FontAwesomeIcon icon={faComment} size="sm" />
-                  <span>Comment</span>
-                </Button>
-              </div>
-              <div>
-                <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
-                  <FontAwesomeIcon icon={faShare} size="sm" />
-                  <span>Share</span>
-                </Button>
-              </div>
-            </div>
+          <div className="flex w-full px-4 gap-0 md:gap-3 items-center">
+            <Button
+              className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
+                liked ? "text-blue-600" : "text-black"
+              }`}
+              onClick={handleLike}
+            >
+              <FontAwesomeIcon icon={faThumbsUp} size="sm" />
+              <span className="hidden  md:block">Like</span>
+            </Button>
+            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            <Button
+              className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
+                loved ? "text-red-600" : "text-black"
+              }`}
+              onClick={handleLove}
+            >
+              <FontAwesomeIcon icon={faHeart} size="sm" />
+              <span className="hidden  md:block">Love</span>
+            </Button>
+            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+              <FontAwesomeIcon icon={faComment} size="sm" />
+              <span className="hidden  md:block">Comment</span>
+            </Button>
+            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
+            {/* can move share to the end use commented classNmae */}
+            <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+              <FontAwesomeIcon icon={faShare} size="sm" />
+              <span className="hidden  md:block">Share</span>
+            </Button>
           </div>
-          <Separator className="rounded-full bg-slate-400" />
           {/* comment box */}
-          <div className="flex gap-3 justify-center items-center mt-4 px-4">
+          <div className="flex gap-3 w-full justify-center items-center mt-4 px-4">
             <img
               src={imageUrl}
               alt="profile"
@@ -158,18 +148,17 @@ const Newfeed = () => {
               placeholder="Write a comment"
               className="w-full p-2 px-4 rounded-full bg-slate-100 text-black"
             />
-            {/* flex  w-24 l text-[#FF4E01]   */}
             <Button className="flex items-center shadow-md justify-center bg-transparent  h-fit cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black">
               Comment
             </Button>
           </div>
         </div>
+        {/* <DummyPost />
         <DummyPost />
         <DummyPost />
         <DummyPost />
         <DummyPost />
-        <DummyPost />
-        <DummyPost />
+        <DummyPost /> */}
       </div>
     </div>
   );

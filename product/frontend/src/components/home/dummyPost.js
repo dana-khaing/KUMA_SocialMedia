@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faClock,
@@ -11,9 +12,15 @@ import {
   faThumbsUp,
   faHeart,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 export const DanaummyPost = () => {
+  const { user } = useUser();
+  const imageUrl = user?.imageUrl;
+  const [expanded, setExpanded] = useState(false);
+  const decription =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
+
   const [liked, setLiked] = useState(false);
   const [loved, setLoved] = useState(false);
 
@@ -66,11 +73,23 @@ export const DanaummyPost = () => {
         </div>
 
         {/* desc & photo */}
-        <div className="p-4 ">
-          <p className="text-black mb-5">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
-            laborum, voluptates, quod, autem quae quos quas voluptatem accusamus
+        <div className="p-4">
+          {/* if the decrption is over 2 line they gonna hide but iff we press see more we can see whole */}
+          <p
+            className={`${
+              expanded ? "" : "line-clamp-2"
+            }  text-justify align-super`}
+          >
+            {decription}
           </p>
+          {decription.length > 100 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-[#FF4E02] mb-5 text-left"
+            >
+              {expanded ? "See less" : "See more"}
+            </button>
+          )}
           <img
             src="/stories1.jpg"
             alt="post"
@@ -111,6 +130,23 @@ export const DanaummyPost = () => {
               </Button>
             </div>
           </div>
+        </div>
+        <div className="flex gap-3 w-full justify-center items-center mt-4 px-4">
+          <img
+            src={imageUrl}
+            alt="profile"
+            className="w-8 h-8 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+          />
+
+          <input
+            type="text"
+            placeholder="Write a comment"
+            className="w-full p-2 px-4 rounded-full bg-slate-100 text-black"
+          />
+          {/* flex  w-24 l text-[#FF4E01]   */}
+          <Button className="flex items-center w-fit shadow-md justify-between bg-transparent  h-fit cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black">
+            Comment
+          </Button>
         </div>
       </div>
     </div>
