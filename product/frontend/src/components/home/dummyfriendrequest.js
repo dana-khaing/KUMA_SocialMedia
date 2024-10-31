@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 const Dummyfriendrequest = () => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center hover:bg-slate-200 p-2 rounded-xl">
       <div className="flex-shrink-0  rounded-full bg-white items-center justify-center mr-2">
         <img
           src="/stories1.jpg"

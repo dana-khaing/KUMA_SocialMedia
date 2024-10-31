@@ -5,7 +5,7 @@ import Dummyfriendrequest from "./dummyfriendrequest";
 
 const FriendRequest = () => {
   return (
-    <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 ">
+    <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default ">
       <div className="flex items-center justify-between px-4">
         <span className="font-semibold">Friend Request</span>
         <span className="text-[#FF4E01]">See All</span>
@@ -15,9 +15,9 @@ const FriendRequest = () => {
         className="bg-[#FF4E01] h-[0.05rem] w-[95%] mt-2 mb-2 mx-auto"
       />
       {/* FriendRequest List */}
-      <div className="h-[14.3rem] overflow-y-scroll scrollbar-hide flex flex-col gap-4 px-4 py-2">
+      <div className="h-[14.5rem] overflow-y-scroll scrollbar-hide flex flex-col gap-1 px-2">
         {/* Request Card */}
-        <div className="flex items-center">
+        <div className="flex items-center hover:bg-slate-200 p-2 rounded-xl">
           <div className="flex-shrink-0  rounded-full bg-white items-center justify-center mr-2">
             <img
               src="/stories1.jpg"
