@@ -31,7 +31,7 @@ const Addpost = async () => {
         </div>
         {/* finally post button */}
         <div className="flex items-center justify-center">
-          <Button className=" items-center w-fit rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white hover:text-base h-fit cursor-pointer gap-2 text-center justify-center">
+          <Button className=" items-center w-fit rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center">
             <span>Post</span>
           </Button>
         </div>
