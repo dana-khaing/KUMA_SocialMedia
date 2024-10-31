@@ -153,12 +153,12 @@ const Newfeed = () => {
             </Button>
           </div>
         </div>
-        {/* <DummyPost />
         <DummyPost />
         <DummyPost />
         <DummyPost />
         <DummyPost />
-        <DummyPost /> */}
+        <DummyPost />
+        <DummyPost />
       </div>
     </div>
   );
