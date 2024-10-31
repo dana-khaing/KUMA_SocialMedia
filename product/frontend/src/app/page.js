@@ -6,9 +6,9 @@ export default function Home() {
   return (
     <div className="h-[200vh] w-screen flex items-start justify-center gap-4 px-2">
       {/* left */}
-      <div className="hidden lg:block flex-col w-[22.5%]"></div>
+      <div className="hidden lg:block flex-col w-[25%]"></div>
       {/* center */}
-      <div className="flex w-full flex-col lg:w-[55%] gap-5 h-[200vh]  px-0 ">
+      <div className="flex w-full flex-col lg:w-[50%] gap-5 h-[200vh]  px-0 ">
         <Stories />
         <div className="flex flex-col gap-5 w-[100%] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Addpost />
@@ -17,7 +17,7 @@ export default function Home() {
       </div>
 
       {/* right */}
-      <div className="hidden lg:flex flex-col w-[22.5%]">
+      <div className="hidden lg:flex flex-col w-[25%]">
         <FriendRequest />
       </div>
     </div>
