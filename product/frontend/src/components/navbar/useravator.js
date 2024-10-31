@@ -9,7 +9,7 @@ export default async function Useravator() {
   const user = await currentUser();
 
   return (
-    <div className="text-[#FF4E01] flex w-fit items-center justify-end ">
+    <div className="text-[#FF4E01] flex w-fit items-center justify-end cursor-default">
       {userId != null ? (
         <div className="flex gap-2 w-fit h-12 px-4 text-center justify-center items-center rounded-full hover:bg-[#FF4E01] hover:text-white">
           <span className="text-base ml-3 font-semibold hidden sm:block">
