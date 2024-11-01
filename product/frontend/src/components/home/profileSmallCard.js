@@ -13,7 +13,7 @@ export const ProfileSmallCard = () => {
   };
 
   return (
-    <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4">
+    <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4 mb-5">
       {/* Cover photo */}
       <div className="h-[15rem]">
         <div className="relative w-full mb-12 h-[50%]">
@@ -39,7 +39,7 @@ export const ProfileSmallCard = () => {
         <div className="flex flex-col items-center justify-center px-4">
           <span className="text-black font-bold">Bio</span>
           <span className="text-gray-500 line-clamp-1">
-            {user?.bio || "No bio, Kuma"}
+            {user?.bio || "No bio yet, Kuma"}
           </span>
         </div>
       </div>

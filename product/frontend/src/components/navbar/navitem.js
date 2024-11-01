@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
-import { faFilm } from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 export default async function NavItem() {
   const userId = (await auth()).userId;
@@ -40,7 +40,7 @@ export default async function NavItem() {
           >
             <FontAwesomeIcon
               className="w-[1.75rem] h-[1.75rem]"
-              icon={faFilm}
+              icon={faCirclePlay}
               size="lg"
             />
           </Link>
