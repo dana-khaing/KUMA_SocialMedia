@@ -44,7 +44,7 @@ const Newfeed = () => {
   };
 
   return (
-    <div className="w-full ">
+    <div className="w-full">
       {/* postcard container */}
       <div className=" flex flex-col justify-center items-center gap-5">
         {/* postCard */}
