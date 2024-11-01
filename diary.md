@@ -1,3 +1,8 @@
+#### 31 Oct
+
+- Finish ui for the home page and ready to merge to the home page
+- all of the component are responsive and can use on the web and also on the mobie
+
 #### 29 Oct
 
 - I tried to use CurrentUser (severcomponent) and tried to fetch in the use client component.
@@ -10,7 +15,7 @@
 
 #### 27 Oct
 
-- embeded clerk middleware and do researchs for illustration for landing page and collect materials
+- embed clerk middleware and do researchs for illustration for landing page and collect materials
 
 #### 26 Oct
 

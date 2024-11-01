@@ -15,9 +15,9 @@ export default function Home() {
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-full flex-col lg:w-[50%] gap-5  px-0 ">
-        <Stories />
+      <div className="flex w-full flex-col lg:w-[50%] gap-5">
         <div className="flex flex-col gap-5 w-[100%] h-[125vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+          <Stories />
           <Addpost />
           <Newfeed />
         </div>

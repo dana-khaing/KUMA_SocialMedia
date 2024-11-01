@@ -98,7 +98,7 @@ const Newfeed = () => {
             <img
               src="/stories1.jpg"
               alt="post"
-              className="w-full h-[20rem] object-cover rounded-xl"
+              className="w-full h-full object-contain rounded-xl"
             />
           </div>
           {/* reaction bar */}
