@@ -1,3 +1,8 @@
+#### 7 Nov
+
+- use sign in page as landing page
+- look for svg picture for the landong page 2D- animantion
+
 #### 31 Oct
 
 - Finish ui for the home page and ready to merge to the home page
