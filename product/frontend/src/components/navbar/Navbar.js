@@ -25,7 +25,7 @@ export default async function Navbar() {
       {/* end */}
       <div className="w-[50%] md:w-[30%] pr-2 items-center flex justify-end">
         <Useravator />
-        <NavitemMobile />
+        {/* <NavitemMobile /> */}
       </div>
     </div>
   );

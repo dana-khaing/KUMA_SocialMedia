@@ -43,7 +43,7 @@ export default function Page() {
             Join Our Community !!!
           </h1>
           <SignUp
-            fallbackRedirectUrl="/sign-up"
+            afterSignUpUrl="/sign-in"
             className="justify-center items-center"
             appearance={{
               variables: {

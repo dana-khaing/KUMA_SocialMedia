@@ -1,3 +1,13 @@
+#### 15 Nov
+
+- fix the problem of some client side component are fetching data using sever side component
+
+- spend a lot of time beacuse after sign out form home page causing the error of call stack api and not direct to sign in page back
+
+- there is another error that I was in the my website home page .. and I go to the clerk board and delete user and I go the home page (I write code for checking userid and if not found of to sign in ) and it go to sign in page as plan.. But after that I got error immediately showing'Unhandled Runtime Error
+
+- spended the whole day to solve this there errors and finilly i solved all three
+
 #### 7 Nov
 
 - use sign in page as landing page

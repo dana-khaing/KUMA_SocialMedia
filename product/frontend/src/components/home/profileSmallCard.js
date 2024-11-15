@@ -4,8 +4,8 @@ import { Separator } from "../ui/separator";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 
-export const ProfileSmallCard = () => {
-  const { user } = useUser();
+export const ProfileSmallCard = ({ user }) => {
+  // const { user } = useUser();
   const router = useRouter();
 
   const handleViewProfile = () => {
