@@ -135,12 +135,13 @@ const Newfeed = () => {
               <span className="hidden  md:block">Share</span>
             </Button>
           </div>
+          <Separator className="h-[0.1] bg-black" />
           {/* comment box */}
-          <div className="flex gap-3 w-full justify-center items-center mt-4 px-4">
+          <div className="flex w-full gap-3 justify-center items-center mt-4 px-4">
             <img
               src={imageUrl}
               alt="profile"
-              className="w-8 h-8 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+              className="w-8 h-8 flex-shrink-0 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01] object-cover justify-center items-center"
             />
 
             <input

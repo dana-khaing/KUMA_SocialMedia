@@ -20,7 +20,7 @@ const Addpost = async () => {
           <img
             src={imageUrl || "user-default.png"}
             alt="profile"
-            className="w-10 h-10 rounded-full cursor-pointer hover:ring-2 ring-[#FF4E01]"
+            className="w-10 h-10 rounded-full cursor-pointer hover:ring-2 ring-[#FF4E01] object-cover"
           />
         </div>
         <div className=" flex-1 flex-col ">

@@ -8,7 +8,7 @@ import ProfileSmallCard from "@/components/home/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 export default function Home() {
   return (
-    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 px-2">
+    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 py-4">
       {/* left */}
       <div className="hidden lg:block flex-col w-[25%]">
         <ProfileSmallCard />
@@ -16,7 +16,7 @@ export default function Home() {
       </div>
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] gap-5">
-        <div className="flex flex-col gap-5 w-[100%] h-[125vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+        <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
           <Addpost />
           <Newfeed />

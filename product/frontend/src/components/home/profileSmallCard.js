@@ -25,7 +25,7 @@ export const ProfileSmallCard = () => {
           <img
             src={user?.imageUrl || "user-default.png"}
             alt="profile"
-            className="w-20 h-20 rounded-full ring-4 ring-white -bottom-10 absolute left-1/2 transform -translate-x-1/2 bg-white "
+            className="w-20 h-20 rounded-full ring-4 ring-white -bottom-10 absolute left-1/2 transform -translate-x-1/2 bg-white object-cover"
           />
         </div>
         {/* Full name and username */}
