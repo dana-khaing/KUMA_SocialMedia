@@ -1,4 +1,6 @@
-import { currentUser } from "@clerk/nextjs/server";
+"use client";
+// import { currentUser } from "@clerk/nextjs/server";
+import { useUser } from "@clerk/nextjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
@@ -8,8 +10,10 @@ import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
 
-const Addpost = async () => {
-  const user = await currentUser();
+const Addpost = ({ user }) => {
+  // const user = await currentUser();
+  // i didnt use server because i already use useUser() hook to get user data use client side
+  // const { user } = useUser();
   const imageUrl = user ? user.imageUrl : null;
 
   return (

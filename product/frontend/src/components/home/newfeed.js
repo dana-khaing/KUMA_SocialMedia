@@ -15,9 +15,9 @@ import {
 import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 
-const Newfeed = () => {
-  const { user } = useUser();
-  const imageUrl = user?.imageUrl; // have to use useUser() hook to get user data use client side
+const Newfeed = ({ user }) => {
+  // const { user } = useUser();
+  const imageUrl = user?.imageUrl || "user-default.png"; // have to use useUser() hook to get user data use client side
 
   const [expanded, setExpanded] = useState(false);
   const decription =
