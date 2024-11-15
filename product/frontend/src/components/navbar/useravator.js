@@ -27,7 +27,7 @@ export default async function Useravator() {
       ) : (
         <Link
           href="sign-in"
-          className="hidden md:flex w-44 h-12 text-center bg-inherit text-[#FF4E01] justify-center items-center rounded-full hover:bg-[#ff4d01d4] hover:text-white"
+          className="hidden md:flex w-44 h-12 text-center  justify-center items-center rounded-full bg-[#ff4e02] text-white"
         >
           <span>
             <FontAwesomeIcon

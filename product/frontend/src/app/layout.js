@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
           <header className="fixed top-0 left-0 w-full z-50">
             <Navbar />
           </header>
-          <main className="mt-24">{children}</main>
+          <main className="mt-20">{children}</main>
         </body>
       </html>
     </ClerkProvider>
