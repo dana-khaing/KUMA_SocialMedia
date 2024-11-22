@@ -1,15 +1,13 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { Separator } from "../ui/separator";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 
 export const ProfileSmallCard = ({ user }) => {
-  // const { user } = useUser();
   const router = useRouter();
 
   const handleViewProfile = () => {
-    router.push(`/profile/${user?.username}`);
+    router.push(`/profile/${user?.id}`);
   };
 
   return (

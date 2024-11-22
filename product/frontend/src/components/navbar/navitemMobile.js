@@ -9,12 +9,9 @@ import { SignedIn } from "@clerk/nextjs";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 
-export const NavitemMobile = async () => {
-  const user = await currentUser();
-
+export const NavitemMobile = ({ user }) => {
   return (
     <SignedIn>
       <DropdownMenu.Root>

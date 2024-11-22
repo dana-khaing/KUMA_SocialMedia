@@ -147,9 +147,9 @@ const Newfeed = ({ user }) => {
             <input
               type="text"
               placeholder="Write a comment"
-              className="w-full p-2 px-4 rounded-full bg-slate-100 text-black"
+              className="w-full h-10 p-2 px-4 rounded-full border-2 bg-slate-100 text-black"
             />
-            <Button className="flex items-center shadow-md justify-center bg-transparent  h-fit cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black">
+            <Button className="flex items-center shadow-md justify-center bg-transparent  h-10 cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black">
               Comment
             </Button>
           </div>

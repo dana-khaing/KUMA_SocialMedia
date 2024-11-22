@@ -2,7 +2,9 @@ import Link from "next/link";
 import NavItem from "./navitem.js";
 import Useravator from "./useravator.js";
 import NavitemMobile from "./navitemMobile.js";
+import { currentUser } from "@clerk/nextjs/server";
 export default async function Navbar() {
+  const user = await currentUser();
   return (
     <div className="flex w-full h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] mb-5">
       {/* start */}
@@ -20,12 +22,12 @@ export default async function Navbar() {
       </div>{" "}
       {/* mid */}
       <div className="w-[40%] items-center">
-        <NavItem />
+        <NavItem user={user} />
       </div>
       {/* end */}
-      <div className="w-[50%] md:w-[30%] pr-2 items-center flex justify-end">
+      <div className="w-[50%] md:w-[30%] items-center flex justify-end">
         <Useravator />
-        {/* <NavitemMobile /> */}
+        <NavitemMobile user={user} />
       </div>
     </div>
   );
