@@ -8,7 +8,7 @@ export const ProfileBigCard = ({ user }) => {
     openUserProfile(); // Opens the Clerk "Manage Account" modal
   };
   return (
-    <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4 mb-5">
+    <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] gap-1 flex-col cursor-default overflow-hidden pb-4 ">
       <div className="h-[15rem]">
         {/* Cover photo */}
         <div className="relative w-full mb-12 h-[75%]">
@@ -32,12 +32,12 @@ export const ProfileBigCard = ({ user }) => {
         <span className="text-gray-500">@{user?.username || "username"}</span>
       </div>
       {/* Bio */}
-      <div className="flex flex-col items-center justify-center px-4">
+      {/* <div className="flex flex-col items-center justify-center px-4">
         <span className="text-black font-bold">Bio</span>
         <span className="text-gray-500 line-clamp-1">
           {user?.bio || "No bio yet, Kuma"}
         </span>
-      </div>
+      </div> */}
       {/* User's friends, followers, and following */}
       <div className="flex justify-center items-center  text-base gap-2 mt-4">
         <div className="flex flex-col text-center items-center justify-center">

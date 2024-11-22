@@ -4,6 +4,8 @@ import FriendRequest from "@/components/home/friendRequest";
 import OnlineFriends from "@/components/home/onlineFriends";
 import ProfileBigCard from "@/components/home/profileBigCard";
 import UsefulTool from "@/components/home/usefulTool";
+import Newfeed from "@/components/home/newfeed";
+
 import { useUser } from "@clerk/nextjs";
 const Profilepage = () => {
   const { user } = useUser();
@@ -16,8 +18,9 @@ const Profilepage = () => {
       </div>
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] gap-5">
+        <ProfileBigCard user={user} />
         <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
-          <ProfileBigCard user={user} />
+          <Newfeed user={user} />
         </div>
       </div>
 
