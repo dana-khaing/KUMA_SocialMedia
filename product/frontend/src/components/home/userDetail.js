@@ -5,18 +5,18 @@ import { faSuitcase } from "@fortawesome/free-solid-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button";
+import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
 export const UserDetail = ({ user }) => {
   return (
-    <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-4 cursor-default">
+    <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
       <div className="flex items-center justify-between px-4">
         <span className="text-sm text-[#ff4e02] py-2">User Information </span>
+        <button className="text-[#FF4E01] w-8 h-8 hover:bg-gray-200 rounded-full">
+          <FontAwesomeIcon icon={faEllipsisVertical} size="sm" />
+        </button>
       </div>
-      {/* <Separator
-        orientation="horizontal"
-        className="bg-[#FF4E01] h-[0.05rem] w-[95%] mt-2 mx-auto"
-      /> */}
-      {/* User Information */}
+
       <div className="flex-col gap-1 px-4 items-center">
         <div className="gap-4 flex items-center justify-start">
           <div className="text-black text-xl font-bold">
@@ -95,7 +95,7 @@ export const UserDetail = ({ user }) => {
           <div className="text-gray-500 flex-grow text-end">Joined in</div>
           <div>
             <span className="text-xs line-clamp-1">
-              {user?.username || "2021-10-10"}
+              {user?.website || "2021-10-10"}
             </span>
           </div>
         </div>

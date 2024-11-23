@@ -14,9 +14,9 @@ const Profilepage = () => {
   return (
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 py-4">
       {/* left */}
-      <div className="hidden lg:block flex-col w-[25%]">
+      <div className="hidden lg:flex flex-col gap-5 w-[25%]">
         <FriendRequest />
-        <UsefulTool />
+        <OnlineFriends />
       </div>
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] gap-5">
@@ -30,7 +30,7 @@ const Profilepage = () => {
       <div className="hidden lg:flex flex-col gap-5 w-[25%]">
         <UserDetail user={user} />
         <UserMedia user={user} />
-        <OnlineFriends />
+        <UsefulTool />
       </div>
     </div>
   );

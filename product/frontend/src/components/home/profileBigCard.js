@@ -39,7 +39,7 @@ export const ProfileBigCard = ({ user }) => {
         </span>
       </div> */}
       {/* User's friends, followers, and following */}
-      <div className="flex justify-center items-center  text-base gap-2 mt-4">
+      <div className="flex justify-center items-center text-base gap-4 mt-4">
         <div className="flex flex-col text-center items-center justify-center">
           <span className="text-black font-bold">Friends</span>
           <span className="text-gray-500">0</span>

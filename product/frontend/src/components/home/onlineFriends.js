@@ -6,7 +6,7 @@ const OnlineFriends = () => {
   return (
     <div className=" w-full flex-grow bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default">
       <div className="flex items-center justify-between px-4">
-        <span className="font-semibold">Online Friends</span>
+        <span className="text-[#FF4E01]">Online Friends</span>
         <FontAwesomeIcon icon={faSearch} size="sm" className="text-[#FF4E01]" />
       </div>
       <Separator
