@@ -24,7 +24,7 @@ export default function NavItem({ user }) {
           />
         </Link>
         <Link
-          href={"/"}
+          href={"/groupsite"}
           className="flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
         >
           <FontAwesomeIcon
@@ -34,7 +34,7 @@ export default function NavItem({ user }) {
           />
         </Link>
         <Link
-          href={"/"}
+          href={"/studio"}
           className="flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
         >
           <FontAwesomeIcon
@@ -52,7 +52,7 @@ export default function NavItem({ user }) {
         </Link>
 
         <Link
-          href={"/"}
+          href={"/activity"}
           className="flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
         >
           <FontAwesomeIcon className="w-6 h-6" icon={faBell} size="lg" />
