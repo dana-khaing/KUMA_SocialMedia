@@ -1,8 +1,8 @@
 "use client";
-import FriendRequest from "@/components/home/friendRequest";
-import Birthday from "@/components/home/birthday";
-import OnlineFriends from "@/components/home/onlineFriends";
-import ProfileSmallCard from "@/components/home/profileSmallCard";
+import FriendRequest from "@/components/userfriends/friendRequest";
+import Birthday from "@/components/userfriends/birthday";
+import OnlineFriends from "@/components/userfriends/onlineFriends";
+import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import { useUser } from "@clerk/nextjs";
 import Newfeed from "@/components/home/newfeed";
