@@ -41,22 +41,34 @@ export const UsefulTool = () => {
           <FontAwesomeIcon icon={faRss} size="md" className="mr-2" />
           New Feed
         </Link>
-        <Button className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
+        <Link
+          href={"/friendlist"}
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+        >
           <FontAwesomeIcon icon={faUserCheck} size="md" className="mr-2" />
           Friends
-        </Button>
-        <Button className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
+        </Link>
+        <Link
+          href={"/groupsite"}
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+        >
           <FontAwesomeIcon icon={faUserGroup} size="md" className="mr-2" />
           Group
-        </Button>
-        <Button className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
+        </Link>
+        <Link
+          href={"studio"}
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+        >
           <FontAwesomeIcon icon={faVideo} size="md" className="mr-2" />
           Watch
-        </Button>
-        <Button className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
+        </Link>
+        <Link
+          href={"/activity"}
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+        >
           <FontAwesomeIcon icon={faStreetView} size="md" className="mr-2" />
           Activity
-        </Button>
+        </Link>
         <Button
           onClick={handleEditProfile}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
