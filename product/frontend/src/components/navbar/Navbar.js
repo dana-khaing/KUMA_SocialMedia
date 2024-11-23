@@ -3,6 +3,7 @@ import NavItem from "./navitem.js";
 import Useravator from "./useravator.js";
 import NavitemMobile from "./navitemMobile.js";
 import { currentUser } from "@clerk/nextjs/server";
+import { SignedIn } from "@clerk/nextjs";
 export default async function Navbar() {
   const user = await currentUser();
   return (
@@ -22,7 +23,9 @@ export default async function Navbar() {
       </div>{" "}
       {/* mid */}
       <div className="w-[40%] items-center">
-        <NavItem user={user} />
+        <SignedIn>
+          <NavItem user={user} />
+        </SignedIn>
       </div>
       {/* end */}
       <div className="w-[50%] md:w-[30%] items-center flex justify-end">

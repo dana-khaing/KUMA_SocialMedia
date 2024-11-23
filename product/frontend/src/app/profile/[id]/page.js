@@ -5,6 +5,8 @@ import OnlineFriends from "@/components/home/onlineFriends";
 import ProfileBigCard from "@/components/home/profileBigCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
+import UserDetail from "@/components/home/userDetail";
+import UserMedia from "@/components/home/userMedia";
 
 import { useUser } from "@clerk/nextjs";
 const Profilepage = () => {
@@ -26,6 +28,8 @@ const Profilepage = () => {
 
       {/* right */}
       <div className="hidden lg:flex flex-col gap-5 w-[25%]">
+        <UserDetail user={user} />
+        <UserMedia user={user} />
         <OnlineFriends />
       </div>
     </div>
