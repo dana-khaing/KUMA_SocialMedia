@@ -12,7 +12,7 @@ export const UsefulTool = () => {
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default flex items-start justify-center py-4 ">
       <div className="flex items-center justify-between px-4">
-        <span className="font-semibold">UseFul Tools</span>
+        <span className="text-[#FF4E01]">UseFul Tools</span>
       </div>
       <Separator
         orientation="horizontal"
