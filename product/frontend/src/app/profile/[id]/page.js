@@ -1,12 +1,12 @@
 "use client";
 
-import FriendRequest from "@/components/home/friendRequest";
-import OnlineFriends from "@/components/home/onlineFriends";
-import ProfileBigCard from "@/components/home/profileBigCard";
+import FriendRequest from "@/components/userfriends/friendRequest";
+import OnlineFriends from "@/components/userfriends/onlineFriends";
+import ProfileBigCard from "@/components/userInfo/profileBigCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
-import UserDetail from "@/components/home/userDetail";
-import UserMedia from "@/components/home/userMedia";
+import UserDetail from "@/components/userInfo/userDetail";
+import UserMedia from "@/components/userInfo/userMedia";
 
 import { useUser } from "@clerk/nextjs";
 const Profilepage = () => {
