@@ -59,7 +59,7 @@ export const UserDetail = ({ user }) => {
             size="sm"
             className="text-[#FF4E01] w-6"
           />
-          <div className="text-gray-500">Working in</div>
+          <div className="text-gray-500">Works at</div>
           <div className="flex-grow">
             <span className="text-xs line-clamp-1">
               {user?.job || "Software Engineer"}

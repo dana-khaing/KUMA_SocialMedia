@@ -16,7 +16,7 @@ export default async function Navbar() {
         >
           <img
             src="/logo.svg"
-            className="w-36 h-full items-center justify-center hover:bg-slate-300 rounded-full shrink-0"
+            className="w-36 h-full items-center justify-center rounded-full shrink-0"
             alt="Kuma"
           />
         </Link>

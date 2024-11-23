@@ -3,12 +3,12 @@ import { faBars, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { SignedIn } from "@clerk/nextjs";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+
 import Link from "next/link";
 
 export const NavitemMobile = ({ user }) => {
@@ -61,7 +61,7 @@ export const NavitemMobile = ({ user }) => {
                   size="md"
                   className="mr-2 text-[#FF4E02]"
                 />
-                Friend Request
+                Friends
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
@@ -98,16 +98,6 @@ export const NavitemMobile = ({ user }) => {
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
-            <Link href="/">
-              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer ">
-                <FontAwesomeIcon
-                  icon={faCog}
-                  size="md"
-                  className="mr-2 text-[#FF4E02]"
-                />
-                Setting
-              </DropdownMenu.Item>
-            </Link>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

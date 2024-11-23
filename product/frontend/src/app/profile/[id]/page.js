@@ -19,9 +19,17 @@ const Profilepage = () => {
         <OnlineFriends />
       </div>
       {/* center */}
-      <div className="flex w-full flex-col lg:w-[50%] gap-5">
-        <ProfileBigCard user={user} />
-        <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-full flex-col lg:w-[50%] gap-5 h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+        <div className="h-fit">
+          <ProfileBigCard user={user} />
+        </div>
+        <div className="flex lg:hidden">
+          <UserDetail user={user} />
+        </div>
+        <div className="flex lg:hidden">
+          <UserMedia user={user} />
+        </div>
+        <div className="flex flex-col gap-5 w-full">
           <Newfeed user={user} />
         </div>
       </div>
