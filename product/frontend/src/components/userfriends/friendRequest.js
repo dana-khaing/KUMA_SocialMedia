@@ -15,7 +15,7 @@ const FriendRequest = () => {
         className="bg-[#FF4E01] h-[0.05rem] w-[95%] mt-2 mb-2 mx-auto"
       />
       {/* FriendRequest List */}
-      <div className="h-[16.5rem] overflow-y-scroll scrollbar-hide flex flex-col gap-1 px-2">
+      <div className="h-[20rem] overflow-y-scroll scrollbar-hide flex flex-col gap-1 px-2">
         {/* Request Card */}
         <div className="flex items-center hover:bg-slate-200 p-2 rounded-xl">
           <div className="flex-shrink-0  rounded-full bg-white items-center justify-center mr-2">

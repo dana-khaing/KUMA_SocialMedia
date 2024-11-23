@@ -5,6 +5,7 @@ import OnlineFriends from "@/components/userfriends/onlineFriends";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import { useUser } from "@clerk/nextjs";
+import Checkfriends from "@/components/userfriends/checkfriends";
 
 export const Friendlist = () => {
   const { user } = useUser();
@@ -17,9 +18,10 @@ export const Friendlist = () => {
       </div>
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] gap-5">
-        <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+        <div className="flex flex-col gap-5 w-[100%] h-[125vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Birthday />
           <FriendRequest />
+          <Checkfriends />
         </div>
       </div>
 
