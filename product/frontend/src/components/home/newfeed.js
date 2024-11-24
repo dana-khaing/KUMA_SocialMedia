@@ -15,10 +15,10 @@ import {
 import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 
-const Newfeed = ({ user }) => {
+const Newfeed = () => {
   // const { user } = useUser();
-  const imageUrl = user?.imageUrl || "user-default.png"; // have to use useUser() hook to get user data use client side
-
+  // const imageUrl = user?.imageUrl || "user-default.png"; // have to use useUser() hook to get user data use client side
+  const imageUrl = "user-default.png";
   const [expanded, setExpanded] = useState(false);
   const decription =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";

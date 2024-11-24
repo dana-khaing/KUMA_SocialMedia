@@ -1,14 +1,8 @@
-"use client";
 import { Separator } from "../ui/separator";
-import { useRouter } from "next/navigation";
-import { Button } from "../ui/button";
-
-export const ProfileSmallCard = ({ user }) => {
-  const router = useRouter();
-
-  const handleViewProfile = () => {
-    router.push(`/profile/${user?.id}`);
-  };
+import Link from "next/link";
+import { currentUser } from "@clerk/nextjs/server";
+export const ProfileSmallCard = () => {
+  const user = currentUser();
 
   return (
     <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4 mb-5">
@@ -21,7 +15,8 @@ export const ProfileSmallCard = ({ user }) => {
             className="rounded-t-2xl fill-transparent w-full h-full object-cover"
           />
           <img
-            src={user?.imageUrl || "user-default.png"}
+            // src={user?.imageUrl || "user-default.png"}
+            src={"user-default.png"}
             alt="profile"
             className="w-20 h-20 rounded-full ring-4 ring-white -bottom-10 absolute left-1/2 transform -translate-x-1/2 bg-white object-cover"
           />
@@ -59,13 +54,13 @@ export const ProfileSmallCard = ({ user }) => {
         </div>
       </div>
       {/* View Profile button */}
-      <div className="flex items-center justify-center mt-4">
-        <Button
-          onClick={handleViewProfile}
-          className="w-36 rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
+      <div className="flex items-center justify-center m-2 text-center">
+        <Link
+          href={"/profile/" + user?.username}
+          className="w-36 h-10 py-2 rounded-full shadow-md py-auto bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white cursor-pointer text-center items-center justify-center"
         >
-          <span>View Profile</span>
-        </Button>
+          View Profile
+        </Link>
       </div>
     </div>
   );

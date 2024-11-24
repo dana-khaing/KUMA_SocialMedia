@@ -34,8 +34,6 @@ export default function Page() {
         </div>
         <div className=" w-[100%] my-5 h-full md:w-[50%] flex justify-center items-center">
           <SignIn
-            routing="path"
-            path="/sign-in"
             appearance={{
               variables: {
                 colorPrimary: "#FF4E02", // Customize the primary color
