@@ -1,7 +1,9 @@
+"use client";
+import dynamic from "next/dynamic";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import { useClerk } from "@clerk/nextjs";
-export const ProfileBigCard = ({ user }) => {
+export const ProfileBigCard = () => {
   const { openUserProfile } = useClerk();
 
   const handleEditProfile = () => {
@@ -18,7 +20,7 @@ export const ProfileBigCard = ({ user }) => {
             className="rounded-t-2xl fill-transparent w-full h-full object-cover"
           />
           <img
-            src={user?.imageUrl || "user-default.png"}
+            src={"/user-default.png"}
             alt="profile"
             className="w-28 h-28 rounded-full ring-4 ring-white -bottom-14 absolute left-1/2 transform -translate-x-1/2 bg-white object-cover"
           />
@@ -26,10 +28,8 @@ export const ProfileBigCard = ({ user }) => {
       </div>
       {/* Full name and username */}
       <div className="flex flex-col items-center justify-center px-4">
-        <span className="text-black text-2xl font-bold">
-          {user?.fullName || "Kuma User"}
-        </span>
-        <span className="text-gray-500">@{user?.username || "username"}</span>
+        <span className="text-black text-2xl font-bold">{"Kuma User"}</span>
+        <span className="text-gray-500">@{"username"}</span>
       </div>
       {/* User's friends, followers, and following */}
       <div className="flex justify-center items-center text-base gap-4 my-2">
@@ -59,4 +59,4 @@ export const ProfileBigCard = ({ user }) => {
     </div>
   );
 };
-export default ProfileBigCard;
+export default dynamic(() => Promise.resolve(ProfileBigCard), { ssr: false });

@@ -7,42 +7,16 @@ import { faSquarePollVertical } from "@fortawesome/free-solid-svg-icons";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
-import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/client";
 
 const Addpost = () => {
-  // const user = await currentUser();
-  // i didnt use server because i already use useUser() hook to get user data use client side
-  // const { user } = useUser();
-  const imageUrl = "/stories1.jpg";
-
-  const testAction = async (FormData) => {
-    "use server";
-    const { userId } = await auth();
-    if (!FormData) return;
-    if (!userId) return;
-    const desc = FormData.get("desc");
-    console.log(userId, desc);
-    try {
-      const res = await prisma.post.create({
-        data: {
-          desc: desc,
-          userId: userId,
-        },
-      });
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <div className="w-full h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
       {/* avator and textbox */}
-      <form action={testAction} className="flex gap-3 ">
+      <form action="" className="flex gap-3 ">
         <div className=" flex items-center justify-center w-12">
           <img
-            src={imageUrl || "user-default.png"}
+            // src={imageUrl || "user-default.png"}
+            src={"user-default.png"}
             alt="profile"
             className="w-10 h-10 rounded-full cursor-pointer hover:ring-2 ring-[#FF4E01] object-cover"
           />
