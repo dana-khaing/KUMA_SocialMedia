@@ -11,7 +11,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import Link from "next/link";
 
-export const NavitemMobile = ({ user }) => {
+export const NavitemMobile = () => {
   return (
     <SignedIn>
       <DropdownMenu.Root>
@@ -43,7 +43,7 @@ export const NavitemMobile = ({ user }) => {
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
-            <Link href={`/profile/${user?.username}`}>
+            <Link href={`/profile/abc`}>
               <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                 <FontAwesomeIcon
                   icon={faUser}

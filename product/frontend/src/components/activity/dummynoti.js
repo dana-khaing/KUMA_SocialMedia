@@ -1,5 +1,3 @@
-import React from "react";
-
 export const Dummynoti = () => {
   return (
     <div className="flex items-center hover:bg-slate-200 gap-2 p-4 rounded-xl">
