@@ -1,6 +1,4 @@
-"use client";
 // import { currentUser } from "@clerk/nextjs/server";
-import { useUser } from "@clerk/nextjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
@@ -9,17 +7,39 @@ import { faSquarePollVertical } from "@fortawesome/free-solid-svg-icons";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
+import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/client";
 
-const Addpost = ({ user }) => {
+const Addpost = () => {
   // const user = await currentUser();
   // i didnt use server because i already use useUser() hook to get user data use client side
   // const { user } = useUser();
-  const imageUrl = user ? user.imageUrl : null;
+  const imageUrl = "/stories1.jpg";
+
+  const testAction = async (FormData) => {
+    "use server";
+    const { userId } = await auth();
+    if (!FormData) return;
+    if (!userId) return;
+    const desc = FormData.get("desc");
+    console.log(userId, desc);
+    try {
+      const res = await prisma.post.create({
+        data: {
+          desc: desc,
+          userId: userId,
+        },
+      });
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="w-full h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
       {/* avator and textbox */}
-      <div className="flex gap-3 ">
+      <form action={testAction} className="flex gap-3 ">
         <div className=" flex items-center justify-center w-12">
           <img
             src={imageUrl || "user-default.png"}
@@ -30,6 +50,7 @@ const Addpost = ({ user }) => {
         <div className=" flex-1 flex-col ">
           <textarea
             placeholder=" What's on your mind, Kuma ? "
+            name="desc"
             className="border-2 drop-shadow-md p-3 px-4 w-full h-12 rounded-full border-[#FF4E01] hover:border-[#FF4E01] focus:border-[#FF4E01] overflow-x-hidden whitespace-nowrap line-clamp-1"
           ></textarea>
         </div>
@@ -39,7 +60,7 @@ const Addpost = ({ user }) => {
             <span>Post</span>
           </Button>
         </div>
-      </div>
+      </form>
 
       {/* post options */}
       <div className=" w-full h-10 flex gap-2 items-center justify-start md:justify-center mt-2 overflow-x-auto flex-nowrap scrollbar-hide">

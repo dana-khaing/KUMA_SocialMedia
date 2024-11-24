@@ -43,7 +43,6 @@ export default function Page() {
             Join Our Community !!!
           </h1>
           <SignUp
-            afterSignUpUrl="/sign-in"
             className="justify-center items-center"
             appearance={{
               variables: {
