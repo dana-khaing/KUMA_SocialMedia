@@ -1,6 +1,8 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 
+import prisma from "@/lib/client";
+
 export async function POST(req) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
@@ -52,6 +54,39 @@ export async function POST(req) {
   const eventType = evt.type;
   console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
   console.log("Webhook payload:", body);
+  if (eventType === "user.created") {
+    try {
+      await prisma.user.create({
+        data: {
+          id: id,
+          username: evt.data.username,
+          avatar: evt.data.image_url || "/user-default.png",
+          cover: "/stories1.jpg",
+        },
+      });
+      return new Response("User has been created!.", { status: 200 });
+    } catch (err) {
+      console.log(err);
+      return new console.error("Failed to create user!", { status: 500 });
+    }
+  }
+
+  if (eventType === "user.updated") {
+    try {
+      await prisma.user.update({
+        where: {
+          id: evt.data.id,
+        },
+        data: {
+          username: JSON.parse(body).data.username,
+          avatar: JSON.parse(body).data.image_url || "/user-default.png",
+        },
+      });
+      return new Response("User has been updated!.", { status: 200 });
+    } catch (err) {
+      console.error("Failed to update user!", { status: 500 });
+    }
+  }
 
   return new Response("Webhook received", { status: 200 });
 }

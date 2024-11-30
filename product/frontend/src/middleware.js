@@ -8,7 +8,21 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
-    await auth.protect();
+    try {
+      await auth.protect();
+    } catch (error) {
+      if (error.status === 404) {
+        console.error("User not found. Redirecting to sign-in...");
+        return Response.redirect(
+          new URL(
+            process.env.NEXT_PUBLIC_CLERK_FALLBACK_URL || "/sign-in",
+            request.nextUrl.origin
+          ).toString(),
+          302
+        );
+      }
+      throw error; // Rethrow other errors
+    }
   }
 });
 
