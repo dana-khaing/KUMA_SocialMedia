@@ -16,7 +16,7 @@ export const ProfileSmallCard = () => {
           />
           <img
             // src={user?.imageUrl || "user-default.png"}
-            src={"user-default.png"}
+            src={"/user-default.png"}
             alt="profile"
             className="w-20 h-20 rounded-full ring-4 ring-white -bottom-10 absolute left-1/2 transform -translate-x-1/2 bg-white object-cover"
           />

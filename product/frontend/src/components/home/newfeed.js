@@ -1,6 +1,6 @@
-// "use client";
+"use client";
 // import { useUser } from "@clerk/nextjs"; // useUser() hook to get user data not use server side (Current user)
-// import { useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {
@@ -16,34 +16,33 @@ import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 
 const Newfeed = () => {
-  // const { user } = useUser();
   // const imageUrl = user?.imageUrl || "user-default.png"; // have to use useUser() hook to get user data use client side
   const imageUrl = "/user-default.png";
 
   // Here is the post description
-  // const [expanded, setExpanded] = useState(false);
-  // const decription =
-  //   "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
+  const [expanded, setExpanded] = useState(false);
+  const decription =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
 
-  // const [liked, setLiked] = useState(false);
-  // const [loved, setLoved] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [loved, setLoved] = useState(false);
 
-  // const handleLike = () => {
-  //   if (!loved) {
-  //     setLiked(!liked);
-  //   } else {
-  //     setLiked(!liked);
-  //     setLoved(!loved);
-  //   }
-  // };
-  // const handleLove = () => {
-  //   if (!liked) {
-  //     setLoved(!loved);
-  //   } else {
-  //     setLiked(!liked);
-  //     setLoved(!loved);
-  //   }
-  // };
+  const handleLike = () => {
+    if (!loved) {
+      setLiked(!liked);
+    } else {
+      setLiked(!liked);
+      setLoved(!loved);
+    }
+  };
+  const handleLove = () => {
+    if (!liked) {
+      setLoved(!loved);
+    } else {
+      setLiked(!liked);
+      setLoved(!loved);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -82,7 +81,7 @@ const Newfeed = () => {
           {/* desc & photo */}
           <div className="p-4">
             {/* if the decrption is over 2 line they gonna hide but iff we press see more we can see whole */}
-            {/* <p
+            <p
               className={`${
                 expanded ? "" : "line-clamp-2"
               }  text-justify align-super`}
@@ -101,10 +100,10 @@ const Newfeed = () => {
               src="/stories1.jpg"
               alt="post"
               className="w-full h-full object-contain rounded-xl"
-            /> */}
+            />
           </div>
           {/* reaction bar */}
-          {/* <div className="flex w-full px-4 gap-0 md:gap-3 items-center">
+          <div className="flex w-full px-4 gap-0 md:gap-3 items-center">
             <Button
               className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
                 liked ? "text-blue-600" : "text-black"
@@ -129,14 +128,15 @@ const Newfeed = () => {
               <FontAwesomeIcon icon={faComment} size="sm" />
               <span className="hidden  md:block">Comment</span>
             </Button>
-            <Separator className="h-3 bg-slate-400" orientation="vertical" /> */}
-          {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
-          {/* can move share to the end use commented classNmae */}
-          {/* <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
+            {/* can move share to the end use commented classNmae */}
+            {/* <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
               <FontAwesomeIcon icon={faShare} size="sm" />
               <span className="hidden  md:block">Share</span>
             </Button>
           </div> */}
+          </div>
           <Separator className="h-[0.1] bg-black" />
           {/* comment box */}
           <div className="flex w-full gap-3 justify-center items-center mt-4 px-4">
