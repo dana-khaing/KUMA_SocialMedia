@@ -46,7 +46,7 @@ export const UserDetail = ({ user }) => {
             size="sm"
             className="text-[#FF4E01] w-6"
           />
-          <div className="text-gray-500">Graduated from</div>
+          <div className="text-gray-500 flex-shrink-0">Graduated from</div>
           <div className="flex-grow">
             <span className="text-xs line-clamp-1">
               {user?.education || "University of Yangon, Yangon"}

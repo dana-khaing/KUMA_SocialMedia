@@ -5,8 +5,25 @@ import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
 import UserDetail from "@/components/userInfo/userDetail";
 import UserMedia from "@/components/userInfo/userMedia";
+import { notFound } from "next/navigation";
+import prisma from "@/lib/client";
 
-const Profilepage = () => {
+const Profilepage = async ({ params }) => {
+  const { userId } = await params;
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userId,
+    },
+    include: {
+      _count: {
+        select: { followers: true, followings: true },
+      },
+    },
+  });
+  if (!user) {
+    return notFound();
+  }
+
   return (
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 py-4">
       {/* left */}
