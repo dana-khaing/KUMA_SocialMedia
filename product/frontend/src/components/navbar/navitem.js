@@ -5,7 +5,11 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
-export default function NavItem() {
+// import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
+
+export default async function NavItem() {
+  const { userId } = await auth();
   return (
     <div>
       <div className=" items-center gap-2 hidden md:flex justify-around">
@@ -42,7 +46,7 @@ export default function NavItem() {
         </Link>
 
         <Link
-          href={`/profile/abc`}
+          href={`/profile/${userId}`}
           className="flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
         >
           <FontAwesomeIcon className="w-6 h-6" icon={faUser} size="lg" />
