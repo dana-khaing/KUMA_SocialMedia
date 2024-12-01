@@ -1,33 +1,18 @@
-import prisma from "@/lib/client";
+"use client";
 import { Separator } from "../ui/separator";
-// import { Button } from "../ui/button";
-// import { useClerk } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
-export const ProfileBigCard = async () => {
-  const { userId } = await auth();
-  if (!userId) {
-    return null;
-  }
-  // const { openUserProfile } = useClerk();
+import { Button } from "../ui/button";
+import { useClerk } from "@clerk/nextjs";
 
-  // const handleEditProfile = () => {
-  //   openUserProfile();
-  // };
-  const user = await prisma.user.findFirst({
-    where: {
-      id: userId,
-    },
-    include: {
-      _count: {
-        select: { followers: true, followings: true, posts: true },
-      },
-    },
-  });
-
-  console.log(user);
+export const ProfileBigCard = ({ user }) => {
   if (!user) {
     return null;
   }
+  const { openUserProfile } = useClerk();
+
+  const handleEditProfile = () => {
+    openUserProfile();
+  };
+
   return (
     <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] gap-1 flex-col cursor-default overflow-hidden pb-2 ">
       <div className="h-[15rem]">
@@ -71,16 +56,16 @@ export const ProfileBigCard = async () => {
           <span className="text-gray-500">{user._count.followings}</span>
         </div>
       </div>
-      {/* <div className="flex items-center justify-center my-2">
+      <div className="flex items-center justify-center my-2">
         <Button
           onClick={handleEditProfile}
           className="w-36 rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
         >
           <span>Edit Profile</span>
         </Button>
-      </div> */}
+      </div>
     </div>
   );
 };
-// export default dynamic(() => Promise.resolve(ProfileBigCard), { ssr: false });
+
 export default ProfileBigCard;
