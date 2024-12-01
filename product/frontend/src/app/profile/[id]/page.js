@@ -7,20 +7,44 @@ import UserDetail from "@/components/userInfo/userDetail";
 import UserMedia from "@/components/userInfo/userMedia";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/client";
+import { auth } from "@clerk/nextjs/server";
 
 const Profilepage = async ({ params }) => {
-  const { userId } = await params;
+  const { Id } = await params;
   const user = await prisma.user.findFirst({
     where: {
-      id: userId,
+      id: Id,
     },
     include: {
       _count: {
-        select: { followers: true, followings: true },
+        select: { followers: true, followings: true, posts: true },
       },
     },
   });
+  // I want to pass the user's id to the profile page
   if (!user) {
+    return notFound();
+  }
+  // check the profile is user's profile or not(it can be the other person's profile)
+  const { userId } = await auth();
+  let isOwner = false;
+  if (userId === Id) {
+    isOwner = true;
+  }
+  // check the user is blocked or not
+  let isBlocked = false;
+  if (userId) {
+    const blocked = await prisma.block.findFirst({
+      where: {
+        userId: Id,
+        blockedId: userId,
+      },
+    });
+    if (blocked) {
+      isBlocked = true;
+    }
+  }
+  if (isBlocked) {
     return notFound();
   }
 
@@ -34,7 +58,7 @@ const Profilepage = async ({ params }) => {
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] gap-5 h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="h-fit">
-          <ProfileBigCard />
+          <ProfileBigCard user={user} />
         </div>
         <div className="flex lg:hidden">
           <UserDetail />
