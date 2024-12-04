@@ -1,21 +1,15 @@
 import { Separator } from "@radix-ui/react-separator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faRss } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { faStreetView } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "../ui/button";
 import Link from "next/link";
-// import { useClerk } from "@clerk/nextjs";
+import SettingAction from "./settingAction";
 
 export const UsefulTool = () => {
-  // const { openUserProfile } = useClerk();
-  // const handleEditProfile = () => {
-  //   openUserProfile();
-  // };
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default flex items-start justify-center py-4 ">
       <div className="flex items-center justify-between px-4">
@@ -69,13 +63,7 @@ export const UsefulTool = () => {
           <FontAwesomeIcon icon={faStreetView} size="md" className="mr-2" />
           Activity
         </Link>
-        <Button
-          // onClick={handleEditProfile}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
-        >
-          <FontAwesomeIcon icon={faCog} size="md" className="mr-2" />
-          Setting
-        </Button>
+        <SettingAction />
       </div>
     </div>
   );
