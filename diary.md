@@ -1,3 +1,11 @@
+#### 4 Dec
+
+- refactor follow feature using Optimistic hook to get better user interaction and morte quicker responnd and if something happen or some error occur the follow button will change back immediately to follow
+
+####
+
+- use webhook event to fetch data from the clerk to sycn into mysql database
+
 #### 15 Nov
 
 - fix the problem of some client side component are fetching data using sever side component

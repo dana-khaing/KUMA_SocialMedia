@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "../ui/button";
 import { useState, useOptimistic } from "react";
-import { followAction } from "@/lib/action";
+import { followAction, blockAction } from "@/lib/action";
 
 export const UserDetailAction = ({
   userId,
@@ -47,7 +47,18 @@ export const UserDetailAction = ({
         : { ...state, blocked: !state.blocked }
   );
   //  Block action
-
+  const block = async () => {
+    switchOptimisticState("block");
+    try {
+      await blockAction(userId);
+      setUserState((prevState) => ({
+        ...prevState,
+        blocked: !prevState.blocked,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div>
       {!owner ? (
@@ -70,7 +81,7 @@ export const UserDetailAction = ({
             </div>
           </form>
           {/* ban button */}
-          <form>
+          <form action={block}>
             <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
               <Button className=" bg-transparent h-8 hover:bg-transparent hover:cursor-pointer text-rose-600">
                 <span>
