@@ -31,6 +31,21 @@ const ProfilePage = async ({ params }) => {
   // Get authenticated user ID
   const { userId } = await auth();
   const isOwner = userId === id;
+  let isBlocked = false;
+  if (!isOwner && userId) {
+    const blocked = await prisma.block.findFirst({
+      where: {
+        userId: id,
+        blockedId: userId,
+      },
+    });
+    if (blocked) {
+      isBlocked = true;
+    }
+    if (isBlocked) {
+      return notFound();
+    }
+  }
 
   return (
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
