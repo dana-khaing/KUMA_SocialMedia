@@ -17,8 +17,10 @@ export const UserDetailAction = ({
     followRequestSent: isUserFollowingSent,
   });
 
+  //   Follow action
+
   const follow = async () => {
-    switchOptimisticFollow("");
+    switchOptimisticState("follow");
     try {
       await followAction(userId);
       setUserState((prevState) => ({
@@ -31,16 +33,20 @@ export const UserDetailAction = ({
       console.log(error);
     }
   };
-
-  const [optimisticFollow, switchOptimisticFollow] = useOptimistic(
+  // i am going to use just one optimistic hook to handle the state of the user
+  const [optimisticState, switchOptimisticState] = useOptimistic(
     userState,
-    (state) => ({
-      ...state,
-      following: state.following && false,
-      followRequestSent:
-        !state.following && !state.followRequestSent ? true : false,
-    })
+    (state, value) =>
+      value === "follow"
+        ? {
+            ...state,
+            following: state.following && false,
+            followRequestSent:
+              !state.following && !state.followRequestSent ? true : false,
+          }
+        : { ...state, blocked: !state.blocked }
   );
+  //  Block action
 
   return (
     <div>
@@ -54,9 +60,9 @@ export const UserDetailAction = ({
                 className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
               >
                 <span>
-                  {optimisticFollow.following
+                  {optimisticState.following
                     ? "Following"
-                    : optimisticFollow.followRequestSent
+                    : optimisticState.followRequestSent
                     ? "Friend Request Sent"
                     : "Follow"}
                 </span>
@@ -68,7 +74,7 @@ export const UserDetailAction = ({
             <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
               <Button className=" bg-transparent h-8 hover:bg-transparent hover:cursor-pointer text-rose-600">
                 <span>
-                  {optimisticFollow.blocked ? "Unblock user" : "Block"}
+                  {optimisticState.blocked ? "Unblock user" : "Block"}
                 </span>
               </Button>
             </div>
