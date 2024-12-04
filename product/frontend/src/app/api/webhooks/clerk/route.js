@@ -80,6 +80,8 @@ export async function POST(req) {
           id: evt.data.id,
         },
         data: {
+          name: JSON.parse(body).data.first_name,
+          surname: JSON.parse(body).data.last_name,
           username: JSON.parse(body).data.username,
           avatar: JSON.parse(body).data.image_url || "/user-default.png",
         },
@@ -88,6 +90,19 @@ export async function POST(req) {
       return new Response("User has been updated!.", { status: 200 });
     } catch (err) {
       console.error("Failed to update user!", { status: 500 });
+    }
+  }
+
+  if (eventType === "user.deleted") {
+    try {
+      await prisma.user.delete({
+        where: {
+          id: evt.data.id,
+        },
+      });
+      return new Response("User has been deleted!.", { status: 200 });
+    } catch (err) {
+      console.error("Failed to delete user!", { status: 500 });
     }
   }
 
