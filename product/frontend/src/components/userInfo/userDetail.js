@@ -107,7 +107,7 @@ export const UserDetail = ({ user, owner }) => {
           </div>
         </div>
 
-        {owner ? (
+        {!owner ? (
           <>
             {/* follow button */}
             <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
