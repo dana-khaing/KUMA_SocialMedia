@@ -4,12 +4,12 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button";
 const Stories = () => {
   return (
-    <div className="w-full h-fit flex-shrink-0 rounded-3xl overflow-scroll items-center p-4 shadow-md text-xs border-[1px] bg-slate-50 scrollbar-hide">
+    <div className="w-full h-fit  rounded-2xl overflow-x-auto overflow-scroll items-center py-4 px-5 shadow-md text-xs border-[1px] bg-slate-50 scrollbar-hide">
       {/* stories warp */}
-      <div className="flex gap-1 md:gap-5 items-center w-max ">
+      <div className="flex gap-1 md:gap-4 items-center  w-max">
         {/* Add stories for the user */}
         <div className="flex flex-col items-center gap-1 cursor-pointer justify-start h-full w-[5rem]">
-          <div className="w-[4.5rem] h-[4.5rem] rounded-full ring-2 hover:ring-4 ring-[#FF4E01] m-1 flex items-center justify-center">
+          <div className="w-[4.5rem] h-[4.5rem] rounded-full ring-2 hover:ring-4 ring-[#FF4E01] flex items-center justify-center">
             <Button className="w-[4rem] h-[4rem] rounded-full bg-white text-black hover:bg-slate-300">
               <FontAwesomeIcon
                 icon={faPlus}

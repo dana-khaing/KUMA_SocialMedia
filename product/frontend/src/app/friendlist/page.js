@@ -7,14 +7,14 @@ import Checkfriends from "@/components/userfriends/checkfriends";
 
 export const Friendlist = () => {
   return (
-    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 py-4">
+    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
       {/* left */}
-      <div className="hidden lg:block flex-col w-[25%]">
+      <div className="hidden grow-0 lg:block flex-col w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-full flex-col lg:w-[50%] gap-5">
+      <div className="flex w-full shrink-0 flex-col lg:w-[50%] gap-5">
         <div className="flex flex-col gap-5 w-[100%] h-[125vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Birthday />
           <FriendRequest />
@@ -23,7 +23,7 @@ export const Friendlist = () => {
       </div>
 
       {/* right */}
-      <div className="hidden lg:flex flex-col gap-5 w-[25%]">
+      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <OnlineFriends />
       </div>
     </div>

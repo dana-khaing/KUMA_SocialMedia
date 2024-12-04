@@ -9,14 +9,14 @@ import UsefulTool from "@/components/home/usefulTool";
 
 export default function Home() {
   return (
-    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 py-4">
+    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
       {/* left */}
-      <div className="hidden lg:block flex-col w-[25%]">
+      <div className="hidden lg:block grow-0 flex-col w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-full flex-col lg:w-[50%] gap-5">
+      <div className="flex w-full flex-col shrink-0 lg:w-[50%]">
         <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
           <Addpost />
@@ -25,7 +25,7 @@ export default function Home() {
       </div>
 
       {/* right */}
-      <div className="hidden lg:flex flex-col gap-5 w-[25%]">
+      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <FriendRequest />
         <Birthday />
         <OnlineFriends />

@@ -5,7 +5,6 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
-// import { currentUser } from "@clerk/nextjs/server";
 import { auth } from "@clerk/nextjs/server";
 
 export default async function NavItem() {
@@ -25,7 +24,7 @@ export default async function NavItem() {
           />
         </Link>
         <Link
-          href={"/groupsite"}
+          href={"/friendlist"}
           className="flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl"
         >
           <FontAwesomeIcon

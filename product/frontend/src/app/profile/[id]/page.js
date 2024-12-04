@@ -49,14 +49,14 @@ const Profilepage = async ({ params }) => {
   }
 
   return (
-    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 py-4">
+    <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
       {/* left */}
-      <div className="hidden lg:flex flex-col gap-5 w-[25%]">
+      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <FriendRequest />
         <OnlineFriends />
       </div>
       {/* center */}
-      <div className="flex w-full flex-col lg:w-[50%] gap-5 h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-full flex-col lg:w-[50%] shrink-0 gap-5 h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="h-fit">
           <ProfileBigCard user={user} />
         </div>
@@ -72,8 +72,8 @@ const Profilepage = async ({ params }) => {
       </div>
 
       {/* right */}
-      <div className="hidden lg:flex flex-col gap-5 w-[25%]">
-        <UserDetail />
+      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+        <UserDetail user={user} owner={isOwner} />
         <UserMedia />
         <UsefulTool />
       </div>

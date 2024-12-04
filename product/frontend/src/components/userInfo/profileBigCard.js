@@ -33,7 +33,7 @@ export const ProfileBigCard = ({ user }) => {
       {/* Full name and username */}
       <div className="flex flex-col items-center justify-center px-4">
         <span className="text-black text-2xl font-bold">
-          {user.name && user.surname
+          {user?.name && user?.surname
             ? user.name + " " + user.surname
             : "Kuma User"}
         </span>
