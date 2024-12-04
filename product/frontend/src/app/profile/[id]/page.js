@@ -9,11 +9,13 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/client";
 import { auth } from "@clerk/nextjs/server";
 
-const Profilepage = async ({ params }) => {
-  const { Id } = await params;
+const ProfilePage = async ({ params }) => {
+  const { id } = await params;
+
+  // Fetch user data
   const user = await prisma.user.findFirst({
     where: {
-      id: Id,
+      id,
     },
     include: {
       _count: {
@@ -21,32 +23,14 @@ const Profilepage = async ({ params }) => {
       },
     },
   });
-  // I want to pass the user's id to the profile page
+
   if (!user) {
     return notFound();
   }
-  // check the profile is user's profile or not(it can be the other person's profile)
+
+  // Get authenticated user ID
   const { userId } = await auth();
-  let isOwner = false;
-  if (userId === Id) {
-    isOwner = true;
-  }
-  // check the user is blocked or not
-  let isBlocked = false;
-  if (userId) {
-    const blocked = await prisma.block.findFirst({
-      where: {
-        userId: Id,
-        blockedId: userId,
-      },
-    });
-    if (blocked) {
-      isBlocked = true;
-    }
-  }
-  if (isBlocked) {
-    return notFound();
-  }
+  const isOwner = userId === id;
 
   return (
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
@@ -81,4 +65,4 @@ const Profilepage = async ({ params }) => {
   );
 };
 
-export default Profilepage;
+export default ProfilePage;
