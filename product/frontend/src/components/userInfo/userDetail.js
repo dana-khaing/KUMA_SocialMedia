@@ -4,10 +4,43 @@ import { faGraduationCap } from "@fortawesome/free-solid-svg-icons";
 import { faSuitcase } from "@fortawesome/free-solid-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "../ui/button";
+import UserDetailAction from "./userDetailAction";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/client";
 
-export const UserDetail = ({ user, owner }) => {
+export const UserDetail = async ({ user, owner }) => {
+  let isUserBlocked = false;
+  let isUserFollowing = false;
+  let isUserFollowingSent = false;
+
+  const { userId } = await auth();
+  if (userId) {
+    const blockRes = await prisma.block.findFirst({
+      where: {
+        blockerId: userId,
+        blockedId: user?.id,
+      },
+    });
+    blockRes ? (isUserBlocked = true) : (isUserBlocked = false);
+    const followRes = await prisma.follower.findFirst({
+      where: {
+        followerId: userId,
+        followingId: user?.id,
+      },
+    });
+    followRes ? (isUserFollowing = true) : (isUserFollowing = false);
+    const FollowRequestRes = await prisma.followRequest.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: user?.id,
+      },
+    });
+    FollowRequestRes
+      ? (isUserFollowingSent = true)
+      : (isUserFollowingSent = false);
+  }
+
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
       <div className="flex items-center justify-between px-4">
@@ -102,33 +135,23 @@ export const UserDetail = ({ user, owner }) => {
           <div className="text-gray-500 flex-grow text-end">Joined in</div>
           <div>
             <span className="text-xs line-clamp-1">
-              {new Date(user?.createdAt).toLocaleDateString() || "2021-09-01"}
+              {new Date(user?.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }) || "2021-09-01"}
             </span>
           </div>
         </div>
 
-        {!owner ? (
-          <>
-            {/* follow button */}
-            <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
-              <Button
-                text="Follow"
-                className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
-              >
-                <span>Follow</span>
-              </Button>
-            </div>
-            {/* ban button */}
-            <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
-              <Button
-                text="Block"
-                className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
-              >
-                <span>Block</span>
-              </Button>
-            </div>
-          </>
-        ) : null}
+        <UserDetailAction
+          userId={user?.id}
+          owner={owner}
+          currentUserId={userId}
+          isUserBlocked={isUserBlocked}
+          isUserFollowing={isUserFollowing}
+          isUserFollowingSent={isUserFollowingSent}
+        />
       </div>
     </div>
   );

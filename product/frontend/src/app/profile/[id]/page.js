@@ -28,14 +28,13 @@ const ProfilePage = async ({ params }) => {
     return notFound();
   }
 
-  // Get authenticated user ID
   const { userId } = await auth();
   const isOwner = userId === id;
   let isBlocked = false;
   if (!isOwner && userId) {
     const blocked = await prisma.block.findFirst({
       where: {
-        userId: id,
+        blockerId: id,
         blockedId: userId,
       },
     });
@@ -57,7 +56,7 @@ const ProfilePage = async ({ params }) => {
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] shrink-0 gap-5 h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="h-fit">
-          <ProfileBigCard user={user} />
+          <ProfileBigCard user={user} owner={isOwner} />
         </div>
         <div className="flex lg:hidden">
           <UserDetail />

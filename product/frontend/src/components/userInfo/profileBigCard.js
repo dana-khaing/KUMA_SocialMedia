@@ -3,7 +3,7 @@ import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import { useClerk } from "@clerk/nextjs";
 
-export const ProfileBigCard = ({ user }) => {
+export const ProfileBigCard = ({ user, owner }) => {
   if (!user) {
     return null;
   }
@@ -56,14 +56,16 @@ export const ProfileBigCard = ({ user }) => {
           <span className="text-gray-500">{user._count.followings}</span>
         </div>
       </div>
-      <div className="flex items-center justify-center my-2">
-        <Button
-          onClick={handleEditProfile}
-          className="w-36 rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
-        >
-          <span>Edit Profile</span>
-        </Button>
-      </div>
+      {owner ? (
+        <div className="flex items-center justify-center my-2">
+          <Button
+            onClick={handleEditProfile}
+            className="w-36 rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
+          >
+            <span>Edit Profile</span>
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 };
