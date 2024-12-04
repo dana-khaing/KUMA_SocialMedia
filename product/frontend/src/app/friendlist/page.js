@@ -9,7 +9,7 @@ export const Friendlist = () => {
   return (
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
       {/* left */}
-      <div className="hidden grow-0 lg:block flex-col w-[25%]">
+      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
