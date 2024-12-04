@@ -67,7 +67,7 @@ const ProfilePage = async ({ params }) => {
         </div>
         <div className="flex lg:hidden">
           <Suspense fallback={<div>Loading...</div>}>
-            <UserMedia />
+            <UserMedia user={user} />
           </Suspense>
         </div>
         <div className="flex flex-col gap-5 w-full">
@@ -81,7 +81,7 @@ const ProfilePage = async ({ params }) => {
           <UserDetail user={user} owner={isOwner} />
         </Suspense>
         <Suspense fallback={<div>Loading...</div>}>
-          <UserMedia />
+          <UserMedia user={user} />
         </Suspense>
         <OnlineFriends />
       </div>
