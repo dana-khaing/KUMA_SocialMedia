@@ -4,7 +4,6 @@ import prisma from "./client";
 
 export const followAction = async (userId) => {
   const { userId: currentUserId } = await auth();
-  console.log(currentUserId);
   if (!currentUserId) {
     throw new Error("User not authenticated");
   }

@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/client";
 import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
+import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 
 const ProfilePage = async ({ params }) => {
   const { id } = await params;
@@ -51,8 +52,8 @@ const ProfilePage = async ({ params }) => {
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
       {/* left */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
-        <FriendRequest />
-        <OnlineFriends />
+        {!isOwner ? <ProfileSmallCard user={user} /> : <FriendRequest />}
+        <UsefulTool />
       </div>
       {/* center */}
       <div className="flex w-full flex-col lg:w-[50%] shrink-0 gap-5 h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
@@ -60,10 +61,14 @@ const ProfilePage = async ({ params }) => {
           <ProfileBigCard user={user} owner={isOwner} />
         </div>
         <div className="flex lg:hidden">
-          <UserDetail />
+          <Suspense fallback={<div>Loading...</div>}>
+            <UserDetail user={user} owner={isOwner} />
+          </Suspense>
         </div>
         <div className="flex lg:hidden">
-          <UserMedia />
+          <Suspense fallback={<div>Loading...</div>}>
+            <UserMedia />
+          </Suspense>
         </div>
         <div className="flex flex-col gap-5 w-full">
           <Newfeed />
@@ -78,7 +83,7 @@ const ProfilePage = async ({ params }) => {
         <Suspense fallback={<div>Loading...</div>}>
           <UserMedia />
         </Suspense>
-        <UsefulTool />
+        <OnlineFriends />
       </div>
     </div>
   );

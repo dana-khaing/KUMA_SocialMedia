@@ -20,7 +20,7 @@ export const ProfileSmallCard = async () => {
   });
 
   return (
-    <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4 mb-5">
+    <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4">
       {/* Cover photo */}
       <div className="h-[15rem]">
         <div className="relative w-full mb-12 h-[50%]">

@@ -1,7 +1,8 @@
 "use client";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useState, useOptimistic } from "react";
 import { followAction } from "@/lib/action";
+
 export const UserDetailAction = ({
   userId,
   currentUserId,
@@ -17,7 +18,7 @@ export const UserDetailAction = ({
   });
 
   const follow = async () => {
-    // console.log("follow");
+    switchOptimisticFollow("");
     try {
       await followAction(userId);
       setUserState((prevState) => ({
@@ -30,6 +31,17 @@ export const UserDetailAction = ({
       console.log(error);
     }
   };
+
+  const [optimisticFollow, switchOptimisticFollow] = useOptimistic(
+    userState,
+    (state) => ({
+      ...state,
+      following: state.following && false,
+      followRequestSent:
+        !state.following && !state.followRequestSent ? true : false,
+    })
+  );
+
   return (
     <div>
       {!owner ? (
@@ -42,9 +54,9 @@ export const UserDetailAction = ({
                 className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
               >
                 <span>
-                  {userState.following
+                  {optimisticFollow.following
                     ? "Following"
-                    : userState.followRequestSent
+                    : optimisticFollow.followRequestSent
                     ? "Friend Request Sent"
                     : "Follow"}
                 </span>
@@ -55,7 +67,9 @@ export const UserDetailAction = ({
           <form>
             <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
               <Button className=" bg-transparent h-8 hover:bg-transparent hover:cursor-pointer text-rose-600">
-                <span>{userState.blocked ? "Unblock user" : "Block"}</span>
+                <span>
+                  {optimisticFollow.blocked ? "Unblock user" : "Block"}
+                </span>
               </Button>
             </div>
           </form>
