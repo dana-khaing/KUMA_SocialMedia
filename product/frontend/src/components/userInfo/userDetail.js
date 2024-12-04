@@ -7,7 +7,7 @@ import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
-export const UserDetail = ({ user }) => {
+export const UserDetail = ({ user, owner }) => {
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
       <div className="flex items-center justify-between px-4">
@@ -20,7 +20,9 @@ export const UserDetail = ({ user }) => {
       <div className="flex-col gap-1 px-4 items-center">
         <div className="gap-4 flex items-center justify-start">
           <div className="text-black text-xl font-bold">
-            {user?.fullName || "Kuma User"}
+            {user?.name && user?.surname
+              ? user.name + " " + user.surname
+              : "Kuma User"}
           </div>
           <div className="text-gray-500 text-sm">
             {" "}
@@ -35,8 +37,8 @@ export const UserDetail = ({ user }) => {
           />
           <div className="text-gray-500">Living in</div>
           <div className="flex-grow">
-            <span className="text-xs line-clamp-1">
-              {user?.address || "Yangon, Myanmar"}
+            <span className="text-md line-clamp-1">
+              {user?.city || "unknown,kuma"}
             </span>
           </div>
         </div>
@@ -48,8 +50,8 @@ export const UserDetail = ({ user }) => {
           />
           <div className="text-gray-500 flex-shrink-0">Graduated from</div>
           <div className="flex-grow">
-            <span className="text-xs line-clamp-1">
-              {user?.education || "University of Yangon, Yangon"}
+            <span className="text-md line-clamp-1">
+              {user?.school || "unknown,kuma"}
             </span>
           </div>
         </div>
@@ -61,8 +63,8 @@ export const UserDetail = ({ user }) => {
           />
           <div className="text-gray-500">Works at</div>
           <div className="flex-grow">
-            <span className="text-xs line-clamp-1">
-              {user?.job || "Software Engineer"}
+            <span className="text-md line-clamp-1">
+              {user?.work || "unknown,kuma"}
             </span>
           </div>
         </div>
@@ -73,7 +75,7 @@ export const UserDetail = ({ user }) => {
             className="text-[#FF4E01] w-6"
           />
           <div className="flex-grow">
-            <span className="text-xs line-clamp-1">
+            <span className="text-md line-clamp-1">
               {user?.bio || "No bio yet. Kuma"}
             </span>
           </div>
@@ -85,8 +87,13 @@ export const UserDetail = ({ user }) => {
             className="text-[#FF4E01] w-6"
           />
           <div className="flex-grow">
-            <span className="text-xs line-clamp-1">
-              {user?.website || "https://kuma.com"}
+            <span className="text-md line-clamp-1">
+              <a
+                className="hover:underline"
+                href={user?.website || "https://kuma.com"}
+              >
+                {user?.website || "https://kuma.com"}
+              </a>
             </span>
           </div>
         </div>
@@ -95,28 +102,33 @@ export const UserDetail = ({ user }) => {
           <div className="text-gray-500 flex-grow text-end">Joined in</div>
           <div>
             <span className="text-xs line-clamp-1">
-              {user?.website || "2021-10-10"}
+              {new Date(user?.createdAt).toLocaleDateString() || "2021-09-01"}
             </span>
           </div>
         </div>
-        {/* follow button */}
-        <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
-          <Button
-            text="Follow"
-            className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
-          >
-            <span>Follow</span>
-          </Button>
-        </div>
-        {/* ban botton */}
-        {/* <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
-          <Button
-            text="Block"
-            className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
-          >
-            <span>Block</span>
-          </Button>
-        </div> */}
+
+        {owner ? (
+          <>
+            {/* follow button */}
+            <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
+              <Button
+                text="Follow"
+                className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
+              >
+                <span>Follow</span>
+              </Button>
+            </div>
+            {/* ban button */}
+            <div className="w-full h-10 flex gap-2 justify-end items-center text-end">
+              <Button
+                text="Block"
+                className="w-full h-8 bg-[#FF4E01] text-white hover:bg-white hover:text-[#ff4e02]"
+              >
+                <span>Block</span>
+              </Button>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

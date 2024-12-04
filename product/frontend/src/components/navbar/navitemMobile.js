@@ -8,10 +8,12 @@ import { SignedIn } from "@clerk/nextjs";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { auth } from "@clerk/nextjs/server";
 
 import Link from "next/link";
 
-export const NavitemMobile = () => {
+export const NavitemMobile = async () => {
+  const { userId } = await auth();
   return (
     <SignedIn>
       <DropdownMenu.Root>
@@ -43,7 +45,7 @@ export const NavitemMobile = () => {
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
-            <Link href={`/profile/abc`}>
+            <Link href={`/profile/${userId}`}>
               <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                 <FontAwesomeIcon
                   icon={faUser}
