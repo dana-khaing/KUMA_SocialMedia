@@ -8,6 +8,7 @@ import UserMedia from "@/components/userInfo/userMedia";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/client";
 import { auth } from "@clerk/nextjs/server";
+import { Suspense } from "react";
 
 const ProfilePage = async ({ params }) => {
   const { id } = await params;
@@ -71,8 +72,12 @@ const ProfilePage = async ({ params }) => {
 
       {/* right */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
-        <UserDetail user={user} owner={isOwner} />
-        <UserMedia />
+        <Suspense fallback={<div>Loading...</div>}>
+          <UserDetail user={user} owner={isOwner} />
+        </Suspense>
+        <Suspense fallback={<div>Loading...</div>}>
+          <UserMedia />
+        </Suspense>
         <UsefulTool />
       </div>
     </div>
