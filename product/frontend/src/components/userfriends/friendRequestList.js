@@ -1,10 +1,40 @@
 "use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUserCheck } from "@fortawesome/free-solid-svg-icons";
+import { useState, useOptimistic } from "react";
+import { acceptFollowRequest, rejectFollowRequest } from "@/lib/action";
 export const FriendRequestList = ({ request }) => {
+  const [requestState, setRequestState] = useState(request);
+
+  //   accept request
+  const acceptRequest = async (requestId, userId) => {
+    removeOptimisticRequest(requestId);
+    try {
+      await acceptFollowRequest(userId);
+      setRequestState((state) => state.filter((item) => item.id !== requestId));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //   remove request
+  const declineRequest = async (requestId, userId) => {
+    removeOptimisticRequest(requestId);
+    try {
+      await rejectFollowRequest(userId);
+      setRequestState((state) => state.filter((item) => item.id !== requestId));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const [optimisticRequest, removeOptimisticRequest] = useOptimistic(
+    requestState,
+    (state, value) => state.filter((item) => item.id !== value)
+  );
   return (
     <>
-      {request.map((request) => (
+      {optimisticRequest.map((request) => (
         <div
           key={request}
           className="flex items-center hover:bg-slate-200 p-2 rounded-xl "
@@ -26,19 +56,24 @@ export const FriendRequestList = ({ request }) => {
               2 mutual friends
             </span>
           </div>
-          {/* accept button */}
-          <div className="flex items-center flex-grow justify-end gap-2 h-full">
-            <button className=" w-[2.15rem] h-[2.15rem] text-white items-center flex justify-center bg-[#FF4E01] rounded-full">
-              <FontAwesomeIcon
-                icon={faUserCheck}
-                size="sm"
-                className="flex justify-center items-center"
-              />
-            </button>
 
-            <button className="text-black bg-transparent  rounded-full p-1">
-              <FontAwesomeIcon icon={faXmark} size="sm" />
-            </button>
+          <div className="flex items-center flex-grow justify-end gap-2 h-full">
+            {/* accept button */}
+            <form action={() => acceptRequest(request.id, request.sender.id)}>
+              <button className=" w-[2.15rem] h-[2.15rem] text-white items-center flex justify-center bg-[#FF4E01] rounded-full">
+                <FontAwesomeIcon
+                  icon={faUserCheck}
+                  size="sm"
+                  className="flex justify-center items-center"
+                />
+              </button>
+            </form>
+            {/* reject button */}
+            <form action={() => declineRequest(request.id, request.sender.id)}>
+              <button className="text-black bg-transparent  rounded-full p-1">
+                <FontAwesomeIcon icon={faXmark} size="sm" />
+              </button>
+            </form>
           </div>
         </div>
       ))}
