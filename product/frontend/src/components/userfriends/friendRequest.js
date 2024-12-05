@@ -33,37 +33,11 @@ const FriendRequest = async () => {
       <div className="h-[20rem] overflow-y-scroll scrollbar-hide flex flex-col gap-1 px-2">
         {/* Request User */}
         <FriendRequestList request={request} />
-        <div className="flex items-center hover:bg-slate-200 p-2 rounded-xl">
-          <div className="flex-shrink-0  rounded-full bg-white items-center justify-center mr-2">
-            <img
-              src="/stories1.jpg"
-              alt="profile"
-              className="w-9 h-9 rounded-full ring-1 ring-[#FF4E01]"
-            />
+        {!request.length && (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-[#FF4E01]">No Request yet, Kuma!!</span>
           </div>
-          <div className="flex flex-col flex-grow cursor-pointer">
-            <span className="text-black text-sm line-clamp-1">
-              Hein Htet Aung
-            </span>
-            <span className="text-gray-500 text-xs line-clamp-1">
-              2 mutual friends
-            </span>
-          </div>
-          {/* accept button */}
-          <div className="flex items-center flex-grow justify-end gap-2 h-full">
-            <button className=" w-[2.15rem] h-[2.15rem] text-white items-center flex justify-center bg-[#FF4E01] rounded-full">
-              <FontAwesomeIcon
-                icon={faUserCheck}
-                size="sm"
-                className="flex justify-center items-center"
-              />
-            </button>
-
-            <button className="text-black bg-white rounded-full p-1">
-              <FontAwesomeIcon icon={faXmark} size="sm" />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
