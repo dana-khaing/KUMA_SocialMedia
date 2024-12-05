@@ -1,9 +1,24 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@radix-ui/react-separator";
-import Dummyfriendrequest from "./dummyfriendrequest";
+import { auth } from "@clerk/nextjs/server";
+import { FriendRequestList } from "@/components/userfriends/friendRequestList";
+import prisma from "@/lib/client";
+const FriendRequest = async () => {
+  const { userId } = await auth();
+  if (!userId) {
+    return null;
+  }
+  const request = await prisma.followRequest.findMany({
+    where: {
+      receiverId: userId,
+    },
+    include: {
+      // fetching user data to show in the request
+      sender: true,
+    },
+  });
 
-const FriendRequest = () => {
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default ">
       <div className="flex items-center justify-between px-4">
@@ -16,7 +31,8 @@ const FriendRequest = () => {
       />
       {/* FriendRequest List */}
       <div className="h-[20rem] overflow-y-scroll scrollbar-hide flex flex-col gap-1 px-2">
-        {/* Request Card */}
+        {/* Request User */}
+        <FriendRequestList request={request} />
         <div className="flex items-center hover:bg-slate-200 p-2 rounded-xl">
           <div className="flex-shrink-0  rounded-full bg-white items-center justify-center mr-2">
             <img
@@ -48,14 +64,6 @@ const FriendRequest = () => {
             </button>
           </div>
         </div>
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
-        <Dummyfriendrequest />
       </div>
     </div>
   );
