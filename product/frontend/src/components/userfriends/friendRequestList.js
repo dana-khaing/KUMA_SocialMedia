@@ -53,7 +53,7 @@ export const FriendRequestList = ({ request }) => {
                 : "Kuma User"}
             </span>
             <span className="text-gray-500 text-xs line-clamp-1">
-              2 mutual friends
+              0 mutual friends
             </span>
           </div>
 
