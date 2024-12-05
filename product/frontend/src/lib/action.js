@@ -115,3 +115,29 @@ export const acceptFollowRequest = async (userId) => {
     throw new Error("Something went wrong, Kuma");
   }
 };
+
+// Reject follow request action
+export const rejectFollowRequest = async (userId) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) {
+    throw new Error("User not authenticated");
+  }
+  try {
+    const existingFollowRequest = await prisma.followRequest.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: currentUserId,
+      },
+    });
+    if (existingFollowRequest) {
+      await prisma.followRequest.delete({
+        where: {
+          id: existingFollowRequest.id,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong, Kuma");
+  }
+};
