@@ -53,6 +53,7 @@ export const followAction = async (userId) => {
 
 // Block action
 export const blockAction = async (userId) => {
+  console.log("userId", userId);
   const { userId: currentUserId } = await auth();
   if (!currentUserId) {
     throw new Error("User not authenticated");
@@ -71,6 +72,34 @@ export const blockAction = async (userId) => {
         },
       });
     } else {
+      // if current user is following the user, unfollow the user and block
+      //
+      const existingFollow = await prisma.follower.findFirst({
+        where: {
+          followerId: currentUserId,
+          followingId: userId,
+        },
+      });
+      if (existingFollow) {
+        await prisma.follower.delete({
+          where: {
+            id: existingFollow.id,
+          },
+        });
+      }
+      const existingFollowRequest = await prisma.followRequest.findFirst({
+        where: {
+          senderId: currentUserId,
+          receiverId: userId,
+        },
+      });
+      if (existingFollowRequest) {
+        await prisma.followRequest.delete({
+          where: {
+            id: existingFollowRequest.id,
+          },
+        });
+      }
       await prisma.block.create({
         data: {
           blockerId: currentUserId,
