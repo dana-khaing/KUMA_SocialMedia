@@ -14,7 +14,7 @@ export default async function Navbar() {
           className="w-full h-full items-start justify-center md:shrink-0"
         >
           <img
-            src="/logo.svg"
+            src="/kuma.svg"
             className="w-36 h-full items-center justify-center rounded-full shrink-0"
             alt="Kuma"
           />
