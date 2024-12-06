@@ -6,8 +6,18 @@ import Birthday from "@/components/userfriends/birthday";
 import OnlineFriends from "@/components/userfriends/onlineFriends";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
+import { auth } from "@clerk/nextjs/server";
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
+  if (!userId) {
+    return null;
+  }
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
   return (
     <div className="h-[120vh] w-screen flex items-start justify-center gap-4 p-4">
       {/* left */}
@@ -19,7 +29,7 @@ export default function Home() {
       <div className="flex w-full flex-col shrink-0 lg:w-[50%]">
         <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
-          <Addpost />
+          <Addpost user={user} />
           <Newfeed />
         </div>
       </div>

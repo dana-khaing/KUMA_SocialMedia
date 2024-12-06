@@ -18,7 +18,6 @@ export const UserDetailAction = ({
   });
 
   //   Follow action
-
   const follow = async () => {
     switchOptimisticState("follow");
     try {

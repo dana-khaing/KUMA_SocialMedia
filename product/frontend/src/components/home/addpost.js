@@ -8,15 +8,14 @@ import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
 
-const Addpost = () => {
+const Addpost = ({ user }) => {
   return (
     <div className="w-full h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
       {/* avator and textbox */}
       <form action="" className="flex gap-3 ">
         <div className=" flex items-center justify-center w-12">
           <img
-            // src={imageUrl || "user-default.png"}
-            src={"user-default.png"}
+            src={user?.avatar || "user-default.png"}
             alt="profile"
             className="w-10 h-10 rounded-full cursor-pointer hover:ring-2 ring-[#FF4E01] object-cover"
           />
