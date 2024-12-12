@@ -30,7 +30,7 @@ export default async function Home() {
         <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
           <Addpost user={user} />
-          <Newfeed />
+          <Newfeed user={user} />
         </div>
       </div>
 

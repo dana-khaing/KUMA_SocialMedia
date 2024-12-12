@@ -73,7 +73,6 @@ export const blockAction = async (userId) => {
       });
     } else {
       // if current user is following the user, unfollow the user and block
-      //
       const existingFollow = await prisma.follower.findFirst({
         where: {
           followerId: currentUserId,

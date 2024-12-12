@@ -15,10 +15,7 @@ import {
 import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 
-const Newfeed = () => {
-  // const imageUrl = user?.imageUrl || "user-default.png"; // have to use useUser() hook to get user data use client side
-  const imageUrl = "/user-default.png";
-
+const Newfeed = ({ user }) => {
   // Here is the post description
   const [expanded, setExpanded] = useState(false);
   const decription =
@@ -141,7 +138,7 @@ const Newfeed = () => {
           {/* comment box */}
           <div className="flex w-full gap-3 justify-center items-center mt-4 px-4">
             <img
-              src={imageUrl}
+              src={user?.avatar || "user-default.png"}
               alt="profile"
               className="w-8 h-8 flex-shrink-0 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01] object-cover justify-center items-center"
             />
