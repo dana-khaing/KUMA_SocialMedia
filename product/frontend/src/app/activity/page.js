@@ -8,14 +8,14 @@ import Notification from "@/components/activity/notification";
 
 export const Activity = () => {
   return (
-    <div className=" w-screen flex items-start grow-0 justify-center gap-4 p-4">
+    <div className=" w-full flex items-start grow-0 justify-center gap-4 p-4">
       {/* left */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-full h-[120vh] flex-col shrink-0 lg:w-[50%] overflow-y-scroll scrollbar-hide overscroll-x-none gap-5">
+      <div className="flex w-screen px-2 h-[120vh] flex-col shrink-0 lg:w-[50%] overflow-y-scroll scrollbar-hide overscroll-x-none gap-5">
         <Birthday />
         <Notification />
       </div>
