@@ -1,8 +1,11 @@
+#### 25 Feb
+
+- review and revisiion the project and fix the UI problem
+- do research on deplaying kuma web on using netlify
+
 #### 4 Dec
 
 - refactor follow feature using Optimistic hook to get better user interaction and morte quicker responnd and if something happen or some error occur the follow button will change back immediately to follow
-
-####
 
 - use webhook event to fetch data from the clerk to sycn into mysql database
 
@@ -55,3 +58,23 @@
 #### 11 Oct
 
 - prepare project plan and submitted
+
+#### REMINDER OF HOW TO RUN THE KUMA APP
+
+- Start rendering - pnpm run dev
+
+- Start NGROK - ngrok http http://localhost:3000
+
+- Go to clerk dashboard > setting > webhook
+
+- Change endpoint to (https://700a-2-99-205-125.ngrok-free.app)/api/webhooks/clerk
+
+- You will get new endpoint when u start the sever
+
+- Test the data to send and confirm as it is truly connected
+
+- Pull the data base - pnpm exec prisma db pull
+
+- Start the DATA Base - pnpm exec prisma studio
+
+- Change the relation in data base - pnpm exec prisma db push
