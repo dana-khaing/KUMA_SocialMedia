@@ -73,7 +73,7 @@ export const ProfileSmallCard = async () => {
       <div className="flex items-center justify-center m-2 text-center">
         <Link
           href={"/profile/" + user?.id}
-          className="w-36 h-10 py-2 rounded-full shadow-md py-auto bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white cursor-pointer text-center items-center justify-center"
+          className="w-36 h-10 py-2 rounded-full shadow-md py-auto bg-[#FF4E01] text-white hover:scale-105 transition-transform duration-75 ease-out hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white cursor-pointer text-center items-center justify-center"
         >
           View Profile
         </Link>

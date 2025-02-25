@@ -102,7 +102,7 @@ const Newfeed = ({ user }) => {
           {/* reaction bar */}
           <div className="flex w-full px-4 gap-0 md:gap-3 items-around justify-center pb-2">
             <Button
-              className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
+              className={`bg-inherit shadow-none w-28 hover:bg-slate-200 rounded-full ${
                 liked ? "text-blue-600" : "text-black"
               }`}
               onClick={handleLike}
@@ -115,7 +115,7 @@ const Newfeed = ({ user }) => {
               orientation="vertical"
             />
             <Button
-              className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
+              className={`bg-inherit shadow-none w-28 hover:bg-slate-200 rounded-full ${
                 loved ? "text-red-600" : "text-black"
               }`}
               onClick={handleLove}
@@ -127,7 +127,7 @@ const Newfeed = ({ user }) => {
               className="h-3 bg-slate-400 my-auto"
               orientation="vertical"
             />
-            <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+            <Button className="bg-inherit w-28 shadow-none hover:bg-slate-200 rounded-full text-black">
               <FontAwesomeIcon icon={faComment} size="sm" />
               <span className="hidden  md:block">Comment</span>
             </Button>
@@ -137,7 +137,7 @@ const Newfeed = ({ user }) => {
             />
             {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
             {/* can move share to the end use commented classNmae */}
-            <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+            <Button className="bg-inherit w-28 shadow-none hover:bg-slate-200 rounded-full text-black">
               <FontAwesomeIcon icon={faShare} size="sm" />
               <span className="hidden  md:block">Share</span>
             </Button>

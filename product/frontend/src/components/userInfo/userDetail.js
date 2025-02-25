@@ -123,9 +123,9 @@ export const UserDetail = async ({ user, owner }) => {
             <span className="text-md line-clamp-1">
               <a
                 className="hover:underline"
-                href={user?.website || "https://kuma.com"}
+                href={user?.website || "https://github.com/dana-khaing"}
               >
-                {user?.website || "https://kuma.com"}
+                {user?.website || "https://github.com/dana-khaing"}
               </a>
             </span>
           </div>

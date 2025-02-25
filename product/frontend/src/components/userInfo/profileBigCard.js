@@ -60,7 +60,7 @@ export const ProfileBigCard = ({ user, owner }) => {
         <div className="flex items-center justify-center my-2">
           <Button
             onClick={handleEditProfile}
-            className="w-36 rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
+            className="w-36 rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:scale-105 transition-transform duration-75 ease-out hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
           >
             <span>Edit Profile</span>
           </Button>
