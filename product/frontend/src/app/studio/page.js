@@ -14,7 +14,7 @@ export const Studio = () => {
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-full shrink-0 flex-col lg:w-[50%] gap-5">
+      <div className="flex w-screen px-2 shrink-0 flex-col lg:w-[50%] gap-5">
         <div className="flex flex-col gap-5 w-[100%] h-[150vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Newfeed />
         </div>

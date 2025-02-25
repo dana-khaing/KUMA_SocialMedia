@@ -1,5 +1,3 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@radix-ui/react-separator";
 import { auth } from "@clerk/nextjs/server";
 import { FriendRequestList } from "@/components/userfriends/friendRequestList";

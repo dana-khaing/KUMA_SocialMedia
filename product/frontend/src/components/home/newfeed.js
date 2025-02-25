@@ -76,7 +76,7 @@ const Newfeed = ({ user }) => {
           </div>
 
           {/* desc & photo */}
-          <div className="p-4">
+          <div className="p-2">
             {/* if the decrption is over 2 line they gonna hide but iff we press see more we can see whole */}
             <p
               className={`${
@@ -100,7 +100,7 @@ const Newfeed = ({ user }) => {
             />
           </div>
           {/* reaction bar */}
-          <div className="flex w-full px-4 gap-0 md:gap-3 items-center">
+          <div className="flex w-full px-4 gap-0 md:gap-3 items-around justify-center pb-2">
             <Button
               className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
                 liked ? "text-blue-600" : "text-black"
@@ -110,7 +110,10 @@ const Newfeed = ({ user }) => {
               <FontAwesomeIcon icon={faThumbsUp} size="sm" />
               <span className="hidden  md:block">Like</span>
             </Button>
-            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            <Separator
+              className="h-3 bg-slate-400  my-auto"
+              orientation="vertical"
+            />
             <Button
               className={`bg-inherit shadow-none hover:bg-slate-200 rounded-full ${
                 loved ? "text-red-600" : "text-black"
@@ -120,25 +123,30 @@ const Newfeed = ({ user }) => {
               <FontAwesomeIcon icon={faHeart} size="sm" />
               <span className="hidden  md:block">Love</span>
             </Button>
-            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            <Separator
+              className="h-3 bg-slate-400 my-auto"
+              orientation="vertical"
+            />
             <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
               <FontAwesomeIcon icon={faComment} size="sm" />
               <span className="hidden  md:block">Comment</span>
             </Button>
-            <Separator className="h-3 bg-slate-400" orientation="vertical" />
+            <Separator
+              className="h-3 bg-slate-400 my-auto"
+              orientation="vertical"
+            />
             {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
             {/* can move share to the end use commented classNmae */}
-            {/* <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
+            <Button className="bg-inherit shadow-none hover:bg-slate-200 rounded-full text-black">
               <FontAwesomeIcon icon={faShare} size="sm" />
               <span className="hidden  md:block">Share</span>
             </Button>
-          </div> */}
           </div>
           <Separator className="h-[0.1] bg-black" />
           {/* comment box */}
           <div className="flex w-full gap-3 justify-center items-center mt-4 px-4">
             <img
-              src={user?.avatar || "user-default.png"}
+              src={user?.avatar || "/user-default.png"}
               alt="profile"
               className="w-8 h-8 flex-shrink-0 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01] object-cover justify-center items-center"
             />
