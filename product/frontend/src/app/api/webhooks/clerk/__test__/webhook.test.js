@@ -59,4 +59,40 @@ describe("POST /api/webhooks/clerk", () => {
     expect(response.status).toBe(400);
     expect(await response.text()).toBe("Error: Missing Svix headers");
   });
+
+  // test for the user.created event while testing for webhook endpoint
+  it("creates a user on user.created event", async () => {
+    const mockVerify = jest.fn();
+    Webhook.mockImplementation(() => ({
+      verify: mockVerify,
+    }));
+    mockVerify.mockReturnValue({
+      id: "user-123",
+      type: "user.created",
+      data: {
+        id: "user-123",
+        username: "testuser",
+        first_name: "John",
+        last_name: "Doe",
+        image_url: "http://example.com/avatar.jpg",
+      },
+    });
+    prisma.user.create.mockResolvedValue({ id: "user-123" });
+
+    const response = await POST(req);
+
+    expect(mockVerify).toHaveBeenCalled();
+    expect(prisma.user.create).toHaveBeenCalledWith({
+      data: {
+        id: "user-123",
+        username: "testuser",
+        avatar: "http://example.com/avatar.jpg",
+        name: "John",
+        surname: "Doe",
+        cover: "/stories1.jpg",
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("User has been created!.");
+  });
 });
