@@ -53,6 +53,7 @@ describe("Clerk Middleware", () => {
     jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
+  // for public routes
   it("allows public routes without authentication", async () => {
     const publicRoutes = ["/sign-in", "/sign-up", "/api/webhooks/clerk"];
     for (const route of publicRoutes) {
@@ -60,5 +61,13 @@ describe("Clerk Middleware", () => {
       await middleware(auth, request);
       expect(auth.protect).not.toHaveBeenCalled();
     }
+  });
+
+  // for non-public routes
+  it("protects non-public routes and allows authenticated users", async () => {
+    request.url = "http://localhost:3000/dashboard";
+    await middleware(auth, request);
+    expect(auth.protect).toHaveBeenCalled();
+    expect(MockResponse.redirect).not.toHaveBeenCalled();
   });
 });
