@@ -46,14 +46,13 @@ export const followAction = async (userId) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
 
 // Block action
 export const blockAction = async (userId) => {
-  console.log("userId", userId);
   const { userId: currentUserId } = await auth();
   if (!currentUserId) {
     throw new Error("User not authenticated");
@@ -107,7 +106,7 @@ export const blockAction = async (userId) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
@@ -139,7 +138,7 @@ export const acceptFollowRequest = async (userId) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
@@ -165,7 +164,7 @@ export const rejectFollowRequest = async (userId) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
