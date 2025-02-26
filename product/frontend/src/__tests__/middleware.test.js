@@ -70,4 +70,20 @@ describe("Clerk Middleware", () => {
     expect(auth.protect).toHaveBeenCalled();
     expect(MockResponse.redirect).not.toHaveBeenCalled();
   });
+
+  // for unauthenticated users
+  it("redirects to sign-in on 404 (unauthenticated) for protected routes", async () => {
+    auth.protect.mockRejectedValue({ status: 404 }); // Simulate unauthenticated user
+    request.url = "http://localhost:3000/dashboard";
+    const response = await middleware(auth, request);
+    expect(auth.protect).toHaveBeenCalled();
+    expect(MockResponse.redirect).toHaveBeenCalledWith(
+      "http://localhost:3000/sign-in",
+      302
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe(
+      "http://localhost:3000/sign-in"
+    );
+  });
 });
