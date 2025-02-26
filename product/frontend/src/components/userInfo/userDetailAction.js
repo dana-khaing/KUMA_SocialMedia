@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "../ui/button";
+import { Button } from "../ui/button.jsx";
 import { useState, useOptimistic } from "react";
 import { followAction, blockAction } from "@/lib/action";
 
