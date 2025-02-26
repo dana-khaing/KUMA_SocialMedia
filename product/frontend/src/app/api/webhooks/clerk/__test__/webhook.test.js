@@ -145,4 +145,40 @@ describe("POST /api/webhooks/clerk", () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("User has been updated!.");
   });
+
+  // test for the user.deleted event while testing for webhook endpoint
+  it("deletes a user on user.deleted event", async () => {
+    const mockVerify = jest.fn();
+    Webhook.mockImplementation(() => ({
+      verify: mockVerify,
+    }));
+    mockVerify.mockReturnValue({
+      id: "user-123",
+      type: "user.deleted",
+      data: {
+        id: "user-123",
+      },
+    });
+    prisma.user.delete.mockResolvedValue({ id: "user-123" });
+
+    // Update the request payload to simulate a user.deleted event
+    req.json.mockResolvedValue({
+      id: "user-123",
+      type: "user.deleted",
+      data: {
+        id: "user-123",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(mockVerify).toHaveBeenCalled();
+    expect(prisma.user.delete).toHaveBeenCalledWith({
+      where: {
+        id: "user-123",
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("User has been deleted!.");
+  });
 });
