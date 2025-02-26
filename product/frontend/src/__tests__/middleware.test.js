@@ -86,4 +86,15 @@ describe("Clerk Middleware", () => {
       "http://localhost:3000/sign-in"
     );
   });
+
+  // for other errors
+  it("throws other errors for protected routes", async () => {
+    const error = new Error("Server error");
+    error.status = 500;
+    auth.protect.mockRejectedValue(error);
+    request.url = "http://localhost:3000/dashboard";
+    await expect(middleware(auth, request)).rejects.toThrow("Server error");
+    expect(auth.protect).toHaveBeenCalled();
+    expect(MockResponse.redirect).not.toHaveBeenCalled();
+  });
 });
