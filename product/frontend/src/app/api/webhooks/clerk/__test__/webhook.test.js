@@ -95,4 +95,54 @@ describe("POST /api/webhooks/clerk", () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("User has been created!.");
   });
+
+  // test for the user.updated event while testing for webhook endpoint
+  it("updates a user on user.updated event", async () => {
+    const mockVerify = jest.fn();
+    Webhook.mockImplementation(() => ({
+      verify: mockVerify,
+    }));
+    mockVerify.mockReturnValue({
+      id: "user-123",
+      type: "user.updated",
+      data: {
+        id: "user-123",
+        username: "updateduser",
+        first_name: "Jane",
+        last_name: "Smith",
+        image_url: "http://example.com/new-avatar.jpg",
+      },
+    });
+    prisma.user.update.mockResolvedValue({ id: "user-123" });
+
+    // Update the request payload to simulate a user.updated event
+    req.json.mockResolvedValue({
+      id: "user-123",
+      type: "user.updated",
+      data: {
+        id: "user-123",
+        username: "updateduser",
+        first_name: "Jane",
+        last_name: "Smith",
+        image_url: "http://example.com/new-avatar.jpg",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(mockVerify).toHaveBeenCalled();
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: {
+        id: "user-123",
+      },
+      data: {
+        name: "Jane",
+        surname: "Smith",
+        username: "updateduser",
+        avatar: "http://example.com/new-avatar.jpg",
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("User has been updated!.");
+  });
 });
