@@ -195,4 +195,40 @@ describe("Server Actions", () => {
       );
     });
   });
+
+  // rejectFollowRequest Tests
+  describe("rejectFollowRequest", () => {
+    it("throws error if user is not authenticated", async () => {
+      auth.mockResolvedValue({ userId: null });
+      await expect(rejectFollowRequest(userId)).rejects.toThrow(
+        "User not authenticated"
+      );
+    });
+
+    it("rejects follow request by deleting it", async () => {
+      prisma.followRequest.findFirst.mockResolvedValue({ id: "req1" });
+      await rejectFollowRequest(userId);
+
+      expect(prisma.followRequest.findFirst).toHaveBeenCalledWith({
+        where: { senderId: userId, receiverId: currentUserId },
+      });
+      expect(prisma.followRequest.delete).toHaveBeenCalledWith({
+        where: { id: "req1" },
+      });
+    });
+
+    it("does nothing if no follow request exists", async () => {
+      prisma.followRequest.findFirst.mockResolvedValue(null);
+      await rejectFollowRequest(userId);
+
+      expect(prisma.followRequest.delete).not.toHaveBeenCalled();
+    });
+
+    it("throws error on database failure", async () => {
+      prisma.followRequest.findFirst.mockRejectedValue(new Error("DB Error"));
+      await expect(rejectFollowRequest(userId)).rejects.toThrow(
+        "Something went wrong, Kuma"
+      );
+    });
+  });
 });
