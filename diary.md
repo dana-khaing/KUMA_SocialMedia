@@ -1,3 +1,20 @@
+#### 10 March
+
+- add the updating user detail feature using pop up view
+
+#### 7 March
+
+- implement testing for friend request sending feature and reject request
+
+#### 6 March
+
+- testing the follow user, and block user feature.
+
+#### 4 March
+
+- do the reresearch about java script testing tool kit and decide on jest javascrpt testing
+- implement testing for webhook from clerk database user update, user create and user user delete
+
 #### 25 Feb
 
 - review and revisiion the project and fix the UI problem
