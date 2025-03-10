@@ -6,9 +6,7 @@ import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import UserDetailAction from "./userDetailAction";
 import UserDetailUpdate from "./userDetailUpdate";
-import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { auth } from "@clerk/nextjs/server";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import prisma from "@/lib/client";
 
 export const UserDetail = async ({ user, owner }) => {
@@ -47,20 +45,7 @@ export const UserDetail = async ({ user, owner }) => {
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
       <div className="flex items-center justify-between px-4">
         <span className="text-sm text-[#ff4e02] py-2">User Information </span>
-        {owner && (
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger className="text-[#FF4E01] w-8 h-8 hover:bg-gray-200 rounded-full">
-              <FontAwesomeIcon icon={faEllipsisVertical} size="sm" />
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content className=" bg-white rounded-2xl shadow-lg p-[0.1rem] mr-12 mb-2">
-                <DropdownMenu.Item className="px-4 py-2 text-sm text-[#FF4E01] hover:bg-gray-50 rounded-2xl cursor-pointer ">
-                  <UserDetailUpdate user={user} owner={owner} />
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
-        )}
+        {owner && <UserDetailUpdate user={user} owner={owner} />}
       </div>
       <div className="flex-col gap-1 px-4 items-center">
         <div className="gap-4 flex items-center justify-start">
