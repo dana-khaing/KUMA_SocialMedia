@@ -19,7 +19,7 @@ export default async function Home() {
     },
   });
   return (
-    <div className="h-[120vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4">
+    <div className="h-[120vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
       {/* left */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <ProfileSmallCard />
