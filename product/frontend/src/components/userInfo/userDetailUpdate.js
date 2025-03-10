@@ -26,10 +26,10 @@ const UserDetailUpdate = ({ user, owner }) => {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>{" "}
       {open && (
-        <div className=" absolute w-screen h-screen top-0 left-0 bg-black bg-opacity-65 flex items-center justify-center z-50">
+        <div className=" absolute w-screen h-[162vh] bg-black top-0 backdrop:blur-md left-0 bg-opacity-35 flex items-center justify-center z-50">
           <form
             action=""
-            className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-full md:w-[35%] xl:w-[30%] relative"
+            className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[35%] xl:w-[30%] relative"
           >
             <div className="flex justify-around items-center h-8">
               <span className="text-base text-[#FF4E01] flex flex-1 items-center justify-between px-4">
@@ -53,7 +53,20 @@ const UserDetailUpdate = ({ user, owner }) => {
               @{user?.username || "username"}
             </div>
             {/* Update field */}
-            <div className="flex flex-col gap-2 p-5">
+            {/* Cover Photo */}
+            <div className="flex flex-row items-center gap-2 px-5 sm:px-2">
+              <label htmlFor="cover" className="text-[#FF4E01]">
+                Cover Photo
+              </label>
+              <input
+                type=""
+                name="cover"
+                id="cover"
+                className="border-[1px] flex-1 border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+            {/* for first name */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
               <label htmlFor="firstname" className="text-[#FF4E01]">
                 First Name
               </label>
@@ -65,6 +78,84 @@ const UserDetailUpdate = ({ user, owner }) => {
                 className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
               />
             </div>
+            {/* for last name */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="lastname" className="text-[#FF4E01]">
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastname"
+                id="lastname"
+                placeholder={user?.surname || "Last Name"}
+                className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+            {/* for city */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="city" className="text-[#FF4E01]">
+                City
+              </label>
+              <input
+                type="text"
+                name="city"
+                id="city"
+                placeholder={user?.city || "Where do you live, Kuma?"}
+                className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+            {/* for school */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="school" className="text-[#FF4E01]">
+                School
+              </label>
+              <input
+                type="text"
+                name="school"
+                id="school"
+                placeholder={user?.school || "Where did you graduate, Kuma?"}
+                className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+            {/* for work */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="work" className="text-[#FF4E01]">
+                Work
+              </label>
+              <input
+                type="text"
+                name="work"
+                id="work"
+                placeholder={user?.work || "Where do you work, Kuma?"}
+                className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+            {/* for website */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="website" className="text-[#FF4E01]">
+                Website
+              </label>
+              <input
+                type="text"
+                name="website"
+                id="website"
+                placeholder={user?.website || "Your website"}
+                className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+            {/* for bio */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="bio" className="text-[#FF4E01]">
+                Bio
+              </label>
+              <textarea
+                name="bio"
+                id="bio"
+                placeholder={user?.bio || "Bio"}
+                className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
+              />
+            </div>
+
             <div className="flex h-8 justify-center items-center">
               <Button
                 className="flex items-center w-32 absolute rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
