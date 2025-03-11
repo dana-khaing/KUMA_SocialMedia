@@ -1,6 +1,8 @@
 "use server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
+import { ci } from "jest.config";
+import { z } from "zod";
 
 // Follow action
 
@@ -165,6 +167,46 @@ export const rejectFollowRequest = async (userId) => {
     }
   } catch (error) {
     // console.log(error);
+    throw new Error("Something went wrong, Kuma");
+  }
+};
+
+export const updateProfile = async (data) => {
+  const fields = Object.fromEntries(data);
+  console.log(fields);
+  const Profile = z.object({
+    cover: z.string().optional(),
+    name: z.string().max(10).optional(),
+    surname: z.string().max(10).optional(),
+    bio: z.string().max(250).optional(),
+    city: z.string().max(60).optional(),
+    school: z.string().max(60).optional(),
+    work: z.string().max(60).optional(),
+    website: z.string().max(60).optional(),
+  });
+  const validateFields = Profile.safeParse(fields);
+  console.log(validateFields);
+  if (!validateFields.success) {
+    console.log(validateFields.error.flatten()); // Log detailed error
+    throw new Error(
+      "Invalid data: " +
+        JSON.stringify(validateFields.error.flatten().fieldErrors)
+    );
+  }
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: validateFields.data,
+    });
+  } catch (error) {
+    console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
