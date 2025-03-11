@@ -171,8 +171,13 @@ export const rejectFollowRequest = async (userId) => {
   }
 };
 
-export const updateProfile = async (data) => {
+export const updateProfile = async (data, cover) => {
   const fields = Object.fromEntries(data);
+
+  const filteredFields = Object.fromEntries(
+    Object.entries(fields).filter(([_, value]) => value !== "")
+  );
+
   console.log(fields);
   const Profile = z.object({
     cover: z.string().optional(),
@@ -184,8 +189,7 @@ export const updateProfile = async (data) => {
     work: z.string().max(60).optional(),
     website: z.string().max(60).optional(),
   });
-  const validateFields = Profile.safeParse(fields);
-  console.log(validateFields);
+  const validateFields = Profile.safeParse({ cover, ...filteredFields });
   if (!validateFields.success) {
     console.log(validateFields.error.flatten()); // Log detailed error
     throw new Error(
