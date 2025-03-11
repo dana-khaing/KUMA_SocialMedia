@@ -64,7 +64,12 @@ const UserDetailUpdate = ({ user, owner }) => {
             {/* Cover Photo */}
             <CldUploadWidget
               uploadPreset="kumasocialmedia"
-              onSuccess={(result) => setCover(result.info)}
+              onSuccess={(result) => {
+                setCover(result.info);
+                document
+                  .getElementById("upload-status")
+                  .classList.add("bg-green-300");
+              }}
               onError={(error) => {
                 console.log("Upload error:", error);
               }}
@@ -78,7 +83,10 @@ const UserDetailUpdate = ({ user, owner }) => {
                     <label htmlFor="cover" className="text-[#FF4E01]">
                       Cover Photo
                     </label>
-                    <span className=" text-sm flex flex-1 items-center justify-center text-[#FF4E01] border-[1px] border-gray-300 rounded-lg p-2 cursor-pointer">
+                    <span
+                      id="upload-status"
+                      className=" text-sm flex flex-1 items-center justify-center text-[#FF4E01] border-[1px] border-gray-300 rounded-lg p-2 cursor-pointer"
+                    >
                       <FontAwesomeIcon
                         icon={faUpload}
                         size="sm"
