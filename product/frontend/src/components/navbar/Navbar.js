@@ -9,7 +9,7 @@ export default async function Navbar() {
   return (
     <div className="flex w-full h-20 pr-4 pl-4 border-t-0 border-solid border-opacity-10 rounded-b-3xl border-[1px] bg-slate-50 border-[#FF4E01] mb-5">
       {/* start */}
-      <div className="w-[50%] md:w-[30%] flex-shrink-0">
+      <div className="w-[30%] md:w-[30%] flex-shrink-0">
         <Link
           href={"/"}
           className="w-full h-full items-start justify-center md:shrink-0"
@@ -29,9 +29,9 @@ export default async function Navbar() {
         <SignedOut></SignedOut>
       </div>
       {/* end */}
-      <div className="w-[50%] md:w-[30%] items-center flex gap-2 justify-around lg:justify-end">
+      <div className="w-[70%] md:w-[30%] items-center flex gap-2 justify-end">
         <Useravator />
-        <div className="flex lg:hidden justify-center items-center p-3">
+        <div className="flex lg:hidden justify-center items-center p-2">
           <SearchUser />
         </div>
         <NavitemMobile />
