@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { SignedIn } from "@clerk/nextjs";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import SearchUser from "../home/searchUser";
 import { auth } from "@clerk/nextjs/server";
 
 import Link from "next/link";
@@ -15,9 +15,9 @@ import Link from "next/link";
 export const NavitemMobile = async () => {
   const { userId } = await auth();
   return (
-    <SignedIn>
+    <SignedIn className="lg:hidden">
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger className="flex md:hidden items-center justify-center w-10 h-10 shadow rounded-full text-[#FF4E01] bg-white">
+        <DropdownMenu.Trigger className="flex lg:hidden flex-shrink-0 items-center justify-center w-10 h-10 shadow rounded-full text-[#FF4E01] bg-white">
           <FontAwesomeIcon icon={faBars} size="lg" />
         </DropdownMenu.Trigger>
 
@@ -31,17 +31,6 @@ export const NavitemMobile = async () => {
                   className="mr-2 text-[#FF4E02]"
                 />
                 Home
-              </DropdownMenu.Item>
-            </Link>
-            <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
-            <Link href="/">
-              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  size="md"
-                  className="mr-2 text-[#FF4E02]"
-                />
-                Search
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
@@ -99,7 +88,6 @@ export const NavitemMobile = async () => {
                 Notification
               </DropdownMenu.Item>
             </Link>
-            <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

@@ -20,8 +20,8 @@ const UserDetailUpdate = ({ user }) => {
   const handleClose = () => {
     setOpen(false);
     setTimeout(() => {
-      router.refresh(); // Soft refresh after delay
-    }, 500); // Adjust delay if needed
+      router.refresh();
+    }, 500);
   };
 
   return (
@@ -39,11 +39,11 @@ const UserDetailUpdate = ({ user }) => {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>{" "}
       {open && (
-        <div className=" absolute w-screen h-[162vh] bg-black top-0 backdrop:blur-md left-0 bg-opacity-35 flex items-center justify-center z-50">
+        <div className=" absolute w-screen h-[150vh] bg-black top-0 backdrop-blur-md left-0 bg-opacity-35 flex items-center justify-center z-40">
           <form
             action={(data) => updateProfile(data, cover?.secure_url)}
             onSubmit={handleClose}
-            className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[35%] xl:w-[30%] relative"
+            className="p-5 bg-white bottom-[17rem] rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[45%] xl:w-[30%] relative"
           >
             <div className="flex justify-around items-center h-8">
               <span className="text-base text-[#FF4E01] flex flex-1 items-center justify-between px-4">

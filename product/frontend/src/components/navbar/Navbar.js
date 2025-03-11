@@ -2,6 +2,7 @@ import Link from "next/link";
 import NavItem from "./navitem.js";
 import Useravator from "./useravator.js";
 import NavitemMobile from "./navitemMobile.js";
+import SearchUser from "@/components/home/searchUser.js";
 
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 export default async function Navbar() {
@@ -28,8 +29,11 @@ export default async function Navbar() {
         <SignedOut></SignedOut>
       </div>
       {/* end */}
-      <div className="w-[50%] md:w-[30%] items-center flex justify-end">
+      <div className="w-[50%] md:w-[30%] items-center flex gap-2 justify-around lg:justify-end">
         <Useravator />
+        <div className="flex lg:hidden justify-center items-center p-3">
+          <SearchUser />
+        </div>
         <NavitemMobile />
       </div>
     </div>

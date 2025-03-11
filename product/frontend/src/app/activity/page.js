@@ -15,7 +15,7 @@ export const Activity = () => {
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-screen px-2 h-[120vh] flex-col shrink-0 lg:w-[50%] overflow-y-scroll scrollbar-hide overscroll-x-none gap-5">
+      <div className="flex w-screen px-2 h-screen flex-col shrink-0 lg:w-[50%] overflow-y-scroll scrollbar-hide overscroll-x-none gap-5">
         <Birthday />
         <Notification />
       </div>
