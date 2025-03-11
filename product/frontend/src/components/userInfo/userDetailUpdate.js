@@ -1,14 +1,20 @@
 "use client";
 import { useState } from "react";
-import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEllipsisVertical,
+  faUpload,
+} from "@fortawesome/free-solid-svg-icons";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../ui/button";
+import { CldUploadWidget } from "next-cloudinary";
 import { updateProfile } from "@/lib/action";
+import { set } from "zod";
+
 const UserDetailUpdate = ({ user, owner }) => {
   const [open, setOpen] = useState(false);
-
+  const [cover, setCover] = useState(false);
   const handleClose = () => {
     setOpen(false);
   };
@@ -29,7 +35,7 @@ const UserDetailUpdate = ({ user, owner }) => {
       {open && (
         <div className=" absolute w-screen h-[162vh] bg-black top-0 backdrop:blur-md left-0 bg-opacity-35 flex items-center justify-center z-50">
           <form
-            action={updateProfile}
+            action={(data) => updateProfile(data, cover?.secure_url)}
             onSubmit={handleClose}
             className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[35%] xl:w-[30%] relative"
           >
@@ -56,18 +62,34 @@ const UserDetailUpdate = ({ user, owner }) => {
             </div>
             {/* Update field */}
             {/* Cover Photo */}
-            <div className="flex flex-row items-center gap-2 px-5 sm:px-2">
-              <label htmlFor="cover" className="text-[#FF4E01]">
-                Cover Photo
-              </label>
-              <input
-                type=""
-                name="cover"
-                id="cover"
-                className="border-[1px] flex-1 border-gray-300 rounded-lg p-2 px-4"
-              />
-            </div>
-            {/* for first name */}
+            <CldUploadWidget
+              uploadPreset="kumasocialmedia"
+              onSuccess={(result) => setCover(result.info)}
+              onError={(error) => {
+                console.log("Upload error:", error);
+              }}
+            >
+              {({ open: openUploadWidget }) => {
+                return (
+                  <div
+                    onClick={() => openUploadWidget()}
+                    className="flex flex-row items-center gap-2 px-5 sm:px-2"
+                  >
+                    <label htmlFor="cover" className="text-[#FF4E01]">
+                      Cover Photo
+                    </label>
+                    <span className=" text-sm flex flex-1 items-center justify-center text-[#FF4E01] border-[1px] border-gray-300 rounded-lg p-2 cursor-pointer">
+                      <FontAwesomeIcon
+                        icon={faUpload}
+                        size="sm"
+                        className="px-2"
+                      />
+                      Upload
+                    </span>
+                  </div>
+                );
+              }}
+            </CldUploadWidget>
             <div className="flex flex-col gap-2 px-5 sm:px-2">
               <label htmlFor="name" className="text-[#FF4E01]">
                 First Name
