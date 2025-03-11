@@ -45,7 +45,7 @@ export const UserDetail = async ({ user, owner }) => {
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
       <div className="flex items-center justify-between px-4">
         <span className="text-sm text-[#ff4e02] py-2">User Information </span>
-        {owner && <UserDetailUpdate user={user} owner={owner} />}
+        {owner && <UserDetailUpdate user={user} />}
       </div>
       <div className="flex-col gap-1 px-4 items-center">
         <div className="gap-4 flex items-center justify-start">
