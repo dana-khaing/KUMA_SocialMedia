@@ -14,10 +14,10 @@ export const SettingAction = () => {
     <div>
       <Button
         onClick={handleEditProfile}
-        className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+        className="flex flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
       >
-        <FontAwesomeIcon icon={faCog} size="md" className="mr-2" />
-        Setting
+        <FontAwesomeIcon icon={faCog} size="md" />
+        <span className="flex flex-1">Setting</span>
       </Button>
     </div>
   );

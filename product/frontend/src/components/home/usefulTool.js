@@ -8,7 +8,7 @@ import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { faStreetView } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import SettingAction from "./settingAction";
-
+import SearchUser from "./searchUser";
 export const UsefulTool = () => {
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default flex items-start justify-center py-4 ">
@@ -21,13 +21,7 @@ export const UsefulTool = () => {
       />
       {/* setting Button */}
       <div className="w-full flex flex-col gap-1 px-4">
-        <Link
-          href={"/"}
-          className="w-full flex-grow  h-fit items-center bg-transparent shadow-md text-base text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
-        >
-          <FontAwesomeIcon icon={faSearch} size="md" className="mr-2" />
-          Search
-        </Link>
+        <SearchUser />
         <Link
           href={"/"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
