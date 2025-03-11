@@ -5,6 +5,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../ui/button";
+import { updateProfile } from "@/lib/action";
 const UserDetailUpdate = ({ user, owner }) => {
   const [open, setOpen] = useState(false);
 
@@ -28,7 +29,8 @@ const UserDetailUpdate = ({ user, owner }) => {
       {open && (
         <div className=" absolute w-screen h-[162vh] bg-black top-0 backdrop:blur-md left-0 bg-opacity-35 flex items-center justify-center z-50">
           <form
-            action=""
+            action={updateProfile}
+            onSubmit={handleClose}
             className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[35%] xl:w-[30%] relative"
           >
             <div className="flex justify-around items-center h-8">
@@ -67,26 +69,26 @@ const UserDetailUpdate = ({ user, owner }) => {
             </div>
             {/* for first name */}
             <div className="flex flex-col gap-2 px-5 sm:px-2">
-              <label htmlFor="firstname" className="text-[#FF4E01]">
+              <label htmlFor="name" className="text-[#FF4E01]">
                 First Name
               </label>
               <input
                 type="text"
-                name="firstname"
-                id="firstname"
+                name="name"
+                id="name"
                 placeholder={user?.name || "First Name"}
                 className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
               />
             </div>
             {/* for last name */}
             <div className="flex flex-col gap-2 px-5 sm:px-2">
-              <label htmlFor="lastname" className="text-[#FF4E01]">
+              <label htmlFor="surname" className="text-[#FF4E01]">
                 Last Name
               </label>
               <input
                 type="text"
-                name="lastname"
-                id="lastname"
+                name="surname"
+                id="surname"
                 placeholder={user?.surname || "Last Name"}
                 className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
               />
@@ -159,7 +161,7 @@ const UserDetailUpdate = ({ user, owner }) => {
             <div className="flex h-8 justify-center items-center">
               <Button
                 className="flex items-center w-32 absolute rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
-                onClick={handleClose}
+                type="submit"
               >
                 Update Info
               </Button>

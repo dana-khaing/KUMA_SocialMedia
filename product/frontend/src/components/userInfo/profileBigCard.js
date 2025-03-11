@@ -19,7 +19,7 @@ export const ProfileBigCard = ({ user, owner }) => {
         {/* Cover photo */}
         <div className="relative w-full mb-12 h-[75%]">
           <img
-            src={user.cover || "/cover-default.png"}
+            src={user?.cover || "/cover-default.png"}
             alt="Coverphoto"
             className="rounded-t-2xl fill-transparent w-full h-full object-cover"
           />
