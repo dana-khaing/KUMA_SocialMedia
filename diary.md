@@ -1,7 +1,8 @@
 #### 11 March
 
-- used cloudinary to upload photo and photo has large size and we can store in the cloudinary and got the url to display ( need to explain more)
+- used cloudinary to upload photo and photo has large size and we can store in the cloudinary and got the url to display ( need to explain more in term of UX)
 - used zod library to check the form input string
+- useRourter to refresh the page after user press update to engage UX
 
 #### 10 March
 

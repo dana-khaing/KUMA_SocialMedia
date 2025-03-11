@@ -10,14 +10,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../ui/button";
 import { CldUploadWidget } from "next-cloudinary";
 import { updateProfile } from "@/lib/action";
-import { set } from "zod";
+import { useRouter } from "next/navigation";
 
-const UserDetailUpdate = ({ user, owner }) => {
+const UserDetailUpdate = ({ user }) => {
   const [open, setOpen] = useState(false);
   const [cover, setCover] = useState(false);
+  const router = useRouter();
+
   const handleClose = () => {
     setOpen(false);
+    setTimeout(() => {
+      router.refresh(); // Soft refresh after delay
+    }, 500); // Adjust delay if needed
   };
+
   return (
     <div>
       <DropdownMenu.Root>

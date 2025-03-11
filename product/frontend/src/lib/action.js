@@ -177,8 +177,6 @@ export const updateProfile = async (data, cover) => {
   const filteredFields = Object.fromEntries(
     Object.entries(fields).filter(([_, value]) => value !== "")
   );
-
-  console.log(fields);
   const Profile = z.object({
     cover: z.string().optional(),
     name: z.string().max(10).optional(),
@@ -191,11 +189,8 @@ export const updateProfile = async (data, cover) => {
   });
   const validateFields = Profile.safeParse({ cover, ...filteredFields });
   if (!validateFields.success) {
-    console.log(validateFields.error.flatten()); // Log detailed error
-    throw new Error(
-      "Invalid data: " +
-        JSON.stringify(validateFields.error.flatten().fieldErrors)
-    );
+    console.log("parsing went wrong");
+    throw new Error("Something went wrong, Kuma");
   }
   const { userId } = await auth();
   if (!userId) {
@@ -210,7 +205,6 @@ export const updateProfile = async (data, cover) => {
       data: validateFields.data,
     });
   } catch (error) {
-    console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
