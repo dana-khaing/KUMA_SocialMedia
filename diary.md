@@ -1,3 +1,8 @@
+#### 11 March
+
+- used cloudinary to upload photo and photo has large size and we can store in the cloudinary and got the url to display ( need to explain more)
+- used zod library to check the form input string
+
 #### 10 March
 
 - add the updating user detail feature using pop up view
