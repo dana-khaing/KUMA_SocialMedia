@@ -1,6 +1,5 @@
 import { Separator } from "@radix-ui/react-separator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faRss } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
@@ -20,41 +19,64 @@ export const UsefulTool = () => {
         className="bg-[#FF4E01] h-[0.05rem] w-[95%] mt-2 mb-2 mx-auto"
       />
       {/* setting Button */}
-      <div className="w-full flex flex-col gap-1 px-4">
-        <SearchUser />
+      <div className="w-full flex flex-col gap-1 px-4 ">
+        <div className="w-full flex-grow  h-fit items-center bg-transparent shadow-md text-base text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
+          <SearchUser />
+        </div>
+
         <Link
           href={"/"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faRss} size="md" className="mr-2" />
+          <FontAwesomeIcon
+            icon={faRss}
+            size="md"
+            className=" text-[#FF4E02] mr-2"
+          />
           New Feed
         </Link>
         <Link
           href={"/friendlist"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faUserCheck} size="md" className="mr-2" />
+          <FontAwesomeIcon
+            icon={faUserCheck}
+            size="md"
+            className="mr-2 text-[#FF4E02]"
+          />
           Friends
         </Link>
         <Link
           href={"/groupsite"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faUserGroup} size="md" className="mr-2" />
+          <FontAwesomeIcon
+            icon={faUserGroup}
+            size="md"
+            className="mr-2 text-[#FF4E02]"
+          />
           Group
         </Link>
         <Link
           href={"studio"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faVideo} size="md" className="mr-2" />
+          <FontAwesomeIcon
+            icon={faVideo}
+            size="md"
+            className="mr-2 text-[#FF4E02]"
+          />
           Watch
         </Link>
         <Link
           href={"/activity"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faStreetView} size="md" className="mr-2" />
+          <FontAwesomeIcon
+            icon={faStreetView}
+            size="md"
+            className="mr-2 text-[#FF4E02]"
+          />
           Activity
         </Link>
         <SettingAction />

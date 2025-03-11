@@ -18,8 +18,10 @@ export default async function Useravator() {
   return (
     <div className="text-[#FF4E01] flex w-fit items-center justify-end cursor-default">
       <SignedIn>
-        <div className="flex gap-2 w-fit h-14 text-center text-[#FF4E01] text-sm justify-center items-center border-solid border-transparent px-4 py-2 border-0 rounded-full hover:bg-[#FF4E01] hover:text-white ">
-          {user?.name} {user?.surname}
+        <div className="flex gap-2 w-fit h-14 text-center text-[#FF4E01] text-sm justify-center items-center border-solid border-transparent px-4 py-2 border-0 rounded-full">
+          <span className="flex flex-shrink-0">
+            {user?.name} {user?.surname}
+          </span>
           <UserButton
             appearance={{
               elements: {

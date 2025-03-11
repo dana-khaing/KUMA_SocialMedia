@@ -49,7 +49,7 @@ export const UserDetail = async ({ user, owner }) => {
       </div>
       <div className="flex-col gap-1 px-4 items-center">
         <div className="gap-4 flex items-center justify-start">
-          <div className="text-black text-xl font-bold">
+          <div className="text-black text-xl font-bold flex-shrink-0">
             {user?.name && user?.surname
               ? user.name + " " + user.surname
               : "Kuma User"}
