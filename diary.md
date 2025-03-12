@@ -1,3 +1,8 @@
+#### 12 March
+
+- finished seach engine and user can search by name or username(userid)
+- search feature is dynamic since the search listener will keep track of word by word which user type and display the ever changing result
+
 #### 11 March
 
 - used cloudinary to upload photo and photo has large size and we can store in the cloudinary and got the url to display ( need to explain more in term of UX)

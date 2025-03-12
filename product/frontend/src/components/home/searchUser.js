@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { faSearch, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { searchAction } from "@/lib/action"; // ✅ Import the server function
+import { searchAction } from "@/lib/action";
+import Link from "next/link";
 
 export const SearchUser = () => {
   const [open, setOpen] = useState(false);
@@ -41,8 +42,8 @@ export const SearchUser = () => {
         <span className="hidden lg:inline hover:text-white">Search</span>
       </div>
       {open && (
-        <div className="fixed w-screen h-screen bg-black top-0 bg-opacity-50 left-0 flex items-center justify-center z-50">
-          <div className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%] relative">
+        <div className="fixed w-screen h-screen bg-black top-0 bg-opacity-50 left-0 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="p-5 bg-white rounded-lg shadow-md flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[30%] relative">
             <div className="flex justify-between text-base text-[#FF4E01] items-center h-6">
               <span className="flex flex-1 px-2 lg:px-5">Search</span>
               <span
@@ -69,18 +70,43 @@ export const SearchUser = () => {
               orientation="horizontal"
               className="bg-gray-300 h-[0.05rem] w-[95%] mb-2 mx-auto"
             />
-            {/* Show search results */}
-            <div className="p-2">
+            {/* Showing search results */}
+            <div className="p-2 justify-center items-center flex flex-col gap-2">
               {loading ? (
-                <p>Loading...</p>
+                <p>Searching...</p>
               ) : results.length > 0 ? (
                 results.map((user) => (
-                  <p key={user.id} className="text-black">
-                    {user.name}
-                  </p>
+                  <div
+                    key={user.id}
+                    className="flex w-full gap-2 items-center hover:bg-slate-200 p-2 px-12 bg-gray-50 rounded-xl"
+                  >
+                    <Link
+                      href={`/profile/${user.id}`}
+                      key={user.id}
+                      className="flex"
+                    >
+                      <div className="flex-shrink-0  rounded-full bg-white items-center justify-center mr-2">
+                        <img
+                          src={user.avatar || "/user-default.png"}
+                          alt="profile"
+                          className="w-12 h-12 rounded-full ring-1 ring-[#FF4E01]"
+                        />
+                      </div>
+                      <div className="flex flex-row gap-2 cursor-pointer items-center justify-center">
+                        <span className="text-black text-sm line-clamp-1">
+                          {user?.name && user?.surname
+                            ? user.name + " " + user.surname
+                            : "Kuma User"}
+                        </span>
+                        <span className="text-xs text-gray-500 line-clamp-1">
+                          @{user.username}
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
                 ))
               ) : (
-                <p>No results found</p>
+                <p>No results found, Kuma</p>
               )}
             </div>
           </div>
