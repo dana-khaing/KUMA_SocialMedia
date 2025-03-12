@@ -22,7 +22,7 @@ export default async function Navbar() {
         </Link>
       </div>{" "}
       {/* mid */}
-      <div className="w-[40%] items-center">
+      <div className="w-0 md:w-[40%] items-center">
         <SignedIn>
           <NavItem />
         </SignedIn>
@@ -31,7 +31,7 @@ export default async function Navbar() {
       {/* end */}
       <div className="w-[70%] md:w-[30%] items-center flex gap-2 justify-end">
         <Useravator />
-        <div className="flex lg:hidden justify-center items-center p-2">
+        <div className="flex lg:hidden text-[#FF4E02] justify-center items-center p-2">
           <SearchUser />
         </div>
         <NavitemMobile />

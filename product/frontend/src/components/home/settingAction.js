@@ -14,7 +14,7 @@ export const SettingAction = () => {
     <div>
       <Button
         onClick={handleEditProfile}
-        className="flex flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+        className="flex flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02] hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
       >
         <FontAwesomeIcon icon={faCog} size="md" className="text-[#FF4E02]" />
         <span className="flex flex-1">Setting</span>

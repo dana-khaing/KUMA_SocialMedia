@@ -20,13 +20,13 @@ export const UsefulTool = () => {
       />
       {/* setting Button */}
       <div className="w-full flex flex-col gap-1 px-4 ">
-        <div className="w-full flex-grow  h-fit items-center bg-transparent shadow-md text-base text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
+        <div className="w-full flex-grow  h-fit items-center bg-transparent shadow-md text-base text-[#FF4E02] hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start">
           <SearchUser />
         </div>
 
         <Link
           href={"/"}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
           <FontAwesomeIcon
             icon={faRss}
@@ -37,7 +37,7 @@ export const UsefulTool = () => {
         </Link>
         <Link
           href={"/friendlist"}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
           <FontAwesomeIcon
             icon={faUserCheck}
@@ -48,7 +48,7 @@ export const UsefulTool = () => {
         </Link>
         <Link
           href={"/groupsite"}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
           <FontAwesomeIcon
             icon={faUserGroup}
@@ -59,7 +59,7 @@ export const UsefulTool = () => {
         </Link>
         <Link
           href={"studio"}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
           <FontAwesomeIcon
             icon={faVideo}
@@ -70,7 +70,7 @@ export const UsefulTool = () => {
         </Link>
         <Link
           href={"/activity"}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-black hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
+          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
           <FontAwesomeIcon
             icon={faStreetView}
