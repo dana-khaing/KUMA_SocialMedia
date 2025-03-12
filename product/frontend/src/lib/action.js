@@ -1,7 +1,6 @@
 "use server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
-import { ci } from "jest.config";
 import { z } from "zod";
 
 // Follow action
@@ -205,6 +204,24 @@ export const updateProfile = async (data, cover) => {
       data: validateFields.data,
     });
   } catch (error) {
+    throw new Error("Something went wrong, Kuma");
+  }
+};
+
+// search action
+export const searchAction = async (query) => {
+  try {
+    return await prisma.user.findMany({
+      where: {
+        OR: [
+          { name: { contains: query.toLowerCase() } },
+          { surname: { contains: query.toLowerCase() } },
+          { username: { contains: query.toLowerCase() } },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error("Search error:", error);
     throw new Error("Something went wrong, Kuma");
   }
 };
