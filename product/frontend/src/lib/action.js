@@ -256,3 +256,78 @@ export const switchLike = async (postId, userId) => {
     throw new Error("Something went wrong, Kuma");
   }
 };
+
+export const switchReaction = async (postId, userId, reactionType) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    // Determine the opposite reaction type
+    const oppositeType = reactionType === "like" ? "love" : "like";
+
+    // Start a transaction to ensure atomicity
+    await prisma.$transaction(async (tx) => {
+      // Check for existing reaction of the requested type
+      const existingReaction =
+        reactionType === "like"
+          ? await tx.like.findFirst({
+              where: { postId, userId },
+            })
+          : await tx.love.findFirst({
+              where: { postId, userId },
+            });
+
+      // Check for opposite reaction
+      const oppositeReaction =
+        oppositeType === "like"
+          ? await tx.like.findFirst({
+              where: { postId, userId },
+            })
+          : await tx.love.findFirst({
+              where: { postId, userId },
+            });
+
+      // If opposite reaction exists, remove it
+      if (oppositeReaction) {
+        if (oppositeType === "like") {
+          await tx.like.delete({
+            where: { id: oppositeReaction.id },
+          });
+        } else {
+          await tx.love.delete({
+            where: { id: oppositeReaction.id },
+          });
+        }
+      }
+
+      // Toggle the requested reaction
+      if (existingReaction) {
+        // Remove the current reaction
+        if (reactionType === "like") {
+          await tx.like.delete({
+            where: { id: existingReaction.id },
+          });
+        } else {
+          await tx.love.delete({
+            where: { id: existingReaction.id },
+          });
+        }
+      } else {
+        // Add the new reaction
+        if (reactionType === "like") {
+          await tx.like.create({
+            data: { postId, userId },
+          });
+        } else {
+          await tx.love.create({
+            data: { postId, userId },
+          });
+        }
+      }
+    });
+    return { success: true, reactionType };
+  } catch (error) {
+    throw new Error("Something went wrong, Kuma");
+  }
+};
