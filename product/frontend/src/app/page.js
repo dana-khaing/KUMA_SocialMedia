@@ -31,7 +31,7 @@ export default async function Home() {
 
   /// map following followingId
   const followingIds = followings.map((following) => following.followingId);
-  console.log(followingIds);
+  // console.log(followingIds);
 
   /// fetch all posts from following
   const posts = await prisma.post.findMany({
@@ -61,7 +61,7 @@ export default async function Home() {
     },
   });
   return (
-    <div className="h-screen w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
+    <div className="h-[150vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
       {/* left */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <ProfileSmallCard />
@@ -72,7 +72,7 @@ export default async function Home() {
         <div className="flex flex-col gap-5 w-[100%] h-[120vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
           <Addpost user={user} />
-          <Newfeed />
+          <Newfeed posts={posts} />
         </div>
       </div>
 
