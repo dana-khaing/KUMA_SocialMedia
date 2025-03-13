@@ -39,27 +39,27 @@ const Addpost = ({ user }) => {
       <div className=" w-full h-10 flex gap-2 items-center justify-start md:justify-center mt-2 overflow-x-auto flex-nowrap scrollbar-hide">
         <Button className="flex items-center w-24 rounded-full h-fit text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent  cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faCamera} size="lg" />
-          <span className="text-black">Photo</span>
+          <span>Photo</span>
         </Button>
         <Separator orientation="vertical" className=" bg-[#FF4E01]" />
         <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faImage} size="lg" />
-          <span className="text-black">Image</span>
+          <span>Image</span>
         </Button>
         <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
         <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faVideo} size="lg" />
-          <span className="text-black">Video</span>
+          <span>Video</span>
         </Button>
         <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
         <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faSquarePollVertical} size="lg" />
-          <span className="text-black">Poll</span>
+          <span>Poll</span>
         </Button>
         <Separator orientation="vertical" className="h-9 bg-[#FF4E01] " />
         <Button className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center">
           <FontAwesomeIcon icon={faCalendar} size="lg" />
-          <span className="text-black">Event</span>
+          <span>Event</span>
         </Button>
       </div>
     </div>
