@@ -2,6 +2,8 @@
 // import { useUser } from "@clerk/nextjs"; // useUser() hook to get user data not use server side (Current user)
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { formatDistanceToNow } from "date-fns";
 import CommentBox from "./commentBox";
 
 import {
@@ -16,13 +18,17 @@ import {
 import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 
-const Newfeed = ({ user }) => {
-  // Here is the post description
-  const [expanded, setExpanded] = useState(false);
-  const [showCommentbox, setShowCommentbox] = useState(false);
-  const decription =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
+const Newfeed = ({ user, posts = [] }) => {
+  const [showCommentbox, setShowCommentbox] = useState({});
+  // Toggle only the clicked post's comment box
+  const toggleCommentBox = (postId) => {
+    setShowCommentbox((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
 
+  const [expanded, setExpanded] = useState(false); // for expanding post description
   const [liked, setLiked] = useState(false);
   const [loved, setLoved] = useState(false);
 
@@ -48,114 +54,131 @@ const Newfeed = ({ user }) => {
       {/* postcard container */}
       <div className=" flex flex-col justify-center items-center gap-5">
         {/* postCard */}
-        <div className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-3 md:py-5 text-sm">
-          {/* user detail*/}
-          {/* avator */}
-          <div className="flex gap-3">
-            <div className=" flex items-center justify-center w-12">
-              <img
-                src="/stories1.jpg"
-                alt="profile"
-                className="w-10 h-10 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
-              />
-            </div>
-            {/* name & time */}
-            <div className=" mx-3 flex-1 flex-col items-center justify-center ">
-              <div className="text-black font-semibold ">Hein Htet Aung</div>
-              <div className="text-slate-400">
-                <FontAwesomeIcon icon={faClock} size="sm" />
-                <span> 2 hours ago</span>
+        {posts.length > 0 ? (
+          posts.map((post) => (
+            <div
+              key={post.id}
+              className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-3 md:py-5 text-sm"
+            >
+              {/* user detail*/}
+              {/* avatar */}
+              <div className="flex gap-3">
+                <div className="flex items-center justify-center w-12">
+                  <img
+                    src={post.user?.avatar || "/user-default.png"}
+                    alt="profile"
+                    className="w-10 h-10 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+                  />
+                </div>
+                {/* name & time */}
+                <div className="mx-3 flex-1 flex-col items-center justify-center">
+                  <div className="text-black font-semibold">
+                    {post.user.name + " " + post.user.surname ||
+                      post.user.username ||
+                      "Kuma User"}
+                  </div>
+                  <div className="text-slate-400">
+                    <FontAwesomeIcon icon={faClock} size="sm" />
+                    <span>
+                      {" "}
+                      {formatDistanceToNow(post.createdAt, {
+                        addSuffix: true,
+                      })}{" "}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 items-center">
+                  {/* <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full">
+                    <FontAwesomeIcon icon={faEllipsis} size="sm" />
+                  </Button> */}
+                  <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full">
+                    <FontAwesomeIcon icon={faXmark} size="sm" />
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="flex justify-end gap-3 items-center">
-              <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full">
-                <FontAwesomeIcon icon={faEllipsis} size="sm" />
-              </Button>
-              <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full">
-                <FontAwesomeIcon icon={faXmark} size="sm" />
-              </Button>
-            </div>
-          </div>
 
-          {/* desc & photo */}
-          <div className="p-2">
-            {/* if the decrption is over 2 line they gonna hide but iff we press see more we can see whole */}
-            <p
-              className={`${
-                expanded ? "" : "line-clamp-2"
-              }  text-justify align-super`}
-            >
-              {decription}
-            </p>
-            {decription.length > 100 && (
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="text-[#FF4E02] mb-5 text-left"
-              >
-                {expanded ? "See less" : "See more"}
-              </button>
-            )}
-            <img
-              src="/stories1.jpg"
-              alt="post"
-              className="w-full h-full object-contain rounded-xl"
-            />
-          </div>
-          {/* reaction bar */}
-          <div className="flex w-full px-4 gap-0 md:gap-3 items-around justify-center pb-2">
-            <Button
-              className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
-                liked ? "text-blue-600" : "text-black"
-              }`}
-              onClick={handleLike}
-            >
-              <FontAwesomeIcon icon={faThumbsUp} size="sm" />
-              <span>0</span>
-              <span className="hidden  md:block">Like</span>
-            </Button>
-            <Separator
-              className="h-3 bg-slate-400  my-auto"
-              orientation="vertical"
-            />
-            <Button
-              className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
-                loved ? "text-red-600" : "text-black"
-              }`}
-              onClick={handleLove}
-            >
-              <FontAwesomeIcon icon={faHeart} size="sm" />
-              <span>0</span>
-              <span className="hidden  md:block">Love</span>
-            </Button>
-            <Separator
-              className="h-3 bg-slate-400 my-auto"
-              orientation="vertical"
-            />
-            <Button
-              onClick={() => setShowCommentbox((prev) => !prev)}
-              className={`bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full ${
-                showCommentbox ? "text-blue-600" : "text-black"
-              }`}
-            >
-              <FontAwesomeIcon icon={faComment} size="sm" />
-              <span>0</span>
-              <span className="hidden  md:block">Comment</span>
-            </Button>
-            <Separator
-              className="h-3 bg-slate-400 my-auto"
-              orientation="vertical"
-            />
-            {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
-            {/* can move share to the end use commented classNmae */}
-            <Button className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black">
-              <FontAwesomeIcon icon={faShare} size="sm" />
-              <span className="hidden  md:block">Share</span>
-            </Button>
-          </div>
-          <Separator className="h-[0.1] bg-black" />
-          {/* comment box */}
-          {showCommentbox && <CommentBox user={user} />}
-        </div>
+              {/* desc & photo */}
+              <div className="p-2">
+                <p
+                  className={`p-2 ${
+                    expanded ? "" : "line-clamp-2"
+                  } text-justify align-super`}
+                >
+                  {post.desc}
+                </p>
+                {post.desc?.length > 100 && (
+                  <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="text-[#FF4E02] mb-5 text-left"
+                  >
+                    {expanded ? "See less" : "See more"}
+                  </button>
+                )}
+                <img
+                  src={post.image}
+                  alt="post"
+                  className="w-full h-full object-contain rounded-xl"
+                />
+              </div>
+
+              {/* reaction bar */}
+              <div className="flex w-full gap-0 md:gap-3 items-around justify-center pb-2">
+                <Button
+                  className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
+                    liked ? "text-blue-600" : "text-black"
+                  }`}
+                  onClick={handleLike}
+                >
+                  <FontAwesomeIcon icon={faThumbsUp} size="sm" />
+                  <span>{post._count?.likes || 0}</span>
+                  <span className="hidden md:block">Like</span>
+                </Button>
+                <Separator
+                  className="h-3 bg-slate-400 my-auto"
+                  orientation="vertical"
+                />
+                <Button
+                  className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
+                    loved ? "text-red-600" : "text-black"
+                  }`}
+                  onClick={handleLove}
+                >
+                  <FontAwesomeIcon icon={faHeart} size="sm" />
+                  <span>{post._count?.loves || 0}</span>
+                  <span className="hidden md:block">Love</span>
+                </Button>
+                <Separator
+                  className="h-3 bg-slate-400 my-auto"
+                  orientation="vertical"
+                />
+                <Button
+                  onClick={() => toggleCommentBox(post.id)}
+                  className={`bg-inherit w-fit shadow-none hover:bg-transparent rounded-full ${
+                    showCommentbox[post.id] ? "text-blue-600" : "text-black"
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faComment} size="sm" />
+                  <span>{post._count?.comments || 0}</span>
+                  <span className="hidden md:block">Comment</span>
+                </Button>
+                <Separator
+                  className="h-3 bg-slate-400 my-auto"
+                  orientation="vertical"
+                />
+                <Button className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black">
+                  <FontAwesomeIcon icon={faShare} size="sm" />
+                  <span className="hidden md:block">Share</span>
+                </Button>
+              </div>
+
+              {showCommentbox[post.id] && <CommentBox user={user} />}
+            </div>
+          ))
+        ) : (
+          <p className="text-[#FF4E01] font-bold p-20 h-20">
+            No posts to show, KUMA!!
+          </p>
+        )}
       </div>
     </div>
   );

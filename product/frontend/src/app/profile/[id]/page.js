@@ -29,31 +29,33 @@ const ProfilePage = async ({ params }) => {
   if (!user) {
     return notFound();
   }
+  /// fetch all posts of the profiles user
+  const posts =
+    (await prisma.post.findMany({
+      where: {
+        userId: id,
+      },
+      include: {
+        user: true,
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        loves: {
+          select: {
+            userId: true,
+          },
+        },
 
-  const posts = await prisma.post.findMany({
-    where: {
-      userId: id,
-    },
-    include: {
-      user: true,
-      likes: {
-        select: {
-          userId: true,
+        _count: {
+          select: { comments: true, likes: true, loves: true },
         },
       },
-      loves: {
-        select: {
-          userId: true,
-        },
+      orderBy: {
+        createdAt: "desc",
       },
-      _count: {
-        select: { comments: true },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    })) || [];
 
   const { userId } = await auth();
   const isOwner = userId === id;
@@ -96,7 +98,7 @@ const ProfilePage = async ({ params }) => {
           </Suspense>
         </div>
         <div className="flex flex-col gap-5 w-full">
-          <Newfeed user={user} />
+          <Newfeed user={user} posts={posts} />
         </div>
       </div>
 

@@ -68,7 +68,7 @@ export const UserDetail = async ({ user, owner }) => {
           {/* <div className="text-gray-500">Living in</div> */}
           <div className="flex-grow">
             <span className="text-md line-clamp-1">
-              {user?.city || "unknown,kuma"}
+              {user?.city || <p className="text-gray-300">unknown,kuma</p>}
             </span>
           </div>
         </div>
@@ -81,7 +81,7 @@ export const UserDetail = async ({ user, owner }) => {
           {/* <div className="text-gray-500 flex-shrink-0">Graduated from</div> */}
           <div className="flex-grow">
             <span className="text-md line-clamp-1">
-              {user?.school || "unknown school,kuma"}
+              {user?.school || <p className="text-gray-300">unknown,kuma</p>}
             </span>
           </div>
         </div>
@@ -94,7 +94,7 @@ export const UserDetail = async ({ user, owner }) => {
           {/* <div className="text-gray-500 flex-shrink-0">Works at</div> */}
           <div className="flex-grow">
             <span className="text-md line-clamp-1">
-              {user?.work || "unknown,kuma"}
+              {user?.work || <p className="text-gray-300">unknown,kuma</p>}
             </span>
           </div>
         </div>
