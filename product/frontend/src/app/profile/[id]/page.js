@@ -30,6 +30,31 @@ const ProfilePage = async ({ params }) => {
     return notFound();
   }
 
+  const posts = await prisma.post.findMany({
+    where: {
+      userId: id,
+    },
+    include: {
+      user: true,
+      likes: {
+        select: {
+          userId: true,
+        },
+      },
+      loves: {
+        select: {
+          userId: true,
+        },
+      },
+      _count: {
+        select: { comments: true },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
   const { userId } = await auth();
   const isOwner = userId === id;
   let isBlocked = false;
