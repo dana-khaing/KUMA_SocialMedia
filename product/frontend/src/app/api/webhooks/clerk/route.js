@@ -63,7 +63,8 @@ export async function POST(req) {
           avatar: evt.data.image_url || "/user-default.png",
           name: evt.data.first_name,
           surname: evt.data.last_name,
-          cover: "/stories1.jpg",
+          cover: "/cover-default.jpg",
+          bio: "Hello, I'm new here! Kuma!",
         },
       });
       return new Response("User has been created!.", { status: 200 });

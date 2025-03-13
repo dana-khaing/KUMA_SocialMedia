@@ -18,6 +18,48 @@ export default async function Home() {
       id: userId,
     },
   });
+
+  /// get following ids
+  const followings = await prisma.follower.findMany({
+    where: {
+      followerId: userId,
+    },
+    select: {
+      followingId: true,
+    },
+  });
+
+  /// map following followingId
+  const followingIds = followings.map((following) => following.followingId);
+  console.log(followingIds);
+
+  /// fetch all posts from following
+  const posts = await prisma.post.findMany({
+    where: {
+      userId: {
+        in: followingIds,
+      },
+    },
+    include: {
+      user: true,
+      likes: {
+        select: {
+          userId: true,
+        },
+      },
+      loves: {
+        select: {
+          userId: true,
+        },
+      },
+      _count: {
+        select: { comments: true },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   return (
     <div className="h-screen w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
       {/* left */}
@@ -30,7 +72,7 @@ export default async function Home() {
         <div className="flex flex-col gap-5 w-[100%] h-[120vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
           <Addpost user={user} />
-          <Newfeed user={user} />
+          <Newfeed />
         </div>
       </div>
 
