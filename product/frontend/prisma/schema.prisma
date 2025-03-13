@@ -29,6 +29,7 @@ model User {
   followings             Follower[]      @relation("UserFollowers")
   followers              Follower[]      @relation("UserFollowings")
   likes                  Like[]
+  loves                  Love[]
   posts                  Post[]
   stories                Story[]
 }
@@ -42,6 +43,7 @@ model Post {
   userId    String
   comments  Comment[]
   likes     Like[]
+  loves     Love[]
   user      User      @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Post_userId_fkey")
@@ -60,6 +62,18 @@ model Like {
   @@index([commentId], map: "Like_commentId_fkey")
   @@index([postId], map: "Like_postId_fkey")
   @@index([userId], map: "Like_userId_fkey")
+}
+
+model Love {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userId    String
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId], map: "Love_postId_fkey")
+  @@index([userId], map: "Love_userId_fkey")
 }
 
 model Comment {
