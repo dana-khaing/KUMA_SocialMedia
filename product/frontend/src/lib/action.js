@@ -225,3 +225,34 @@ export const searchAction = async (query) => {
     throw new Error("Something went wrong, Kuma");
   }
 };
+
+export const switchLike = async (postId, userId) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+  try {
+    const existingLike = await prisma.like.findFirst({
+      where: {
+        postId,
+        userId,
+      },
+    });
+    if (existingLike) {
+      await prisma.like.delete({
+        where: {
+          id: existingLike.id,
+        },
+      });
+    } else {
+      await prisma.like.create({
+        data: {
+          postId,
+          userId,
+        },
+      });
+    }
+    console.log("like switch");
+  } catch (error) {
+    throw new Error("Something went wrong, Kuma");
+  }
+};
