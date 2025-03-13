@@ -53,10 +53,10 @@ model Like {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   userId    String
-  postId    Int
-  commentId Int
-  Comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int?
+  commentId Int?
+  Comment   Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([commentId], map: "Like_commentId_fkey")
@@ -68,8 +68,8 @@ model Love {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   userId    String
-  postId    Int
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int?
+  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([postId], map: "Love_postId_fkey")

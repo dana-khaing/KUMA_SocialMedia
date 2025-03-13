@@ -47,9 +47,12 @@ const ProfilePage = async ({ params }) => {
             userId: true,
           },
         },
-
         _count: {
-          select: { comments: true, likes: true, loves: true },
+          select: {
+            comments: true,
+            likes: true,
+            loves: true,
+          },
         },
       },
       orderBy: {
