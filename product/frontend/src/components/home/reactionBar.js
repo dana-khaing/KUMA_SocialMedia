@@ -11,10 +11,10 @@ import { Separator } from "../ui/separator";
 import { useState } from "react";
 import CommentBox from "./commentBox";
 import { useOptimistic, useTransition } from "react";
-import { switchLike } from "@/lib/action";
+import { switchReaction } from "@/lib/action";
 
 const ReactionBar = ({ post, user }) => {
-  /// show comment box
+  // Show comment box
   const [showCommentbox, setShowCommentbox] = useState({});
   const toggleCommentBox = (postId) => {
     setShowCommentbox((prev) => ({
@@ -23,7 +23,7 @@ const ReactionBar = ({ post, user }) => {
     }));
   };
 
-  ///Like action
+  // Like state
   const [liked, setLiked] = useState({
     isLiked: user?.id
       ? post.likes.some((like) => like.userId === user.id)
@@ -31,50 +31,124 @@ const ReactionBar = ({ post, user }) => {
     likeCount: post._count?.likes || 0,
   });
 
-  const [optimisticLike, updateOptimisticLike] = useOptimistic(
-    liked,
-    (state) => ({
-      ...state,
-      isLiked: !state.isLiked,
-      likeCount: state.isLiked ? state.likeCount - 1 : state.likeCount + 1,
-    })
+  // Love state
+  const [loved, setLoved] = useState({
+    isLoved: user?.id
+      ? post.loves.some((love) => love.userId === user.id)
+      : false,
+    loveCount: post._count?.loves || 0,
+  });
+
+  // Optimistic updates for both reactions
+  const [optimisticReactions, updateOptimisticReactions] = useOptimistic(
+    { liked, loved },
+    (state, { reactionType }) => {
+      if (reactionType === "like") {
+        return {
+          liked: {
+            isLiked: !state.liked.isLiked,
+            likeCount: state.liked.isLiked
+              ? state.liked.likeCount - 1
+              : state.liked.likeCount + 1,
+          },
+          loved: state.liked.isLiked
+            ? state.loved // No change if liking when already liked
+            : { isLoved: false, loveCount: state.loved.loveCount }, // Remove love if liking
+        };
+      } else {
+        return {
+          liked: state.loved.isLoved
+            ? state.liked // No change if loving when already loved
+            : { isLiked: false, likeCount: state.liked.likeCount }, // Remove like if loving
+          loved: {
+            isLoved: !state.loved.isLoved,
+            loveCount: state.loved.isLoved
+              ? state.loved.loveCount - 1
+              : state.loved.loveCount + 1,
+          },
+        };
+      }
+    }
   );
 
   const [isPending, startTransition] = useTransition();
 
   const likeAction = async () => {
+    if (!user?.id) {
+      console.error("Please log in to react");
+      return;
+    }
+
     startTransition(() => {
-      updateOptimisticLike();
+      updateOptimisticReactions({ reactionType: "like" });
     });
 
     try {
-      await switchLike(post.id, user.id);
-      setLiked((prev) => ({
-        isLiked: !prev.isLiked,
-        likeCount: prev.isLiked ? prev.likeCount - 1 : prev.likeCount + 1,
-      }));
+      const result = await switchReaction(post.id, user.id, "like");
+      if (result.success) {
+        setLiked((prev) => ({
+          isLiked: !prev.isLiked,
+          likeCount: prev.isLiked ? prev.likeCount - 1 : prev.likeCount + 1,
+        }));
+        if (loved.isLoved) {
+          setLoved((prev) => ({
+            ...prev,
+            isLoved: false,
+            loveCount: prev.loveCount - 1,
+          }));
+        }
+      }
     } catch (error) {
-      console.error("Failed to update like:", error);
+      console.error("Failed to update like:", error.message);
       setLiked(liked);
+      setLoved(loved);
     }
   };
 
-  const [loved, setLoved] = useState(
-    user?.id ? post.loves.some((love) => love.userId === user.id) : false
-  );
+  const loveAction = async () => {
+    if (!user?.id) {
+      console.error("Please log in to react");
+      return;
+    }
+
+    startTransition(() => {
+      updateOptimisticReactions({ reactionType: "love" });
+    });
+
+    try {
+      const result = await switchReaction(post.id, user.id, "love");
+      if (result.success) {
+        setLoved((prev) => ({
+          isLoved: !prev.isLoved,
+          loveCount: prev.isLoved ? prev.loveCount - 1 : prev.loveCount + 1,
+        }));
+        if (liked.isLiked) {
+          setLiked((prev) => ({
+            ...prev,
+            isLiked: false,
+            likeCount: prev.likeCount - 1,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update love:", error.message);
+      setLiked(liked);
+      setLoved(loved);
+    }
+  };
 
   return (
     <>
-      <div className="flex w-full gap-0 md:gap-3 items-around justify-center pb-2">
+      <div className="flex w-full gap-5 md:gap-1 items-around justify-center pb-2">
         <Button
           className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
-            optimisticLike.isLiked ? "text-blue-600" : "text-black"
+            optimisticReactions.liked.isLiked ? "text-blue-600" : "text-black"
           }`}
           onClick={likeAction}
           disabled={isPending || !user?.id}
         >
           <FontAwesomeIcon icon={faThumbsUp} size="sm" />
-          <span>{optimisticLike.likeCount}</span>
+          <span>{optimisticReactions.liked.likeCount}</span>
           <span className="hidden md:block">Like</span>
         </Button>
         <Separator
@@ -83,12 +157,13 @@ const ReactionBar = ({ post, user }) => {
         />
         <Button
           className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
-            loved ? "text-red-600" : "text-black"
+            optimisticReactions.loved.isLoved ? "text-red-600" : "text-black"
           }`}
-          // onClick={handleLove}
+          onClick={loveAction}
+          disabled={isPending || !user?.id}
         >
           <FontAwesomeIcon icon={faHeart} size="sm" />
-          <span>{post._count?.loves || 0}</span>
+          <span>{optimisticReactions.loved.loveCount}</span>
           <span className="hidden md:block">Love</span>
         </Button>
         <Separator
