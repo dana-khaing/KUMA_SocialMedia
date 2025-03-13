@@ -2,6 +2,7 @@
 // import { useUser } from "@clerk/nextjs"; // useUser() hook to get user data not use server side (Current user)
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import CommentBox from "./commentBox";
 
 import {
   faClock,
@@ -18,6 +19,7 @@ import { Separator } from "../ui/separator.jsx";
 const Newfeed = ({ user }) => {
   // Here is the post description
   const [expanded, setExpanded] = useState(false);
+  const [showCommentbox, setShowCommentbox] = useState(false);
   const decription =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
 
@@ -102,12 +104,13 @@ const Newfeed = ({ user }) => {
           {/* reaction bar */}
           <div className="flex w-full px-4 gap-0 md:gap-3 items-around justify-center pb-2">
             <Button
-              className={`bg-inherit shadow-none w-28 hover:bg-slate-200 rounded-full ${
+              className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
                 liked ? "text-blue-600" : "text-black"
               }`}
               onClick={handleLike}
             >
               <FontAwesomeIcon icon={faThumbsUp} size="sm" />
+              <span>0</span>
               <span className="hidden  md:block">Like</span>
             </Button>
             <Separator
@@ -115,20 +118,27 @@ const Newfeed = ({ user }) => {
               orientation="vertical"
             />
             <Button
-              className={`bg-inherit shadow-none w-28 hover:bg-slate-200 rounded-full ${
+              className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
                 loved ? "text-red-600" : "text-black"
               }`}
               onClick={handleLove}
             >
               <FontAwesomeIcon icon={faHeart} size="sm" />
+              <span>0</span>
               <span className="hidden  md:block">Love</span>
             </Button>
             <Separator
               className="h-3 bg-slate-400 my-auto"
               orientation="vertical"
             />
-            <Button className="bg-inherit w-28 shadow-none hover:bg-slate-200 rounded-full text-black">
+            <Button
+              onClick={() => setShowCommentbox((prev) => !prev)}
+              className={`bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full ${
+                showCommentbox ? "text-blue-600" : "text-black"
+              }`}
+            >
               <FontAwesomeIcon icon={faComment} size="sm" />
+              <span>0</span>
               <span className="hidden  md:block">Comment</span>
             </Button>
             <Separator
@@ -137,29 +147,14 @@ const Newfeed = ({ user }) => {
             />
             {/* <Button className="bg-inherit shadow-none flex-grow justify-end hover:bg-slate-200 rounded-full text-black"> */}
             {/* can move share to the end use commented classNmae */}
-            <Button className="bg-inherit w-28 shadow-none hover:bg-slate-200 rounded-full text-black">
+            <Button className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black">
               <FontAwesomeIcon icon={faShare} size="sm" />
               <span className="hidden  md:block">Share</span>
             </Button>
           </div>
           <Separator className="h-[0.1] bg-black" />
           {/* comment box */}
-          <div className="flex w-full gap-3 justify-center items-center mt-4 px-4">
-            <img
-              src={user?.avatar || "/user-default.png"}
-              alt="profile"
-              className="w-8 h-8 flex-shrink-0 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01] object-cover justify-center items-center"
-            />
-
-            <input
-              type="text"
-              placeholder="Write a comment"
-              className="w-full h-10 p-2 px-4 rounded-full border-2 bg-slate-100 text-black"
-            />
-            <Button className="flex items-center shadow-md justify-center bg-transparent  h-10 cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black">
-              Comment
-            </Button>
-          </div>
+          {showCommentbox && <CommentBox user={user} />}
         </div>
       </div>
     </div>
