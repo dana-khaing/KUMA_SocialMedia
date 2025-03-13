@@ -10,7 +10,7 @@ const CommentBox = ({ user }) => {
       {/* Comments wrapper */}
       <div className="w-full flex flex-col items-center p-2 cursor-default">
         {/* to map */}
-        <div className=" flex flex-row gap-3 w-full py-1 px-5 rounded-xl md:px-14">
+        <div className=" flex flex-row gap-3 w-full py-1 px-7 rounded-xl md:px-14">
           <img
             src="/user-default.png"
             alt="profile"

@@ -4,50 +4,14 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { formatDistanceToNow } from "date-fns";
-import CommentBox from "./commentBox";
 
-import {
-  faClock,
-  faEllipsis,
-  faXmark,
-  faShare,
-  faComment,
-  faThumbsUp,
-  faHeart,
-} from "@fortawesome/free-solid-svg-icons";
+import ReactionBar from "./reactionBar";
+
+import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
-import { Separator } from "../ui/separator.jsx";
 
 const Newfeed = ({ user, posts = [] }) => {
-  const [showCommentbox, setShowCommentbox] = useState({});
-  // Toggle only the clicked post's comment box
-  const toggleCommentBox = (postId) => {
-    setShowCommentbox((prev) => ({
-      ...prev,
-      [postId]: !prev[postId],
-    }));
-  };
-
   const [expanded, setExpanded] = useState(false); // for expanding post description
-  const [liked, setLiked] = useState(false);
-  const [loved, setLoved] = useState(false);
-
-  const handleLike = () => {
-    if (!loved) {
-      setLiked(!liked);
-    } else {
-      setLiked(!liked);
-      setLoved(!loved);
-    }
-  };
-  const handleLove = () => {
-    if (!liked) {
-      setLoved(!loved);
-    } else {
-      setLiked(!liked);
-      setLoved(!loved);
-    }
-  };
 
   return (
     <div className="w-full">
@@ -71,7 +35,7 @@ const Newfeed = ({ user, posts = [] }) => {
                   />
                 </div>
                 {/* name & time */}
-                <div className="mx-3 flex-1 flex-col items-center justify-center">
+                <div className=" flex-1 flex-col items-center justify-center">
                   <div className="text-black font-semibold">
                     {post.user.name + " " + post.user.surname ||
                       post.user.username ||
@@ -120,58 +84,8 @@ const Newfeed = ({ user, posts = [] }) => {
                   className="w-full h-full object-contain rounded-xl"
                 />
               </div>
-
               {/* reaction bar */}
-              <div className="flex w-full gap-0 md:gap-3 items-around justify-center pb-2">
-                <Button
-                  className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
-                    liked ? "text-blue-600" : "text-black"
-                  }`}
-                  onClick={handleLike}
-                >
-                  <FontAwesomeIcon icon={faThumbsUp} size="sm" />
-                  <span>{post._count?.likes || 0}</span>
-                  <span className="hidden md:block">Like</span>
-                </Button>
-                <Separator
-                  className="h-3 bg-slate-400 my-auto"
-                  orientation="vertical"
-                />
-                <Button
-                  className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
-                    loved ? "text-red-600" : "text-black"
-                  }`}
-                  onClick={handleLove}
-                >
-                  <FontAwesomeIcon icon={faHeart} size="sm" />
-                  <span>{post._count?.loves || 0}</span>
-                  <span className="hidden md:block">Love</span>
-                </Button>
-                <Separator
-                  className="h-3 bg-slate-400 my-auto"
-                  orientation="vertical"
-                />
-                <Button
-                  onClick={() => toggleCommentBox(post.id)}
-                  className={`bg-inherit w-fit shadow-none hover:bg-transparent rounded-full ${
-                    showCommentbox[post.id] ? "text-blue-600" : "text-black"
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faComment} size="sm" />
-                  <span>{post._count?.comments || 0}</span>
-                  <span className="hidden md:block">Comment</span>
-                </Button>
-                <Separator
-                  className="h-3 bg-slate-400 my-auto"
-                  orientation="vertical"
-                />
-                <Button className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black">
-                  <FontAwesomeIcon icon={faShare} size="sm" />
-                  <span className="hidden md:block">Share</span>
-                </Button>
-              </div>
-
-              {showCommentbox[post.id] && <CommentBox user={user} />}
+              <ReactionBar post={post} user={user} />
             </div>
           ))
         ) : (
