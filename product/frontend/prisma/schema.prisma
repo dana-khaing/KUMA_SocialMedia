@@ -36,7 +36,7 @@ model User {
 
 model Post {
   id        Int       @id @default(autoincrement())
-  desc      String
+  desc      String?
   image     String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -55,8 +55,8 @@ model Like {
   userId    String
   postId    Int?
   commentId Int?
-  Comment   Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  Comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([commentId], map: "Like_commentId_fkey")
@@ -69,7 +69,7 @@ model Love {
   createdAt DateTime @default(now())
   userId    String
   postId    Int?
-  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([postId], map: "Love_postId_fkey")

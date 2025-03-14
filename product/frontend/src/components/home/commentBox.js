@@ -123,7 +123,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   return (
     <div className="flex flex-col justify-center items-center">
       <Separator className="h-[0.1rem] bg-[#FF4E01] w-[90%] mx-auto" />
-      <div className="w-full flex flex-col items-center p-2 cursor-default">
+      <div className="w-full flex flex-col max-h-[30rem] scrollbar-hide overflow-y-scroll items-center p-2 cursor-default">
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div

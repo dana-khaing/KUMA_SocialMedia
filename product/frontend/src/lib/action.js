@@ -470,3 +470,48 @@ export const deleteComment = async (commentId, userId) => {
     throw new Error(`Failed to delete comment: ${error.message}`);
   }
 };
+
+export const createPost = async (payload) => {
+  console.log("Received payload in createPost:", payload);
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid payload: must be an object");
+  }
+
+  const { userId, desc, imageUrl } = payload;
+
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    const postData = {
+      userId,
+    };
+
+    if (desc && desc.trim()) {
+      postData.desc = desc.trim();
+    }
+
+    if (imageUrl) {
+      postData.image = imageUrl;
+    }
+
+    if (!postData.desc && !postData.img) {
+      throw new Error("Post must contain text or an image");
+    }
+
+    const post = await prisma.post.create({
+      data: postData,
+      include: {
+        user: true,
+        _count: { select: { likes: true, loves: true, comments: true } },
+      },
+    });
+
+    console.log(`Post created by user ${userId}:`, post);
+    return { success: true, post };
+  } catch (error) {
+    console.error("Error creating post:", error);
+    throw new Error("Failed to create post");
+  }
+};
