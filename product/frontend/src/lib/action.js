@@ -363,3 +363,39 @@ export const deletePost = async (postId, userId) => {
     throw new Error(`Failed to delete post: ${error.message}`);
   }
 };
+
+export const loadComments = async (postId) => {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    return comments;
+  } catch (error) {
+    console.error("Error loading comments:", error);
+    throw new Error("Failed to load comments. Kuma");
+  }
+};
+
+// export const createPost = async (data) => {
+//   const { userId } = await auth();
+//   if (!userId) {
+//     throw new Error("User not authenticated");
+//   }
+
+//   try {
+//     return await prisma.post.create({
+//       data: {
+//         userId,
+//         content: data.content,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error creating post:", error);
+//     throw new Error("Failed to create post");
+//   }
+// };

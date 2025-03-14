@@ -68,7 +68,9 @@ export const UserDetail = async ({ user, owner }) => {
           {/* <div className="text-gray-500">Living in</div> */}
           <div className="flex-grow">
             <span className="text-md line-clamp-1">
-              {user?.city || <p className="text-gray-300">unknown,kuma</p>}
+              {user?.city || (
+                <p className="text-gray-300">unknown hometown,kuma</p>
+              )}
             </span>
           </div>
         </div>
@@ -81,7 +83,9 @@ export const UserDetail = async ({ user, owner }) => {
           {/* <div className="text-gray-500 flex-shrink-0">Graduated from</div> */}
           <div className="flex-grow">
             <span className="text-md line-clamp-1">
-              {user?.school || <p className="text-gray-300">unknown,kuma</p>}
+              {user?.school || (
+                <p className="text-gray-300">unknown education,kuma</p>
+              )}
             </span>
           </div>
         </div>
@@ -94,7 +98,9 @@ export const UserDetail = async ({ user, owner }) => {
           {/* <div className="text-gray-500 flex-shrink-0">Works at</div> */}
           <div className="flex-grow">
             <span className="text-md line-clamp-1">
-              {user?.work || <p className="text-gray-300">unknown,kuma</p>}
+              {user?.work || (
+                <p className="text-gray-300">unknown working area,kuma</p>
+              )}
             </span>
           </div>
         </div>
@@ -105,8 +111,8 @@ export const UserDetail = async ({ user, owner }) => {
             className="text-[#FF4E01] w-6"
           />
           <div className="flex-grow">
-            <span className="text-md line-clamp-1">
-              {user?.bio || "No bio yet. Kuma"}
+            <span className="text-md line-clamp-1 ">
+              {user?.bio || <p className="text-gray-300">No bio yet. Kuma</p>}
             </span>
           </div>
         </div>
@@ -117,12 +123,11 @@ export const UserDetail = async ({ user, owner }) => {
             className="text-[#FF4E01] w-6"
           />
           <div className="flex-grow">
-            <span className="text-md line-clamp-1">
-              <a
-                className="hover:underline"
-                href={user?.website || "unknown website,kuma"}
-              >
-                {user?.website || "unknown website,kuma"}
+            <span className="text-md line-clamp-1 ">
+              <a className="hover:underline" href={user?.website || "/"}>
+                {user?.website || (
+                  <p className="text-gray-300">unknown website,kuma</p>
+                )}
               </a>
             </span>
           </div>
