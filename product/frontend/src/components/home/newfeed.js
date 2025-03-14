@@ -90,21 +90,21 @@ const Newfeed = ({ user, posts = [], owner }) => {
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 items-center">
-                  {owner === user.id ? (
-                    <Button
-                      onClick={() => openDeletePopUp(post.id)}
-                      className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full"
-                      disabled={isPending}
-                    >
-                      <FontAwesomeIcon icon={faXmark} size="sm" />
-                    </Button>
-                  ) : (
-                    <button disabled className="cursor-not-allowed">
-                      <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full pointer-events-none">
-                        <FontAwesomeIcon icon={faXmark} size="sm" />
-                      </Button>
-                    </button>
-                  )}
+                  <button
+                    className={`bg-inherit flex justify-center items-center w-10 h-10 shadow-none hover:bg-slate-200 rounded-full ${
+                      owner === post.user.id
+                        ? "text-black"
+                        : "text-black opacity-50 cursor-not-allowed"
+                    }`}
+                    onClick={
+                      owner === post.user.id
+                        ? () => openDeletePopUp(post.id)
+                        : undefined
+                    }
+                    disabled={isPending || !user?.id || owner !== post.user.id}
+                  >
+                    <FontAwesomeIcon icon={faXmark} size="lg" />
+                  </button>
                 </div>
               </div>
 

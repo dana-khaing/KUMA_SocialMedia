@@ -437,3 +437,36 @@ export const switchCommentLike = async (commentId, userId) => {
     throw new Error("Failed to switch comment like");
   }
 };
+
+export const deleteComment = async (commentId, userId) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: { post: true },
+    });
+
+    if (!comment) {
+      return { success: true, message: "Comment already deleted or not found" }; // Treat as success
+    }
+
+    if (comment.userId !== userId && comment.post.userId !== userId) {
+      throw new Error(
+        "You can only delete your own comments or comments on your post"
+      );
+    }
+
+    await prisma.comment.delete({
+      where: { id: commentId },
+    });
+
+    console.log(`Comment ${commentId} deleted by user ${userId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw new Error(`Failed to delete comment: ${error.message}`);
+  }
+};
