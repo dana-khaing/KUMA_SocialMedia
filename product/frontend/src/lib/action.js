@@ -372,6 +372,7 @@ export const loadComments = async (postId) => {
       },
       include: {
         user: true,
+        likes: true,
       },
     });
     return comments;
@@ -381,21 +382,58 @@ export const loadComments = async (postId) => {
   }
 };
 
-// export const createPost = async (data) => {
-//   const { userId } = await auth();
-//   if (!userId) {
-//     throw new Error("User not authenticated");
-//   }
+export const createComment = async (postId, userId, desc) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+  try {
+    const comment = await prisma.comment.create({
+      data: {
+        postId,
+        userId,
+        desc,
+      },
+      include: {
+        user: true,
+        likes: true,
+      },
+    });
+    return { success: true, comment };
+  } catch (error) {
+    console.error("Error creating comment:", error);
+    throw new Error("Failed to create comment");
+  }
+};
 
-//   try {
-//     return await prisma.post.create({
-//       data: {
-//         userId,
-//         content: data.content,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Error creating post:", error);
-//     throw new Error("Failed to create post");
-//   }
-// };
+export const switchCommentLike = async (commentId, userId) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+  try {
+    const existingLike = await prisma.like.findFirst({
+      where: {
+        commentId,
+        userId,
+      },
+    });
+
+    if (existingLike) {
+      await prisma.like.delete({
+        where: { id: existingLike.id },
+      });
+      return { success: true, action: "unliked" };
+    } else {
+      await prisma.like.create({
+        data: {
+          commentId,
+          userId,
+          postId: null, // Assuming Like model allows null postId for comment likes
+        },
+      });
+      return { success: true, action: "liked" };
+    }
+  } catch (error) {
+    console.error("Error switching comment like:", error);
+    throw new Error("Failed to switch comment like");
+  }
+};
