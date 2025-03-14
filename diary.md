@@ -1,3 +1,9 @@
+#### 14 March
+
+- user status and posting finish .. user can post status and photo and video
+- finsihed comment sending , comment like, comment delete
+- post delete
+
 #### 13 March
 
 - fetch user owned posts for the profile page

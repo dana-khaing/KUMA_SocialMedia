@@ -4,7 +4,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button";
 const Stories = () => {
   return (
-    <div className="w-full h-fit rounded-2xl overflow-x-auto overflow-scroll items-center py-4 px-5 shadow-md text-xs border-[1px] bg-slate-50 scrollbar-hide">
+    <div className="w-[95%] mx-auto h-fit rounded-2xl overflow-x-auto overflow-scroll items-center py-4 px-5 shadow-md text-xs border-[1px] bg-slate-50 scrollbar-hide">
       {/* stories warp */}
       <div className="flex gap-1 md:gap-4 items-center w-max">
         {/* Add stories for the user */}
