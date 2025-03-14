@@ -101,7 +101,7 @@ const ProfilePage = async ({ params }) => {
           </Suspense>
         </div>
         <div className="flex flex-col gap-5 w-full">
-          <Newfeed user={user} posts={posts} />
+          <Newfeed user={user} posts={posts} owner={userId} />
         </div>
       </div>
 

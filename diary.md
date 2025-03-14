@@ -1,3 +1,9 @@
+#### 13 March
+
+- fetch user owned posts for the profile page
+- fetch following posts for the home page
+- post reaction for like and love
+
 #### 12 March
 
 - finished seach engine and user can search by name or username(userid)
