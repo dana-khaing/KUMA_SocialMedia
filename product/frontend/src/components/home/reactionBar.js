@@ -20,6 +20,7 @@ const ReactionBar = ({ post, user }) => {
   const [comments, setComments] = useState({});
   const [error, setError] = useState(null); // has to put error state here because client side UI error is keep popping up
   // Toggle comment box
+
   const toggleCommentBox = async (postId) => {
     const isOpen = !showCommentbox[postId];
     setShowCommentbox((prev) => ({
@@ -27,7 +28,6 @@ const ReactionBar = ({ post, user }) => {
       [postId]: isOpen,
     }));
 
-    // Fetch comments only when opening and if not already fetched
     if (isOpen && !comments[postId]) {
       startTransition(async () => {
         try {
@@ -44,6 +44,19 @@ const ReactionBar = ({ post, user }) => {
       });
     }
   };
+
+  const handleNewComment = async (postId) => {
+    try {
+      const updatedComments = await loadComments(postId);
+      setComments((prev) => ({
+        ...prev,
+        [postId]: updatedComments,
+      }));
+    } catch (error) {
+      console.error("Failed to refresh comments:", error.message);
+    }
+  };
+
   // Like state
   const [liked, setLiked] = useState({
     isLiked: user?.id
@@ -215,6 +228,7 @@ const ReactionBar = ({ post, user }) => {
           user={user}
           post={post}
           comments={comments[post.id] || []}
+          onNewComment={() => handleNewComment(post.id)}
         />
       )}
     </>
