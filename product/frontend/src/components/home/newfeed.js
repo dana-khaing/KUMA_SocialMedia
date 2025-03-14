@@ -1,17 +1,20 @@
 "use client";
 // import { useUser } from "@clerk/nextjs"; // useUser() hook to get user data not use server side (Current user)
+
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import { formatDistanceToNow } from "date-fns";
-
 import ReactionBar from "./reactionBar";
-
 import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
 
-const Newfeed = ({ user, posts = [] }) => {
+const Newfeed = ({ user, posts = [], owner }) => {
   const [expanded, setExpanded] = useState(false); // for expanding post description
+  const [deletebox, setDeletebox] = useState(false); // for deleting post
+
+  const handleDelete = () => {
+    setDeletebox(true);
+  };
 
   return (
     <div className="w-full">
@@ -55,9 +58,14 @@ const Newfeed = ({ user, posts = [] }) => {
                   {/* <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full">
                     <FontAwesomeIcon icon={faEllipsis} size="sm" />
                   </Button> */}
-                  <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full">
-                    <FontAwesomeIcon icon={faXmark} size="sm" />
-                  </Button>
+                  {owner == user.id ? (
+                    <Button
+                      onClick={handleDelete}
+                      className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full"
+                    >
+                      <FontAwesomeIcon icon={faXmark} size="sm" />
+                    </Button>
+                  ) : null}
                 </div>
               </div>
 
@@ -94,6 +102,24 @@ const Newfeed = ({ user, posts = [] }) => {
           </p>
         )}
       </div>
+      {deletebox && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white w-[70%] md:[60%] lg:w-[35%] xl:[25%] h-[20%] md:[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
+            <p className="text-black">
+              Are you sure to delete this post, Kuma?
+            </p>
+            <div className="flex gap-5">
+              <Button
+                className="bg-[#FF4E02] text-white"
+                onClick={() => setDeletebox(false)}
+              >
+                Cancel
+              </Button>
+              <Button className="bg-[#FF4E02] text-white">Delete</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
