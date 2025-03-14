@@ -62,12 +62,18 @@ dependencies:
   next-cloudinary:
     specifier: ^6.16.0
     version: 6.16.0(next@15.0.3)(react@19.0.0-rc-69d4b800-20241021)
+  next-themes:
+    specifier: ^0.4.6
+    version: 0.4.6(react-dom@19.0.0-rc-69d4b800-20241021)(react@19.0.0-rc-69d4b800-20241021)
   react:
     specifier: 19.0.0-rc-69d4b800-20241021
     version: 19.0.0-rc-69d4b800-20241021
   react-dom:
     specifier: 19.0.0-rc-69d4b800-20241021
     version: 19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021)
+  sonner:
+    specifier: ^2.0.1
+    version: 2.0.1(react-dom@19.0.0-rc-69d4b800-20241021)(react@19.0.0-rc-69d4b800-20241021)
   svix:
     specifier: ^1.59.2
     version: 1.59.2
@@ -3872,6 +3878,16 @@ packages:
       react: 19.0.0-rc-69d4b800-20241021
     dev: false
 
+  /next-themes@0.4.6(react-dom@19.0.0-rc-69d4b800-20241021)(react@19.0.0-rc-69d4b800-20241021):
+    resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+    dependencies:
+      react: 19.0.0-rc-69d4b800-20241021
+      react-dom: 19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021)
+    dev: false
+
   /next@15.0.3(@babel/core@7.26.9)(react-dom@19.0.0-rc-69d4b800-20241021)(react@19.0.0-rc-69d4b800-20241021):
     resolution: {integrity: sha512-ontCbCRKJUIoivAdGB34yCaOcPgYXr9AAkV/IwqFfWWTXEPUgLYkSkqBhIk9KK7gGmgjc64B+RdoeIDM13Irnw==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -4473,6 +4489,16 @@ packages:
       map-obj: 4.3.0
       snake-case: 3.0.4
       type-fest: 4.35.0
+    dev: false
+
+  /sonner@2.0.1(react-dom@19.0.0-rc-69d4b800-20241021)(react@19.0.0-rc-69d4b800-20241021):
+    resolution: {integrity: sha512-FRBphaehZ5tLdLcQ8g2WOIRE+Y7BCfWi5Zyd8bCvBjiW8TxxAyoWZIxS661Yz6TGPqFQ4VLzOF89WEYhfynSFQ==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    dependencies:
+      react: 19.0.0-rc-69d4b800-20241021
+      react-dom: 19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021)
     dev: false
 
   /source-map-js@1.2.1:

@@ -6,7 +6,7 @@ import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
 import { createComment, switchCommentLike, deleteComment } from "@/lib/action";
-
+import { toast } from "sonner";
 const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   const [newComment, setNewComment] = useState("");
   const [commentLikes, setCommentLikes] = useState({});
@@ -39,11 +39,13 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
     try {
       const result = await createComment(post.id, user.id, newComment);
       if (result.success) {
+        toast("Comment posted successfully!");
         setNewComment("");
         onNewComment();
       }
     } catch (error) {
       console.error("Failed to submit comment:", error.message);
+      toast("Failed to submit comment. Try again.");
     }
   };
 
@@ -71,6 +73,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
     try {
       const result = await switchCommentLike(commentId, user.id);
       if (!result.success) {
+        toast("Try again.");
         throw new Error("Failed to toggle like");
       }
     } catch (error) {
@@ -100,12 +103,14 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
       try {
         const result = await deleteComment(commentId, user.id);
         if (result.success) {
+          toast("Comment deleted successfully!");
           setDeleteCommentId(null); // Close popup
           onNewComment(); // Refetch comments to update UI
         } else {
           throw new Error("Failed to delete comment");
         }
       } catch (error) {
+        toast("Failed to delete comment. Try again.");
         console.error("Failed to delete comment:", error.message);
         setDeleteCommentId(null); // Close popup on error
       }

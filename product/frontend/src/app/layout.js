@@ -3,6 +3,7 @@ import Navbar from "../components/navbar/Navbar";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 config.autoAddCss = false;
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
             <Navbar />
           </header>
           <main className="mt-20">{children}</main>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

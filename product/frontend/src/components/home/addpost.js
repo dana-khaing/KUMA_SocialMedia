@@ -12,13 +12,17 @@ import { Button } from "../ui/button";
 import { useState, useTransition } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { createPost } from "@/lib/action";
-
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 const Addpost = ({ user }) => {
   const [desc, setDesc] = useState("");
   const [image, setImage] = useState(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  // soft refresh page by router refresh
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,17 +44,16 @@ const Addpost = ({ user }) => {
           imageUrl: imageUrl,
         });
         if (result.success) {
+          router.refresh();
           setDesc("");
           setImage(null);
           setSuccess("Post created successfully!");
+          toast("Post created successfully!");
           setError(null);
-          // Optionally reset upload status
-          // document
-          //   .getElementById("upload-status")
-          //   .classList.remove("bg-green-300");
         }
       } catch (err) {
         setError("Failed to create post. Try again.");
+        toast("Failed to create post. Try again.");
         setSuccess(null);
       }
     });
@@ -105,7 +108,7 @@ const Addpost = ({ user }) => {
               <Button
                 type="button"
                 onClick={() => open()}
-                className="flex items-center w-24 rounded-full h-fit text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent cursor-pointer gap-2 text-center justify-center"
+                className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
                 disabled={isLoading || isPending}
               >
                 <FontAwesomeIcon icon={faCamera} size="lg" />
@@ -115,23 +118,59 @@ const Addpost = ({ user }) => {
           </CldUploadWidget>
 
           <Separator orientation="vertical" className="bg-[#FF4E01]" />
-          <Button
-            type="button"
-            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
-            disabled={isPending}
+
+          <CldUploadWidget
+            uploadPreset="kumasocialmedia"
+            onSuccess={(result) => {
+              console.log("Success:", result);
+              setImage(result.info);
+            }}
+            onError={(error) => {
+              console.log("Error:", error);
+              setError("Upload failed. Check console for details.");
+            }}
+            onClose={() => console.log("Widget closed")}
           >
-            <FontAwesomeIcon icon={faImage} size="lg" />
-            <span>Image</span>
-          </Button>
+            {({ open, isLoading }) => (
+              <Button
+                type="button"
+                onClick={() => open()}
+                className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
+                disabled={isLoading || isPending}
+              >
+                <FontAwesomeIcon icon={faImage} size="lg" />
+                <span>Image</span>
+              </Button>
+            )}
+          </CldUploadWidget>
+
           <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
-          <Button
-            type="button"
-            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
-            disabled={isPending}
+
+          <CldUploadWidget
+            uploadPreset="kumasocialmedia"
+            onSuccess={(result) => {
+              console.log("Success:", result);
+              setImage(result.info);
+            }}
+            onError={(error) => {
+              console.log("Error:", error);
+              setError("Upload failed. Check console for details.");
+            }}
+            onClose={() => console.log("Widget closed")}
           >
-            <FontAwesomeIcon icon={faVideo} size="lg" />
-            <span>Video</span>
-          </Button>
+            {({ open, isLoading }) => (
+              <Button
+                type="button"
+                onClick={() => open()}
+                className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
+                disabled={isLoading || isPending}
+              >
+                <FontAwesomeIcon icon={faVideo} size="lg" />
+                <span>Video</span>
+              </Button>
+            )}
+          </CldUploadWidget>
+
           <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
           <Button
             type="button"
@@ -161,8 +200,6 @@ const Addpost = ({ user }) => {
           />
         </div>
       )}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-      {success && <p className="text-green-500 mt-2">{success}</p>}
     </div>
   );
 };

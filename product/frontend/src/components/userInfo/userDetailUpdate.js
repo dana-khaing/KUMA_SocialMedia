@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { CldUploadWidget } from "next-cloudinary";
 import { updateProfile } from "@/lib/action";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const UserDetailUpdate = ({ user }) => {
   const [open, setOpen] = useState(false);
@@ -41,8 +42,17 @@ const UserDetailUpdate = ({ user }) => {
       {open && (
         <div className=" absolute w-screen h-[150vh] bg-black top-0 backdrop-blur-md left-0 bg-opacity-35 flex items-center justify-center z-40">
           <form
-            action={(data) => updateProfile(data, cover?.secure_url)}
-            onSubmit={handleClose}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const data = new FormData(e.target);
+              const result = await updateProfile(data, cover?.secure_url);
+              if (result.success) {
+                toast("Profile updated successfully!");
+              } else {
+                toast("Failed to update profile.");
+              }
+              handleClose();
+            }}
             className="p-5 bg-white md:bottom-[17rem] rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[45%] xl:w-[30%] relative"
           >
             <div className="flex justify-around items-center h-8">

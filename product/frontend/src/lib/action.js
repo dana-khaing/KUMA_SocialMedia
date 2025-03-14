@@ -188,7 +188,7 @@ export const updateProfile = async (data, cover) => {
   });
   const validateFields = Profile.safeParse({ cover, ...filteredFields });
   if (!validateFields.success) {
-    console.log("parsing went wrong");
+    // console.log("parsing went wrong");
     throw new Error("Something went wrong, Kuma");
   }
   const { userId } = await auth();
@@ -203,6 +203,7 @@ export const updateProfile = async (data, cover) => {
       },
       data: validateFields.data,
     });
+    return { success: true };
   } catch (error) {
     throw new Error("Something went wrong, Kuma");
   }
