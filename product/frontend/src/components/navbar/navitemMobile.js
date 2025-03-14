@@ -56,17 +56,6 @@ export const NavitemMobile = async () => {
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
-            <Link href="/groupsite">
-              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                <FontAwesomeIcon
-                  icon={faUserGroup}
-                  size="md"
-                  className="mr-2 text-[#FF4E02]"
-                />
-                Group
-              </DropdownMenu.Item>
-            </Link>
-            <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
             <Link href="/studio">
               <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                 <FontAwesomeIcon

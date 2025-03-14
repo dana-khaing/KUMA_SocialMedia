@@ -7,6 +7,7 @@ import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
 import { deletePost } from "@/lib/action";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const Newfeed = ({ user, posts = [], owner }) => {
   const [expanded, setExpanded] = useState(false); // For expanding post description
@@ -68,19 +69,25 @@ const Newfeed = ({ user, posts = [], owner }) => {
               className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-3 md:py-5 text-sm"
             >
               <div className="flex gap-3">
-                <div className="flex items-center justify-center w-12">
+                <Link
+                  href={`/profile/${post.user.id}`}
+                  className="flex items-center justify-center w-12"
+                >
                   <img
                     src={post.user?.avatar || "/user-default.png"}
                     alt="profile"
                     className="w-10 h-10 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
                   />
-                </div>
+                </Link>
                 <div className="flex-1 flex-col items-center justify-center">
-                  <div className="text-black font-semibold">
+                  <Link
+                    href={`/profile/${post.user.id}`}
+                    className="text-black font-semibold"
+                  >
                     {post.user.name + " " + post.user.surname ||
                       post.user.username ||
                       "Kuma User"}
-                  </div>
+                  </Link>
                   <div className="text-slate-400">
                     <FontAwesomeIcon icon={faClock} size="sm" />
                     <span>

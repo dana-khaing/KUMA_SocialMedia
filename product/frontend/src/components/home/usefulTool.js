@@ -46,19 +46,9 @@ export const UsefulTool = () => {
           />
           Friends
         </Link>
+
         <Link
-          href={"/groupsite"}
-          className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
-        >
-          <FontAwesomeIcon
-            icon={faUserGroup}
-            size="md"
-            className="mr-2 text-[#FF4E02]"
-          />
-          Group
-        </Link>
-        <Link
-          href={"studio"}
+          href={"/studio"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
           <FontAwesomeIcon
