@@ -1,5 +1,4 @@
 import FriendRequest from "@/components/userfriends/friendRequest";
-import OnlineFriends from "@/components/userfriends/onlineFriends";
 import ProfileBigCard from "@/components/userInfo/profileBigCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
@@ -10,6 +9,7 @@ import prisma from "@/lib/client";
 import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
+import Checkfriends from "@/components/userfriends/checkfriends";
 
 const ProfilePage = async ({ params }) => {
   const { id } = await params;
@@ -113,7 +113,7 @@ const ProfilePage = async ({ params }) => {
         <Suspense fallback={<div>Loading...</div>}>
           <UserMedia user={user} />
         </Suspense>
-        <OnlineFriends />
+        <Checkfriends />
       </div>
     </div>
   );

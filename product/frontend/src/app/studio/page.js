@@ -1,6 +1,5 @@
 import FriendRequest from "@/components/userfriends/friendRequest";
-import Birthday from "@/components/userfriends/birthday";
-import OnlineFriends from "@/components/userfriends/onlineFriends";
+import Checkfriends from "@/components/userfriends/checkfriends";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
@@ -23,8 +22,7 @@ export const Studio = () => {
       {/* right */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <FriendRequest />
-        <Birthday />
-        <OnlineFriends />
+        <Checkfriends />
       </div>
     </div>
   );

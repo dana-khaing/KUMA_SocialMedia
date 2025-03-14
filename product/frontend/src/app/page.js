@@ -3,10 +3,10 @@ import Addpost from "@/components/home/addpost";
 import Newfeed from "@/components/home/newfeed";
 import FriendRequest from "@/components/userfriends/friendRequest";
 import Birthday from "@/components/userfriends/birthday";
-import OnlineFriends from "@/components/userfriends/onlineFriends";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import { auth } from "@clerk/nextjs/server";
+import Checkfriends from "@/components/userfriends/checkfriends";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -86,7 +86,7 @@ export default async function Home() {
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <FriendRequest />
         <Birthday />
-        <OnlineFriends />
+        <Checkfriends />
       </div>
     </div>
   );
