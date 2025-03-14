@@ -13,7 +13,7 @@ import CommentBox from "./commentBox";
 import { useOptimistic } from "react";
 import { switchReaction, loadComments } from "@/lib/action";
 
-const ReactionBar = ({ post, user }) => {
+const ReactionBar = ({ post, user, owner }) => {
   const [showCommentbox, setShowCommentbox] = useState({});
   const [comments, setComments] = useState({});
   const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
@@ -233,6 +233,7 @@ const ReactionBar = ({ post, user }) => {
           <CommentBox
             user={user}
             post={post}
+            owner={owner}
             comments={comments[post.id] || []}
             onNewComment={() => handleNewComment(post.id)}
           />

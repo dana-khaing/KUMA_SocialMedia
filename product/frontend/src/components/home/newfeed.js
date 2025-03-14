@@ -57,7 +57,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[180vh]">
       <div className="flex flex-col justify-center items-center gap-5">
         {postList.length > 0 ? (
           postList.map((post) => (
@@ -90,7 +90,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 items-center">
-                  {owner === user.id && ( // Use === for strict equality
+                  {owner === user.id ? (
                     <Button
                       onClick={() => openDeletePopUp(post.id)}
                       className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full"
@@ -98,6 +98,12 @@ const Newfeed = ({ user, posts = [], owner }) => {
                     >
                       <FontAwesomeIcon icon={faXmark} size="sm" />
                     </Button>
+                  ) : (
+                    <button disabled className="cursor-not-allowed">
+                      <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full pointer-events-none">
+                        <FontAwesomeIcon icon={faXmark} size="sm" />
+                      </Button>
+                    </button>
                   )}
                 </div>
               </div>
@@ -126,7 +132,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
                   />
                 )}
               </div>
-              <ReactionBar post={post} user={user} />
+              <ReactionBar post={post} user={user} owner={owner} />
 
               {/* Delete Confirmation Popup */}
               {deletePostId === post.id && (
