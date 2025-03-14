@@ -6,8 +6,9 @@ import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
 import { createComment, switchCommentLike } from "@/lib/action";
+import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 
-const CommentBox = ({ user, post, comments, onNewComment }) => {
+const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   const [newComment, setNewComment] = useState("");
   const [commentLikes, setCommentLikes] = useState({});
   const [isPending, startTransition] = useTransition();
@@ -97,7 +98,7 @@ const CommentBox = ({ user, post, comments, onNewComment }) => {
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex flex-row gap-3 w-full py-1 px-7 rounded-xl md:px-14"
+              className="flex flex-row gap-3 bg-gray-100 w-full py-1 px-7 rounded-xl md:px-14"
             >
               <img
                 src={comment.user?.avatar || "/user-default.png"}
@@ -115,6 +116,19 @@ const CommentBox = ({ user, post, comments, onNewComment }) => {
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
                     })}
+                  </span>
+                  <span className="text-slate-400 text-xs flex justify-end flex-1">
+                    {owner == comment.user.id || owner == post.user.id ? (
+                      <Button className="bg-inherit  text-slate-500 shadow-none hover:bg-slate-200 rounded-full pointer-events-none">
+                        <FontAwesomeIcon icon={faXmark} size="sm" />
+                      </Button>
+                    ) : (
+                      <button disabled className="cursor-not-allowed">
+                        <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full pointer-events-none">
+                          <FontAwesomeIcon icon={faXmark} size="sm" />
+                        </Button>
+                      </button>
+                    )}
                   </span>
                 </div>
                 <div className="text-black px-2 pt-2 w-full rounded-xl">

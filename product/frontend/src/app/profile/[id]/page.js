@@ -86,7 +86,7 @@ const ProfilePage = async ({ params }) => {
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 h-screen overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 h-[180vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="h-fit">
           <ProfileBigCard user={user} owner={isOwner} />
         </div>
@@ -100,7 +100,7 @@ const ProfilePage = async ({ params }) => {
             <UserMedia user={user} />
           </Suspense>
         </div>
-        <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col gap-5 w-full h-full">
           <Newfeed user={user} posts={posts} owner={userId} />
         </div>
       </div>
