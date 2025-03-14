@@ -1,16 +1,16 @@
 "use client";
 import { useState, useTransition, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
+import { faThumbsUp, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
-import { createComment, switchCommentLike } from "@/lib/action";
-import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { createComment, switchCommentLike, deleteComment } from "@/lib/action";
 
 const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   const [newComment, setNewComment] = useState("");
   const [commentLikes, setCommentLikes] = useState({});
+  const [deleteCommentId, setDeleteCommentId] = useState(null); // Track comment to delete
   const [isPending, startTransition] = useTransition();
 
   // Sync commentLikes with comments prop
@@ -55,7 +55,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
 
     startTransition(() => {
       setCommentLikes((prev) => {
-        const current = prev[commentId] || { isLiked: false, likeCount: 0 }; // Fallback
+        const current = prev[commentId] || { isLiked: false, likeCount: 0 };
         return {
           ...prev,
           [commentId]: {
@@ -90,6 +90,36 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
     }
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!user?.id) {
+      console.error("Please log in to delete comments");
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const result = await deleteComment(commentId, user.id);
+        if (result.success) {
+          setDeleteCommentId(null); // Close popup
+          onNewComment(); // Refetch comments to update UI
+        } else {
+          throw new Error("Failed to delete comment");
+        }
+      } catch (error) {
+        console.error("Failed to delete comment:", error.message);
+        setDeleteCommentId(null); // Close popup on error
+      }
+    });
+  };
+
+  const openDeletePopUp = (commentId) => {
+    setDeleteCommentId(commentId);
+  };
+
+  const closeDeletePopUp = () => {
+    setDeleteCommentId(null);
+  };
+
   return (
     <div className="flex flex-col justify-center items-center">
       <Separator className="h-[0.1rem] bg-[#FF4E01] w-[90%] mx-auto" />
@@ -98,7 +128,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex flex-row gap-3 bg-gray-100 w-full py-1 px-7 rounded-xl md:px-14"
+              className="flex flex-row gap-3 py-2 hover:bg-slate-200 w-full px-7 rounded-xl md:px-14"
             >
               <img
                 src={comment.user?.avatar || "/user-default.png"}
@@ -118,17 +148,25 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
                     })}
                   </span>
                   <span className="text-slate-400 text-xs flex justify-end flex-1">
-                    {owner == comment.user.id || owner == post.user.id ? (
-                      <Button className="bg-inherit  text-slate-500 shadow-none hover:bg-slate-200 rounded-full pointer-events-none">
-                        <FontAwesomeIcon icon={faXmark} size="sm" />
-                      </Button>
-                    ) : (
-                      <button disabled className="cursor-not-allowed">
-                        <Button className="bg-inherit text-black shadow-none hover:bg-slate-200 rounded-full pointer-events-none">
-                          <FontAwesomeIcon icon={faXmark} size="sm" />
-                        </Button>
-                      </button>
-                    )}
+                    <button
+                      className={`bg-inherit shadow-none hover:bg-slate-200  h-8 w-8 flex justify-center items-center rounded-full ${
+                        owner === comment.user.id || owner === post.user.id
+                          ? "text-slate-500"
+                          : "text-black opacity-50 cursor-not-allowed"
+                      }`}
+                      onClick={
+                        owner === comment.user.id || owner === post.user.id
+                          ? () => openDeletePopUp(comment.id)
+                          : undefined
+                      }
+                      disabled={
+                        isPending ||
+                        !user?.id ||
+                        (owner !== comment.user.id && owner !== post.user.id)
+                      }
+                    >
+                      <FontAwesomeIcon icon={faXmark} size="md" />
+                    </button>
                   </span>
                 </div>
                 <div className="text-black px-2 pt-2 w-full rounded-xl">
@@ -156,6 +194,32 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
           <p className="text-slate-500 p-2">Be the first to comment, Kuma!</p>
         )}
       </div>
+      {/* Delete Confirmation Popup */}
+      {deleteCommentId && (
+        <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-[1px]">
+          <div className="bg-white w-[70%] md:w-[60%] lg:w-[35%] xl:w-[25%] h-[20%] md:h-[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
+            <p className="text-black">
+              Are you sure to delete this comment, Kuma?
+            </p>
+            <div className="flex gap-5">
+              <Button
+                className="bg-[#FF4E02] text-white hover:bg-[#e64400]"
+                onClick={closeDeletePopUp}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#FF4E02] text-white hover:bg-[#e64400]"
+                onClick={() => handleDeleteComment(deleteCommentId)}
+                disabled={isPending || !user?.id}
+              >
+                {isPending ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       <Separator
         className="h-[0.05rem] w-[90%] mx-auto bg-[#FF4E01] my-auto"
         orientation="horizontal"
@@ -178,7 +242,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
           disabled={isPending || !user?.id}
         />
         <Button
-          className="flex items-center shadow-md justify-center bg-transparent  h-10 cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black"
+          className="flex items-center shadow-md justify-center bg-transparent h-10 cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black"
           disabled={isPending || !user?.id || !newComment.trim()}
         >
           {isPending ? "Posting..." : "Comment"}
