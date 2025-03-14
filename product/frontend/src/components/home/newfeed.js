@@ -66,7 +66,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
           postList.map((post) => (
             <div
               key={post.id}
-              className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[100%] border-[#FF4E02] md:px-7 py-3 md:py-5 text-sm"
+              className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[95%] mx-auto px-5 border-[#FF4E02] md:px-7 py-4 md:py-5 text-sm"
             >
               <div className="flex gap-3">
                 <Link

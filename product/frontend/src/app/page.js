@@ -73,8 +73,8 @@ export default async function Home() {
         <UsefulTool />
       </div>
       {/* center */}
-      <div className="flex w-screen px-2 flex-col shrink-0  lg:w-[50%]">
-        <div className="flex flex-col gap-5 w-[100%] overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%] ">
+        <div className="flex flex-col gap-5 w-full overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories />
           <Addpost user={user} />
           <Newfeed user={user} posts={posts} owner={userId} />

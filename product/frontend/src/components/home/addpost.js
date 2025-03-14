@@ -60,7 +60,7 @@ const Addpost = ({ user }) => {
   };
 
   return (
-    <div className="w-full h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
+    <div className="w-[95%] mx-auto h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
       <form onSubmit={handleSubmit}>
         <div className="flex gap-3">
           <div className="flex items-center justify-center w-12">
