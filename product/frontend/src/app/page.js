@@ -31,7 +31,6 @@ export default async function Home() {
 
   /// map following followingId
   const followingIds = followings.map((following) => following.followingId);
-  // console.log(followingIds);
 
   /// fetch all posts from following
   const posts =
