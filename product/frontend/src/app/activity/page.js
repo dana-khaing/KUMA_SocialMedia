@@ -1,6 +1,6 @@
 import FriendRequest from "@/components/userfriends/friendRequest";
 import Birthday from "@/components/userfriends/birthday";
-import OnlineFriends from "@/components/userfriends/onlineFriends";
+import Checkfriends from "@/components/userfriends/checkfriends";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 
@@ -23,8 +23,7 @@ export const Activity = () => {
       {/* right */}
       <div className="hidden lg:flex flex-col grow-0 gap-5 w-[25%]">
         <FriendRequest />
-
-        <OnlineFriends />
+        <Checkfriends />
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ const FriendRequest = async () => {
   });
 
   return (
-    <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default ">
+    <div className=" w-full h-[25rem] bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default ">
       <div className="flex items-center justify-between px-4">
         <span className="text-[#FF4E01]">Follow Request</span>
         <span className="text-[#FF4E01]">See All</span>
