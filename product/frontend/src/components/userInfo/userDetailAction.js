@@ -2,6 +2,7 @@
 import { Button } from "../ui/button.jsx";
 import { useState, useOptimistic } from "react";
 import { followAction, blockAction } from "@/lib/action";
+import { toast } from "sonner";
 
 export const UserDetailAction = ({
   userId,
@@ -28,6 +29,8 @@ export const UserDetailAction = ({
         followRequestSent:
           !prevState.following && !prevState.followRequestSent ? true : false,
       }));
+      // Add toast notification for success
+      toast("Follow successful!");
     } catch (error) {
       console.log(error);
     }
@@ -54,6 +57,8 @@ export const UserDetailAction = ({
         ...prevState,
         blocked: !prevState.blocked,
       }));
+      // Add toast notification for success
+      toast("Block successful!");
     } catch (error) {
       console.log(error);
     }

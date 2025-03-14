@@ -6,6 +6,7 @@ import ReactionBar from "./reactionBar";
 import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
 import { deletePost } from "@/lib/action";
+import { toast } from "sonner";
 
 const Newfeed = ({ user, posts = [], owner }) => {
   const [expanded, setExpanded] = useState(false); // For expanding post description
@@ -44,12 +45,13 @@ const Newfeed = ({ user, posts = [], owner }) => {
     try {
       const result = await deletePost(parsedPostId, user.id);
       if (result.success) {
-        console.log(`Post ${parsedPostId} deleted successfully`);
+        toast("Post deleted successfully!");
         closeDeletePopUp(); // Close popup on success
       } else {
         throw new Error(result.message || "Delete action failed");
       }
     } catch (error) {
+      toast("Failed to delete post. Try again.");
       console.error("Failed to delete post:", error.message);
       setPostList(posts); // Revert on failure
       closeDeletePopUp(); // Close popup even on failure

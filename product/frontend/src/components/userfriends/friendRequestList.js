@@ -4,6 +4,7 @@ import { faXmark, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { useState, useOptimistic } from "react";
 import { acceptFollowRequest, rejectFollowRequest } from "@/lib/action";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export const FriendRequestList = ({ request }) => {
   const [requestState, setRequestState] = useState(request);
@@ -14,6 +15,7 @@ export const FriendRequestList = ({ request }) => {
     try {
       await acceptFollowRequest(userId);
       setRequestState((state) => state.filter((item) => item.id !== requestId));
+      toast("Follow request accepted!");
     } catch (error) {
       console.log(error);
     }
@@ -25,6 +27,7 @@ export const FriendRequestList = ({ request }) => {
     try {
       await rejectFollowRequest(userId);
       setRequestState((state) => state.filter((item) => item.id !== requestId));
+      toast("Follow request rejected!");
     } catch (error) {
       console.log(error);
     }
