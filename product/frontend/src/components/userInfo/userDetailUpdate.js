@@ -43,7 +43,7 @@ const UserDetailUpdate = ({ user }) => {
           <form
             action={(data) => updateProfile(data, cover?.secure_url)}
             onSubmit={handleClose}
-            className="p-5 bg-white bottom-[17rem] rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[45%] xl:w-[30%] relative"
+            className="p-5 bg-white md:bottom-[17rem] rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[45%] xl:w-[30%] relative"
           >
             <div className="flex justify-around items-center h-8">
               <span className="text-base text-[#FF4E01] flex flex-1 items-center justify-between px-4">

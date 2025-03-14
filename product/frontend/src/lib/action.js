@@ -331,3 +331,35 @@ export const switchReaction = async (postId, userId, reactionType) => {
     throw new Error("Something went wrong, Kuma");
   }
 };
+
+export const deletePost = async (postId, userId) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    // Verify the post exists and belongs to the user
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    if (post.userId !== userId) {
+      throw new Error("You can only delete your own posts");
+    }
+
+    // Delete the post
+    await prisma.post.delete({
+      where: { id: postId },
+    });
+
+    console.log(`Post ${postId} deleted by user ${userId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    throw new Error(`Failed to delete post: ${error.message}`);
+  }
+};
