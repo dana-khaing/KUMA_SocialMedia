@@ -2,8 +2,7 @@ import { Button } from "../ui/button.jsx";
 import { Separator } from "../ui/separator.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
-const CommentBox = ({ user }) => {
-  console.log(user);
+const CommentBox = ({ user, post, comments }) => {
   return (
     <div className="flex flex-col justify-center items-center ">
       <Separator className="h-[0.1] bg-[#FF4E01] w-[90%] mx-auto" />
@@ -35,32 +34,7 @@ const CommentBox = ({ user }) => {
             </Button>
           </div>
         </div>
-        <div className="hover:bg-gray-200 flex flex-row gap-3 w-full py-3 px-7 rounded-xl md:px-14">
-          <img
-            src="/user-default.png"
-            alt="profile"
-            className="w-8 h-8  rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
-          />
-          <div className="flex-1 flex-col items-center justify-center p-2">
-            <div className="flex flex-row flex-1 items-center gap-5 justify-start ">
-              <span className="text-black text-sm ">Hein Htet Aung</span>
-              <span className="text-slate-400 text-xs ">2 hours ago</span>
-            </div>
-            {/* test box and reaction */}
-            <div className="text-black px-3 pt-3 text-sm hover:bg-gray-200 rounded-xl">
-              <p className="break-all">
-                This is a
-                comment.sodfhishfgihdfsgoifhgoafhrsgsfdlkjhanasdjkfhnajshdfioiashfio
-              </p>
-            </div>
-            <div>
-              <Button className="bg-inherit text-black shadow-none cursor-default hover:bg-slate-200 rounded-full">
-                <FontAwesomeIcon icon={faThumbsUp} size="xs" />
-                <span className="hidden md:block text-xs">Like</span>
-              </Button>
-            </div>
-          </div>
-        </div>
+        {/* end map */}
       </div>
       <Separator
         className="h-[0.05rem] w-[90%] mx-auto bg-[#FF4E01] my-auto"

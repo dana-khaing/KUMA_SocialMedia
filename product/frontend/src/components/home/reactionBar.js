@@ -12,17 +12,38 @@ import { useState } from "react";
 import CommentBox from "./commentBox";
 import { useOptimistic, useTransition } from "react";
 import { switchReaction } from "@/lib/action";
+import { loadComments } from "@/lib/action";
 
 const ReactionBar = ({ post, user }) => {
   // Show comment box
   const [showCommentbox, setShowCommentbox] = useState({});
-  const toggleCommentBox = (postId) => {
+  const [comments, setComments] = useState({});
+  const [error, setError] = useState(null); // has to put error state here because client side UI error is keep popping up
+  // Toggle comment box
+  const toggleCommentBox = async (postId) => {
+    const isOpen = !showCommentbox[postId];
     setShowCommentbox((prev) => ({
       ...prev,
-      [postId]: !prev[postId],
+      [postId]: isOpen,
     }));
-  };
 
+    // Fetch comments only when opening and if not already fetched
+    if (isOpen && !comments[postId]) {
+      startTransition(async () => {
+        try {
+          const fetchedComments = await loadComments(postId);
+          setComments((prev) => ({
+            ...prev,
+            [postId]: fetchedComments,
+          }));
+          setError(null);
+        } catch (error) {
+          console.error("Failed to load comments:", error.message);
+          setError("Failed to load comments. Kuma");
+        }
+      });
+    }
+  };
   // Like state
   const [liked, setLiked] = useState({
     isLiked: user?.id
@@ -189,7 +210,13 @@ const ReactionBar = ({ post, user }) => {
           <span className="hidden md:block">Share</span>
         </Button>
       </div>
-      {showCommentbox[post.id] && <CommentBox user={user} />}
+      {showCommentbox[post.id] && (
+        <CommentBox
+          user={user}
+          post={post}
+          comments={comments[post.id] || []}
+        />
+      )}
     </>
   );
 };
