@@ -7,7 +7,7 @@ import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
 import { createComment, switchCommentLike } from "@/lib/action";
 
-const CommentBox = ({ user, post, comments }) => {
+const CommentBox = ({ user, post, comments, onNewComment }) => {
   const [newComment, setNewComment] = useState("");
   const [commentLikes, setCommentLikes] = useState({});
   const [isPending, startTransition] = useTransition();
@@ -39,6 +39,7 @@ const CommentBox = ({ user, post, comments }) => {
       const result = await createComment(post.id, user.id, newComment);
       if (result.success) {
         setNewComment("");
+        onNewComment();
       }
     } catch (error) {
       console.error("Failed to submit comment:", error.message);
@@ -164,7 +165,6 @@ const CommentBox = ({ user, post, comments }) => {
         />
         <Button
           className="flex items-center shadow-md justify-center bg-transparent  h-10 cursor-pointer hover:bg-[#FF4E02] hover:text-white rounded-full text-black"
-          onClick={handleCommentSubmit}
           disabled={isPending || !user?.id || !newComment.trim()}
         >
           {isPending ? "Posting..." : "Comment"}
