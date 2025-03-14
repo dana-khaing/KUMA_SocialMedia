@@ -8,18 +8,17 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import CommentBox from "./commentBox";
-import { useOptimistic, useTransition } from "react";
-import { switchReaction } from "@/lib/action";
-import { loadComments } from "@/lib/action";
+import { useOptimistic } from "react";
+import { switchReaction, loadComments } from "@/lib/action";
 
 const ReactionBar = ({ post, user }) => {
-  // Show comment box
   const [showCommentbox, setShowCommentbox] = useState({});
   const [comments, setComments] = useState({});
-  const [error, setError] = useState(null); // has to put error state here because client side UI error is keep popping up
-  // Toggle comment box
+  const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
+  const [error, setError] = useState(null);
+  const [isPending, startTransition] = useTransition();
 
   const toggleCommentBox = async (postId) => {
     const isOpen = !showCommentbox[postId];
@@ -36,6 +35,7 @@ const ReactionBar = ({ post, user }) => {
             ...prev,
             [postId]: fetchedComments,
           }));
+          setCommentCount(fetchedComments.length); // Sync count with fetched comments
           setError(null);
         } catch (error) {
           console.error("Failed to load comments:", error.message);
@@ -46,14 +46,19 @@ const ReactionBar = ({ post, user }) => {
   };
 
   const handleNewComment = async (postId) => {
+    // Optimistically increment comment count
+    setCommentCount((prev) => prev + 1);
+
     try {
       const updatedComments = await loadComments(postId);
       setComments((prev) => ({
         ...prev,
         [postId]: updatedComments,
       }));
+      setCommentCount(updatedComments.length); // Sync with server
     } catch (error) {
       console.error("Failed to refresh comments:", error.message);
+      setCommentCount((prev) => prev - 1); // Revert on failure
     }
   };
 
@@ -86,14 +91,14 @@ const ReactionBar = ({ post, user }) => {
               : state.liked.likeCount + 1,
           },
           loved: state.liked.isLiked
-            ? state.loved // No change if liking when already liked
-            : { isLoved: false, loveCount: state.loved.loveCount }, // Remove love if liking
+            ? state.loved
+            : { isLoved: false, loveCount: state.loved.loveCount },
         };
       } else {
         return {
           liked: state.loved.isLoved
-            ? state.liked // No change if loving when already loved
-            : { isLiked: false, likeCount: state.liked.likeCount }, // Remove like if loving
+            ? state.liked
+            : { isLiked: false, likeCount: state.liked.likeCount },
           loved: {
             isLoved: !state.loved.isLoved,
             loveCount: state.loved.isLoved
@@ -104,8 +109,6 @@ const ReactionBar = ({ post, user }) => {
       }
     }
   );
-
-  const [isPending, startTransition] = useTransition();
 
   const likeAction = async () => {
     if (!user?.id) {
@@ -209,9 +212,10 @@ const ReactionBar = ({ post, user }) => {
           className={`bg-inherit w-fit shadow-none hover:bg-transparent rounded-full ${
             showCommentbox[post.id] ? "text-blue-600" : "text-black"
           }`}
+          disabled={isPending}
         >
           <FontAwesomeIcon icon={faComment} size="sm" />
-          <span>{post._count?.comments || 0}</span>
+          <span>{commentCount}</span> {/* Use dynamic count */}
           <span className="hidden md:block">Comment</span>
         </Button>
         <Separator
@@ -224,12 +228,15 @@ const ReactionBar = ({ post, user }) => {
         </Button>
       </div>
       {showCommentbox[post.id] && (
-        <CommentBox
-          user={user}
-          post={post}
-          comments={comments[post.id] || []}
-          onNewComment={() => handleNewComment(post.id)}
-        />
+        <>
+          {error && <p className="text-red-500 p-2">{error}</p>}
+          <CommentBox
+            user={user}
+            post={post}
+            comments={comments[post.id] || []}
+            onNewComment={() => handleNewComment(post.id)}
+          />
+        </>
       )}
     </>
   );
