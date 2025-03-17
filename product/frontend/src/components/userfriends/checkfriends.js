@@ -59,7 +59,7 @@ export const Checkfriends = async () => {
   return (
     <div className="w-full bg-slate-50 h-[28rem] rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default">
       <div className="flex items-center justify-between px-4">
-        <span className="text-[#FF4E01]">All Friends</span>
+        <span className="text-[#FF4E01]">All Following</span>
       </div>
       <Separator
         orientation="horizontal"
