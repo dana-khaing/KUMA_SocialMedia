@@ -28,22 +28,14 @@ export const UsefulTool = () => {
           href={"/"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon
-            icon={faRss}
-            size="md"
-            className=" text-[#FF4E02] mr-2"
-          />
+          <FontAwesomeIcon icon={faRss} size="md" className="  mr-2" />
           New Feed
         </Link>
         <Link
           href={"/friendlist"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon
-            icon={faUserCheck}
-            size="md"
-            className="mr-2 text-[#FF4E02]"
-          />
+          <FontAwesomeIcon icon={faUserCheck} size="md" className="mr-2" />
           Friends
         </Link>
 
@@ -51,22 +43,14 @@ export const UsefulTool = () => {
           href={"/studio"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon
-            icon={faVideo}
-            size="md"
-            className="mr-2 text-[#FF4E02]"
-          />
+          <FontAwesomeIcon icon={faVideo} size="md" className="mr-2" />
           Watch
         </Link>
         <Link
           href={"/activity"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon
-            icon={faStreetView}
-            size="md"
-            className="mr-2 text-[#FF4E02]"
-          />
+          <FontAwesomeIcon icon={faStreetView} size="md" className="mr-2" />
           Activity
         </Link>
         <SettingAction />
