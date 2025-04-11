@@ -64,8 +64,8 @@ export default async function Home() {
         createdAt: "desc",
       },
     })) || [];
-  /// fetch all stories from following and current user
 
+  /// fetch all stories from following and current user
   const stories = await prisma.story.findMany({
     where: {
       expiresAt: {
@@ -80,7 +80,42 @@ export default async function Home() {
       createdAt: "desc",
     },
   });
-  console.log("stories", stories);
+
+  /// Group stories by user
+  const groupedStories = stories.reduce((acc, story) => {
+    const { user, ...storyData } = story;
+    const existingUser = acc.find((group) => group.user.id === user.id);
+
+    if (existingUser) {
+      existingUser.stories.push(storyData);
+    } else {
+      acc.push({
+        user,
+        stories: [storyData],
+      });
+    }
+
+    return acc;
+  }, []);
+
+  // Separate owner's stories from others
+  const ownerStories = groupedStories.filter(
+    (group) => group.user.id === userId
+  );
+  const otherStories = groupedStories.filter(
+    (group) => group.user.id !== userId
+  );
+
+  // Sort other stories by the most recent story per user
+  otherStories.sort((a, b) => {
+    const aLatest = new Date(a.stories[0].createdAt);
+    const bLatest = new Date(b.stories[0].createdAt);
+    return bLatest - aLatest;
+  });
+
+  // Combine: owner's stories first, then others
+  const finalStories = [...ownerStories, ...otherStories];
+
   return (
     <div className="h-[150vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
       {/* left */}
@@ -91,7 +126,7 @@ export default async function Home() {
       {/* center */}
       <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%] ">
         <div className="flex flex-col gap-5 w-full overflow-y-scroll scrollbar-hide overscroll-x-none">
-          <Stories user={user} stories={stories} />
+          <Stories user={user} stories={finalStories} />
           <Addpost user={user} />
           <Newfeed user={user} posts={posts} owner={userId} />
         </div>
