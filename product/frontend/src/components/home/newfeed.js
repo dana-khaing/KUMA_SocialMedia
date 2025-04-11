@@ -1,13 +1,13 @@
 "use client";
 import { useState, useTransition } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDistanceToNow } from "date-fns";
 import ReactionBar from "./reactionBar";
 import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
 import { deletePost } from "@/lib/action";
 import { toast } from "sonner";
 import Link from "next/link";
+import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 
 const Newfeed = ({ user, posts = [], owner }) => {
   const [expanded, setExpanded] = useState(false); // For expanding post description
@@ -59,6 +59,20 @@ const Newfeed = ({ user, posts = [], owner }) => {
     }
   };
 
+  // Helper function to format the post timestamp
+  const formatPostTimestamp = (createdAt) => {
+    const postDate = new Date(createdAt);
+    const now = new Date();
+    const daysDifference = differenceInDays(now, postDate);
+
+    if (daysDifference > 7) {
+      // If more than 7 days, show "day month year" (e.g., "15 October 2024")
+      return format(postDate, "d MMMM yyyy");
+    } else {
+      // Otherwise, show relative time (e.g., "2 days ago")
+      return formatDistanceToNow(postDate, { addSuffix: true });
+    }
+  };
   return (
     <div className="w-full h-[180vh]">
       <div className="flex flex-col justify-center items-center gap-5">
@@ -90,12 +104,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
                   </Link>
                   <div className="text-slate-400">
                     <FontAwesomeIcon icon={faClock} size="sm" />
-                    <span>
-                      {" "}
-                      {formatDistanceToNow(post.createdAt, {
-                        addSuffix: true,
-                      })}{" "}
-                    </span>
+                    <span>{formatPostTimestamp(post.createdAt)}</span>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 items-center">
