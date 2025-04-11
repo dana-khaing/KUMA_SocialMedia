@@ -64,7 +64,23 @@ export default async function Home() {
         createdAt: "desc",
       },
     })) || [];
+  /// fetch all stories from following and current user
 
+  const stories = await prisma.story.findMany({
+    where: {
+      expiresAt: {
+        gte: new Date(),
+      },
+      OR: [{ userId: { in: followingIds } }, { userId: userId }],
+    },
+    include: {
+      user: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  console.log("stories", stories);
   return (
     <div className="h-[150vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
       {/* left */}
@@ -75,7 +91,7 @@ export default async function Home() {
       {/* center */}
       <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%] ">
         <div className="flex flex-col gap-5 w-full overflow-y-scroll scrollbar-hide overscroll-x-none">
-          <Stories />
+          <Stories user={user} stories={stories} />
           <Addpost user={user} />
           <Newfeed user={user} posts={posts} owner={userId} />
         </div>

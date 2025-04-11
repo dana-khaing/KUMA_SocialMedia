@@ -73,7 +73,7 @@ export const Studio = async () => {
         <ProfileSmallCard />
         <UsefulTool />
       </div>
-      <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 h-[180vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="flex flex-col gap-5 h-screen overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Newfeed posts={allPosts} user={user} owner={userId} />
         </div>

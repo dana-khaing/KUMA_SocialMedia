@@ -2,7 +2,7 @@
 
 - user status and posting finish .. user can post status and photo and video
 - finsihed comment sending , comment like, comment delete
-- post delete
+- post delete feature is also finished (only owner of the post can delete the post)
 
 #### 13 March
 
