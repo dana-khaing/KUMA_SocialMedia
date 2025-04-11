@@ -14,7 +14,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import Autoplay from "embla-carousel-autoplay";
 import { CldUploadWidget } from "next-cloudinary";
-import { createStory } from "@/lib/action";
+import { createStory, deleteStory } from "@/lib/action"; // Import deleteStory
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -27,7 +27,7 @@ const Stories = ({ user, stories }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
-  const [showCreateModal, setShowCreateModal] = useState(false); // New state for create modal
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const router = useRouter();
 
   const STORY_DURATION = 5000; // 5 seconds per story
@@ -110,7 +110,7 @@ const Stories = ({ user, stories }) => {
 
   // Cloudinary upload handling
   const handleUploadSuccess = (result) => {
-    console.log("Cloudinary upload result:", result); // Debug the result
+    // console.log("Cloudinary upload result:", result);
     const imageUrl = result?.info?.secure_url;
     if (!imageUrl) {
       toast("Failed to retrieve image URL from Cloudinary.");
@@ -118,7 +118,7 @@ const Stories = ({ user, stories }) => {
       return;
     }
     setUploadedImageUrl(imageUrl);
-    setShowCreateModal(true); // Show the create modal
+    setShowCreateModal(true);
   };
 
   const handleCreateStory = () => {
@@ -131,18 +131,19 @@ const Stories = ({ user, stories }) => {
     startTransition(async () => {
       try {
         const payload = { userId: user.id, imageUrl: uploadedImageUrl };
-        console.log("Creating story with payload:", payload); // Debug the payload
+        console.log("Creating story with payload:", payload);
         const newStory = await createStory(payload);
-        console.log("createStory response:", newStory); // Debug the response
+        console.log("createStory response:", newStory);
 
         if (newStory?.success) {
           router.refresh();
-          setSelectedUserStories({
-            user: newStory.story.user,
-            stories: [newStory.story],
-          });
+          // will show the new story in the carousel
+          // setSelectedUserStories({
+          //   user: newStory.story.user,
+          //   stories: [newStory.story],
+          // });
           toast("Story created successfully!");
-          setShowCreateModal(false); // Close the create modal
+          setShowCreateModal(false);
         } else {
           throw new Error(newStory?.error || "Story creation failed");
         }
@@ -158,6 +159,40 @@ const Stories = ({ user, stories }) => {
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setUploadedImageUrl(null);
+  };
+
+  // Handle story deletion
+  const handleDeleteStory = (storyId) => {
+    startTransition(async () => {
+      try {
+        const result = await deleteStory(storyId, user.id);
+        if (result.success) {
+          toast("Story deleted successfully!");
+          // Update the stories list by filtering out the deleted story
+          const updatedStories = selectedUserStories.stories.filter(
+            (story) => story.id !== storyId
+          );
+          if (updatedStories.length === 0) {
+            // If no stories remain, close the modal
+            handleCloseModal();
+          } else {
+            // Update the stories and reset the carousel
+            setSelectedUserStories({
+              ...selectedUserStories,
+              stories: updatedStories,
+            });
+            // Adjust the current index if necessary
+            if (current >= updatedStories.length) {
+              setCurrent(updatedStories.length - 1);
+            }
+            router.refresh(); // Refresh the page to sync with the server
+          }
+        }
+      } catch (error) {
+        toast(`Failed to delete story: ${error.message}`);
+        console.error("Error deleting story:", error);
+      }
+    });
   };
 
   return (
@@ -215,14 +250,16 @@ const Stories = ({ user, stories }) => {
       {/* Create Story Modal */}
       {showCreateModal && (
         <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-          <div className=" rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%] p-4 relative">
+          <div className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%] p-4 relative">
             <div className="relative flex flex-col items-center gap-4">
+              <h3 className="absolute top-4 text-lg text-white">
+                Story Preview
+              </h3>
               <img
                 src={uploadedImageUrl}
                 alt="Uploaded story preview"
                 className="rounded-lg object-contain max-h-[60vh] max-w-full"
               />
-              {/* Overlay buttons on the image */}
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
                 <Button
                   onClick={handleCloseCreateModal}
@@ -319,6 +356,18 @@ const Stories = ({ user, stories }) => {
                           </div>
                         </div>
                       </div>
+                      {/* Delete Button for User-Owned Stories */}
+                      {story.userId === user.id && (
+                        <div className="absolute bottom-4 right-4">
+                          <Button
+                            onClick={() => handleDeleteStory(story.id)}
+                            className="bg-transparent text-white  px-4 py-2 rounded-lg shadow-md"
+                            disabled={isPending}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CarouselItem>
                 ))}
