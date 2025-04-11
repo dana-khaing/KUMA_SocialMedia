@@ -133,10 +133,9 @@ const Stories = ({ user, stories }) => {
               />
             </Button>
           </div>
-          <span className="text-black">Your Stories</span>
+          <span className="text-black">Create Stories</span>
         </div>
 
-        {/* Story cards */}
         {stories && stories.length > 0 ? (
           stories.map((group) => (
             <div
@@ -152,7 +151,7 @@ const Stories = ({ user, stories }) => {
                 />
               </div>
               <span className="text-black truncate w-full text-center">
-                {group.user.username}
+                {group.user.id === user.id ? "Your stories" : group.user.name}
               </span>
             </div>
           ))
@@ -245,7 +244,7 @@ const Stories = ({ user, stories }) => {
                             </div>
                           </div>
                           <div
-                            className="w-8 h-8 hover:bg-gray-200 rounded-full flex items-center justify-center cursor-pointer"
+                            className="w-8 h-8 hover:bg-gray-200 hover:text-black text-white rounded-full flex items-center justify-center cursor-pointer"
                             onClick={handleCloseModal}
                           >
                             <FontAwesomeIcon icon={faXmark} size="md" />

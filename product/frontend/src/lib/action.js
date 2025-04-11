@@ -516,3 +516,70 @@ export const createPost = async (payload) => {
     throw new Error("Failed to create post");
   }
 };
+
+// create story
+export const createStory = async (payload) => {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid payload: must be an object");
+  }
+
+  const { userId, imageUrl } = payload;
+
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    const storyData = {
+      userId,
+      image: imageUrl,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    };
+
+    if (!storyData.image) {
+      throw new Error("Story must contain an image");
+    }
+
+    const story = await prisma.story.create({
+      data: storyData,
+      include: {
+        user: true,
+      },
+    });
+
+    return { success: true, story };
+  } catch (error) {
+    //console.error("Error creating story:", error);
+    throw new Error("Failed to create story");
+  }
+};
+
+// delete story
+export const deleteStory = async (storyId, userId) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    const story = await prisma.story.findUnique({
+      where: { id: storyId },
+    });
+
+    if (!story) {
+      return { success: true, message: "Story already deleted or not found" }; // Treat as success
+    }
+
+    if (story.userId !== userId) {
+      throw new Error("You can only delete your own stories");
+    }
+
+    await prisma.story.delete({
+      where: { id: storyId },
+    });
+
+    return { success: true };
+  } catch (error) {
+    //console.error("Error deleting story:", error);
+    throw new Error(`Failed to delete story: ${error.message}`);
+  }
+};
