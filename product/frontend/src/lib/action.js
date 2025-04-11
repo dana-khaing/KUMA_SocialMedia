@@ -222,7 +222,7 @@ export const searchAction = async (query) => {
       },
     });
   } catch (error) {
-    console.error("Search error:", error);
+    //console.error("Search error:", error);
     throw new Error("Something went wrong, Kuma");
   }
 };
@@ -252,7 +252,7 @@ export const switchLike = async (postId, userId) => {
         },
       });
     }
-    console.log("like switch");
+    //console.log("like switch");
   } catch (error) {
     throw new Error("Something went wrong, Kuma");
   }
@@ -357,10 +357,10 @@ export const deletePost = async (postId, userId) => {
       where: { id: postId },
     });
 
-    console.log(`Post ${postId} deleted by user ${userId}`);
+    //console.log(`Post ${postId} deleted by user ${userId}`);
     return { success: true };
   } catch (error) {
-    console.error("Error deleting post:", error);
+    //console.error("Error deleting post:", error);
     throw new Error(`Failed to delete post: ${error.message}`);
   }
 };
@@ -378,7 +378,7 @@ export const loadComments = async (postId) => {
     });
     return comments;
   } catch (error) {
-    console.error("Error loading comments:", error);
+    //console.error("Error loading comments:", error);
     throw new Error("Failed to load comments. Kuma");
   }
 };
@@ -401,7 +401,7 @@ export const createComment = async (postId, userId, desc) => {
     });
     return { success: true, comment };
   } catch (error) {
-    console.error("Error creating comment:", error);
+    //console.error("Error creating comment:", error);
     throw new Error("Failed to create comment");
   }
 };
@@ -434,7 +434,7 @@ export const switchCommentLike = async (commentId, userId) => {
       return { success: true, action: "liked" };
     }
   } catch (error) {
-    console.error("Error switching comment like:", error);
+    //console.error("Error switching comment like:", error);
     throw new Error("Failed to switch comment like");
   }
 };
@@ -464,16 +464,16 @@ export const deleteComment = async (commentId, userId) => {
       where: { id: commentId },
     });
 
-    console.log(`Comment ${commentId} deleted by user ${userId}`);
+    //console.log(`Comment ${commentId} deleted by user ${userId}`);
     return { success: true };
   } catch (error) {
-    console.error("Error deleting comment:", error);
+    //console.error("Error deleting comment:", error);
     throw new Error(`Failed to delete comment: ${error.message}`);
   }
 };
 
 export const createPost = async (payload) => {
-  console.log("Received payload in createPost:", payload);
+  //console.log("Received payload in createPost:", payload);
   if (!payload || typeof payload !== "object") {
     throw new Error("Invalid payload: must be an object");
   }
@@ -509,10 +509,10 @@ export const createPost = async (payload) => {
       },
     });
 
-    console.log(`Post created by user ${userId}:`, post);
+    //console.log(`Post created by user ${userId}:`, post);
     return { success: true, post };
   } catch (error) {
-    console.error("Error creating post:", error);
+    //console.error("Error creating post:", error);
     throw new Error("Failed to create post");
   }
 };
