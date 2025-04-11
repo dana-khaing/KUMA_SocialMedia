@@ -5,100 +5,58 @@ import FriendRequest from "@/components/userfriends/friendRequest";
 import Birthday from "@/components/userfriends/birthday";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
-import { auth } from "@clerk/nextjs/server";
 import Checkfriends from "@/components/userfriends/checkfriends";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function Home() {
   const { userId } = await auth();
-  if (!userId) {
-    return null;
-  }
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+  if (!userId) return null;
 
-  /// get following ids
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  // Get following IDs
   const followings = await prisma.follower.findMany({
-    where: {
-      followerId: userId,
-    },
-    select: {
-      followingId: true,
-    },
+    where: { followerId: userId },
+    select: { followingId: true },
   });
-
-  /// map following followingId
   const followingIds = followings.map((following) => following.followingId);
 
-  /// fetch all posts from following
+  // Fetch posts from following users
   const posts =
     (await prisma.post.findMany({
-      where: {
-        userId: {
-          in: followingIds,
-        },
-      },
+      where: { userId: { in: followingIds } },
       include: {
         user: true,
-        likes: {
-          select: {
-            userId: true,
-          },
-        },
-        loves: {
-          select: {
-            userId: true,
-          },
-        },
-        _count: {
-          select: {
-            comments: true,
-            likes: true,
-            loves: true,
-          },
-        },
+        likes: { select: { userId: true } },
+        loves: { select: { userId: true } },
+        _count: { select: { comments: true, likes: true, loves: true } },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     })) || [];
 
-  /// fetch all stories from following and current user
+  // Fetch stories from following users and current user
   const stories = await prisma.story.findMany({
     where: {
-      expiresAt: {
-        gte: new Date(),
-      },
-      OR: [{ userId: { in: followingIds } }, { userId: userId }],
+      expiresAt: { gte: new Date() },
+      OR: [{ userId }, { userId: { in: followingIds } }],
     },
-    include: {
-      user: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+    include: { user: true },
+    orderBy: { createdAt: "desc" },
   });
 
-  /// Group stories by user
+  // Group stories by user
   const groupedStories = stories.reduce((acc, story) => {
     const { user, ...storyData } = story;
     const existingUser = acc.find((group) => group.user.id === user.id);
-
     if (existingUser) {
       existingUser.stories.push(storyData);
     } else {
-      acc.push({
-        user,
-        stories: [storyData],
-      });
+      acc.push({ user, stories: [storyData] });
     }
-
     return acc;
   }, []);
 
-  // Separate owner's stories from others
+  // Separate owner's stories and sort others by oldest story
   const ownerStories = groupedStories.filter(
     (group) => group.user.id === userId
   );
@@ -106,33 +64,36 @@ export default async function Home() {
     (group) => group.user.id !== userId
   );
 
-  // Sort other stories by the most recent story per user
+  // Sort other stories by the oldest story in each group
   otherStories.sort((a, b) => {
-    const aLatest = new Date(a.stories[0].createdAt);
-    const bLatest = new Date(b.stories[0].createdAt);
-    return bLatest - aLatest;
+    const aOldest = Math.min(
+      ...a.stories.map((s) => new Date(s.createdAt).getTime())
+    );
+    const bOldest = Math.min(
+      ...b.stories.map((s) => new Date(s.createdAt).getTime())
+    );
+    return aOldest - bOldest; // Ascending order (oldest first)
   });
 
-  // Combine: owner's stories first, then others
+  // Combine owner's stories first, then sorted others
   const finalStories = [...ownerStories, ...otherStories];
 
   return (
     <div className="h-[150vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
-      {/* left */}
+      {/* Left Sidebar */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
-      {/* center */}
-      <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%] ">
+      {/* Center Content */}
+      <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%]">
         <div className="flex flex-col gap-5 w-full overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories user={user} stories={finalStories} />
           <Addpost user={user} />
           <Newfeed user={user} posts={posts} owner={userId} />
         </div>
       </div>
-
-      {/* right */}
+      {/* Right Sidebar */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <FriendRequest />
         <Birthday />
