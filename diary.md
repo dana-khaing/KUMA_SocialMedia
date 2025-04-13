@@ -1,3 +1,15 @@
+#### 11 April
+
+- start stories feature by using pop up view
+- use shadcn component of carosel to view the multiple photos
+- use overlay profiles components on the stories image
+- add delete button for the stories
+- add shadcn progress component to implement 5s sec time limit
+- make sure the stories move another after 5 sec
+- make sure the pop up it close after the stories are viewed
+- change the logic of the post created time display
+- activate the stories posting button
+
 #### 14 March
 
 - user status and posting finish .. user can post status and photo and video

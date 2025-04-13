@@ -104,7 +104,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
                   </Link>
                   <div className="text-slate-400">
                     <FontAwesomeIcon icon={faClock} size="sm" />
-                    <span>{formatPostTimestamp(post.createdAt)}</span>
+                    <span>{" " + formatPostTimestamp(post.createdAt)}</span>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 items-center">
