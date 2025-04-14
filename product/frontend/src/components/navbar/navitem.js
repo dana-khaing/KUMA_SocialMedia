@@ -4,7 +4,6 @@ import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faRss } from "@fortawesome/free-solid-svg-icons";
-import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { auth } from "@clerk/nextjs/server";
 

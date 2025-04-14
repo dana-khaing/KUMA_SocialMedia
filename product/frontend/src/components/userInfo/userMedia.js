@@ -4,46 +4,53 @@ import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import prisma from "@/lib/client";
 
 export const UserMedia = async ({ user }) => {
+  // Fetch posts with media (images) for the user
   const postWithMedia = await prisma.post.findMany({
     where: {
       userId: user?.id,
-      image: {
-        not: null,
+      images: {
+        some: {},
       },
     },
-    take: 7,
+    take: 7, // Limit to 7 posts (we'll handle images separately)
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      images: true,
+    },
   });
+
+  // Flatten the images array from all posts and take the first 7 images
+  const allImages = postWithMedia.flatMap((post) => post.images).slice(0, 7);
+
   return (
-    <div className=" w-full h-[20rem] bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
-      <div className="flex items-center px-4  ">
-        <div className="text-sm text-[#ff4e02] py-2">Gallery </div>
+    <div className="w-full h-[20rem] bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
+      <div className="flex items-center px-4">
+        <div className="text-sm text-[#ff4e02] py-2">Gallery</div>
       </div>
       <Separator
         orientation="horizontal"
         className="bg-[#FF4E01] h-[0.05rem] w-[95%] mx-auto"
       />
-      {/* use grid of 4 /4 to show photo */}
+      {/* Use a grid of 4 columns to show photos */}
       <div className="grid grid-cols-4 grid-rows-2 gap-2 px-4 py-4">
-        {" "}
-        {postWithMedia.length ? (
-          postWithMedia.map((post) => (
+        {allImages.length > 0 ? (
+          allImages.map((image, index) => (
             <img
-              key={post.id}
-              src={post.image}
-              alt="gallery"
+              key={image.id || index} // Use image.id for uniqueness
+              src={image.url} // Use image.url from the PostImage model
+              alt={`gallery-${index}`}
               className="w-full h-28 bg-gray-300 rounded-2xl object-cover hover:scale-105 transition-transform duration-500 ease-out"
             />
           ))
         ) : (
-          <div className="text-[#ff4e02] text-center w-full col-span-4 row-span-2 flex items-center justify-center ">
+          <div className="text-[#ff4e02] text-center w-full col-span-4 row-span-2 flex items-center justify-center">
             No media to show
           </div>
         )}
-        {postWithMedia.length == 7 && (
-          <div className=" h-28 bg-gray-300 rounded-2xl object-cover hover:scale-105 transition-transform duration-500 ease-out justify-center items-center flex">
+        {allImages.length === 7 && (
+          <div className="h-28 bg-gray-300 rounded-2xl object-cover hover:scale-105 transition-transform duration-500 ease-out flex justify-center items-center">
             <FontAwesomeIcon
               icon={faEllipsis}
               size="2x"
@@ -55,4 +62,5 @@ export const UserMedia = async ({ user }) => {
     </div>
   );
 };
+
 export default UserMedia;

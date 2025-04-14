@@ -167,6 +167,7 @@ const Stories = ({ user, stories }) => {
       try {
         const result = await deleteStory(storyId, user.id);
         if (result.success) {
+          router.refresh();
           toast("Story deleted successfully!");
           // Update the stories list by filtering out the deleted story
           const updatedStories = selectedUserStories.stories.filter(
@@ -185,7 +186,7 @@ const Stories = ({ user, stories }) => {
             if (current >= updatedStories.length) {
               setCurrent(updatedStories.length - 1);
             }
-            router.refresh(); // Refresh the page to sync with the server
+            // Refresh the page to sync with the server
           }
         }
       } catch (error) {
@@ -283,7 +284,7 @@ const Stories = ({ user, stories }) => {
       {/* Story Viewing Modal */}
       {selectedUserStories && (
         <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-          <div className=" select-none rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]">
+          <div className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]">
             <Carousel
               opts={{ loop: false }}
               setApi={setApi}

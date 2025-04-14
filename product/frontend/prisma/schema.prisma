@@ -35,19 +35,28 @@ model User {
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   desc      String?
-  image     String?
-  video     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   userId    String
   comments  Comment[]
   likes     Like[]
   loves     Love[]
-  user      User      @relation(fields: [userId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+  images    PostImage[] // New relation for multiple images
 
   @@index([userId], map: "Post_userId_fkey")
+}
+
+model PostImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([postId], map: "PostImage_postId_fkey")
 }
 
 model Like {

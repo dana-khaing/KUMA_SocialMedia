@@ -1,13 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
-import { faUser, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faRss } from "@fortawesome/free-solid-svg-icons";
+
 import { SignedIn } from "@clerk/nextjs";
-import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import SearchUser from "../home/searchUser";
 import { auth } from "@clerk/nextjs/server";
 
 import Link from "next/link";
@@ -59,11 +57,11 @@ export const NavitemMobile = async () => {
             <Link href="/studio">
               <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                 <FontAwesomeIcon
-                  icon={faCirclePlay}
+                  icon={faRss}
                   size="md"
                   className="mr-2 text-[#FF4E02]"
                 />
-                Video
+                Newfeed
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />

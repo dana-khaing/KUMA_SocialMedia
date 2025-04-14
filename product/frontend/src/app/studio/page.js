@@ -4,6 +4,7 @@ import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
 import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/client"; // Ensure this import is correct
 
 export const Studio = async () => {
   const { userId } = await auth();
@@ -29,14 +30,8 @@ export const Studio = async () => {
   });
   const blockedMeIds = blockedMe.map((b) => b.blockerId);
 
-  // Combine all blocked user IDs (both directions)
+  // Combine all blocked user IDs
   const allBlockedIds = [...new Set([...blockedByMeIds, ...blockedMeIds])];
-
-  // Fetch my posts (not affected by blocks, but included for completeness)
-  const myPosts = await prisma.post.findMany({
-    where: { userId: userId },
-    include: { user: true, likes: true, loves: true, comments: true },
-  });
 
   // Fetch following IDs
   const following = await prisma.follower.findMany({
@@ -52,18 +47,25 @@ export const Studio = async () => {
   });
   const followerIds = followers.map((f) => f.followerId);
 
-  // Combine all relevant user IDs (self, following, followers)
+  // Combine all relevant user IDs
   const allUserIds = [...new Set([userId, ...followingIds, ...followerIds])];
 
-  // Fetch all posts, excluding blocked users
+  // Fetch all posts, including images, excluding blocked users
   const allPosts = await prisma.post.findMany({
     where: {
       userId: {
         in: allUserIds,
-        notIn: allBlockedIds, // Exclude blocked users
+        notIn: allBlockedIds,
       },
     },
-    include: { user: true, likes: true, loves: true, comments: true },
+    include: {
+      user: true,
+      likes: true,
+      loves: true,
+      comments: true,
+      images: true,
+      _count: { select: { likes: true, loves: true, comments: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
