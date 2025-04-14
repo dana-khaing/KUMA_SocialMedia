@@ -1,6 +1,6 @@
 import { Separator } from "@radix-ui/react-separator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { faRss } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
@@ -28,8 +28,8 @@ export const UsefulTool = () => {
           href={"/"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faRss} size="md" className="  mr-2" />
-          New Feed
+          <FontAwesomeIcon icon={faHome} size="md" className="  mr-2" />
+          Home
         </Link>
         <Link
           href={"/friendlist"}
@@ -43,8 +43,8 @@ export const UsefulTool = () => {
           href={"/studio"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faVideo} size="md" className="mr-2" />
-          Watch
+          <FontAwesomeIcon icon={faRss} size="md" className="mr-2" />
+          New Feed
         </Link>
         <Link
           href={"/activity"}

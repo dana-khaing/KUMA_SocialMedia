@@ -473,12 +473,12 @@ export const deleteComment = async (commentId, userId) => {
 };
 
 export const createPost = async (payload) => {
-  //console.log("Received payload in createPost:", payload);
+  console.log("Received payload in createPost:", payload);
   if (!payload || typeof payload !== "object") {
     throw new Error("Invalid payload: must be an object");
   }
 
-  const { userId, desc, imageUrl } = payload;
+  const { userId, desc, imageUrls } = payload;
 
   if (!userId) {
     throw new Error("User not authenticated");
@@ -493,26 +493,34 @@ export const createPost = async (payload) => {
       postData.desc = desc.trim();
     }
 
-    if (imageUrl) {
-      postData.image = imageUrl;
+    // Validate that there's either a description or at least one image
+    if (!postData.desc && (!imageUrls || imageUrls.length === 0)) {
+      throw new Error("Post must contain text or at least one image");
     }
 
-    if (!postData.desc && !postData.img) {
-      throw new Error("Post must contain text or an image");
-    }
-
+    // Create the post with related images if provided
     const post = await prisma.post.create({
-      data: postData,
+      data: {
+        ...postData,
+        images:
+          imageUrls && imageUrls.length > 0
+            ? {
+                create: imageUrls.map((url) => ({
+                  url,
+                })),
+              }
+            : undefined,
+      },
       include: {
         user: true,
+        images: true,
         _count: { select: { likes: true, loves: true, comments: true } },
       },
     });
 
-    //console.log(`Post created by user ${userId}:`, post);
     return { success: true, post };
   } catch (error) {
-    //console.error("Error creating post:", error);
+    console.error("Error creating post:", error);
     throw new Error("Failed to create post");
   }
 };
@@ -553,7 +561,6 @@ export const createStory = async (payload) => {
     throw new Error("Failed to create story");
   }
 };
-
 // delete story
 export const deleteStory = async (storyId, userId) => {
   if (!userId) {
@@ -563,6 +570,7 @@ export const deleteStory = async (storyId, userId) => {
   try {
     const story = await prisma.story.findUnique({
       where: { id: storyId },
+      include: { user: true },
     });
 
     if (!story) {
@@ -577,6 +585,7 @@ export const deleteStory = async (storyId, userId) => {
       where: { id: storyId },
     });
 
+    //console.log(`Story ${storyId} deleted by user ${userId}`);
     return { success: true };
   } catch (error) {
     //console.error("Error deleting story:", error);

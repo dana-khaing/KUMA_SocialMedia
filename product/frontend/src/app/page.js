@@ -29,6 +29,8 @@ export default async function Home() {
         user: true,
         likes: { select: { userId: true } },
         loves: { select: { userId: true } },
+        images: true,
+        comments: true,
         _count: { select: { comments: true, likes: true, loves: true } },
       },
       orderBy: { createdAt: "desc" },

@@ -15,23 +15,31 @@ const ProfilePage = async ({ params }) => {
   const { id } = await params;
 
   // Fetch user data
-  const user = await prisma.user.findFirst({
-    where: {
-      id,
-    },
-    include: {
-      _count: {
-        select: { followers: true, followings: true, posts: true },
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id,
       },
-    },
-  });
+      include: {
+        _count: {
+          select: { followers: true, followings: true, posts: true },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch user:", error.message);
+    return notFound();
+  }
 
   if (!user) {
     return notFound();
   }
-  /// fetch all posts of the profiles user
-  const posts =
-    (await prisma.post.findMany({
+
+  // Fetch all posts of the profile user
+  let posts = [];
+  try {
+    posts = await prisma.post.findMany({
       where: {
         userId: id,
       },
@@ -47,6 +55,8 @@ const ProfilePage = async ({ params }) => {
             userId: true,
           },
         },
+        images: true, // Include images relation
+        comments: true, // Include comments for Newfeed
         _count: {
           select: {
             comments: true,
@@ -58,21 +68,35 @@ const ProfilePage = async ({ params }) => {
       orderBy: {
         createdAt: "desc",
       },
-    })) || [];
+      take: 10, // Limit to 10 posts for performance
+    });
+  } catch (error) {
+    console.error("Failed to fetch posts:", error.message);
+    posts = []; // Fallback to empty array
+  }
 
   const { userId } = await auth();
   const isOwner = userId === id;
   let isBlocked = false;
+
   if (!isOwner && userId) {
-    const blocked = await prisma.block.findFirst({
-      where: {
-        blockerId: id,
-        blockedId: userId,
-      },
-    });
-    if (blocked) {
-      isBlocked = true;
+    try {
+      const blocked = await prisma.block.findFirst({
+        where: {
+          OR: [
+            { blockerId: id, blockedId: userId }, // Profile owner blocks viewer
+            { blockerId: userId, blockedId: id }, // Viewer blocks profile owner
+          ],
+        },
+      });
+      if (blocked) {
+        isBlocked = true;
+      }
+    } catch (error) {
+      console.error("Failed to check block status:", error.message);
+      isBlocked = false; // Fallback to not blocked
     }
+
     if (isBlocked) {
       return notFound();
     }
@@ -80,12 +104,12 @@ const ProfilePage = async ({ params }) => {
 
   return (
     <div className="h-screen w-full flex items-start justify-center gap-4 p-4">
-      {/* left */}
+      {/* Left */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         {!isOwner ? <ProfileSmallCard user={user} /> : <FriendRequest />}
         <UsefulTool />
       </div>
-      {/* center */}
+      {/* Center */}
       <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 h-[180vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="h-fit">
           <ProfileBigCard user={user} owner={isOwner} />
@@ -101,11 +125,12 @@ const ProfilePage = async ({ params }) => {
           </Suspense>
         </div>
         <div className="flex flex-col gap-5 w-full h-full">
-          <Newfeed user={user} posts={posts} owner={userId} />
+          <Suspense fallback={<div>Loading posts...</div>}>
+            <Newfeed user={user} posts={posts} owner={userId} />
+          </Suspense>
         </div>
       </div>
-
-      {/* right */}
+      {/* Right */}
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <Suspense fallback={<div>Loading...</div>}>
           <UserDetail user={user} owner={isOwner} />
