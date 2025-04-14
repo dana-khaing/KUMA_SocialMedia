@@ -180,6 +180,15 @@ export const updateProfile = async (data, cover) => {
     cover: z.string().optional(),
     name: z.string().max(10).optional(),
     surname: z.string().max(10).optional(),
+    dob: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)")
+      .optional()
+      .transform((val) => (val ? new Date(val) : undefined))
+      .refine(
+        (val) => !val || (val instanceof Date && !isNaN(val.getTime())),
+        "Invalid date"
+      ),
     bio: z.string().max(250).optional(),
     city: z.string().max(60).optional(),
     school: z.string().max(60).optional(),
@@ -473,7 +482,6 @@ export const deleteComment = async (commentId, userId) => {
 };
 
 export const createPost = async (payload) => {
-  console.log("Received payload in createPost:", payload);
   if (!payload || typeof payload !== "object") {
     throw new Error("Invalid payload: must be an object");
   }

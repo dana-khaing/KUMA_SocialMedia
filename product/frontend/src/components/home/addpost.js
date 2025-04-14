@@ -6,8 +6,6 @@ import {
   faImage,
   faVideo,
   faT,
-  faSquarePollVertical,
-  faCalendar,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";

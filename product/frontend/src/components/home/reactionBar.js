@@ -176,7 +176,7 @@ const ReactionBar = ({ post, user, owner }) => {
 
   return (
     <>
-      <div className="flex w-full gap-5 md:gap-1 items-around justify-center pb-2">
+      <div className="flex w-full gap-3 md:gap-1 items-around justify-center pb-2">
         <Button
           className={`bg-inherit shadow-none w-fit hover:bg-slate-200 rounded-full ${
             optimisticReactions.liked.isLiked ? "text-blue-600" : "text-black"

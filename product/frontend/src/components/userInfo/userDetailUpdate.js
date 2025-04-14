@@ -178,6 +178,19 @@ const UserDetailUpdate = ({ user }) => {
                 className="border-[1px] border-gray-300 rounded-lg p-2 px-4"
               />
             </div>
+            {/* for date of Birth */}
+            <div className="flex flex-col gap-2 px-5 sm:px-2">
+              <label htmlFor="dob" className="text-[#FF4E01]">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                name="dob"
+                id="dob"
+                placeholder={user?.dob || "Date of Birth"}
+                className="border-[1px] border-gray-300 rounded-lg text-zinc-400 p-2 px-4"
+              />
+            </div>
             {/* for website */}
             <div className="flex flex-col gap-2 px-5 sm:px-2">
               <label htmlFor="website" className="text-[#FF4E01]">
