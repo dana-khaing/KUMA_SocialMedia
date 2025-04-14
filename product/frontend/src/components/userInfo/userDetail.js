@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { faGraduationCap } from "@fortawesome/free-solid-svg-icons";
-import { faSuitcase } from "@fortawesome/free-solid-svg-icons";
+import { faSuitcase, faBirthdayCake } from "@fortawesome/free-solid-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import UserDetailAction from "./userDetailAction";
@@ -40,7 +40,6 @@ export const UserDetail = async ({ user, owner }) => {
       ? (isUserFollowingSent = true)
       : (isUserFollowingSent = false);
   }
-
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
       <div className="flex items-center justify-between px-4">
@@ -101,6 +100,24 @@ export const UserDetail = async ({ user, owner }) => {
               {user?.work || (
                 <p className="text-gray-300">unknown working area,kuma</p>
               )}
+            </span>
+          </div>
+        </div>
+        {/* for Birthday dob */}
+        <div className="w-full h-10 flex gap-2 justify-around items-center">
+          <FontAwesomeIcon
+            icon={faBirthdayCake}
+            size="sm"
+            className="text-[#FF4E01] w-6"
+          />
+          {/* <div className="text-gray-500 flex-shrink-0">Birthday</div> */}
+          <div className="flex-grow">
+            <span className="text-md line-clamp-1">
+              {new Date(user?.dob).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }) || <p className="text-gray-300">unknown birthday,kuma</p>}
             </span>
           </div>
         </div>

@@ -44,7 +44,15 @@ const ProfilePage = async ({ params }) => {
         userId: id,
       },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            surname: true,
+            avatar: true,
+          },
+        },
         likes: {
           select: {
             userId: true,
@@ -55,8 +63,8 @@ const ProfilePage = async ({ params }) => {
             userId: true,
           },
         },
-        images: true, // Include images relation
-        comments: true, // Include comments for Newfeed
+        images: true,
+        comments: true,
         _count: {
           select: {
             comments: true,
@@ -68,11 +76,41 @@ const ProfilePage = async ({ params }) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 10, // Limit to 10 posts for performance
     });
   } catch (error) {
     console.error("Failed to fetch posts:", error.message);
-    posts = []; // Fallback to empty array
+    posts = [];
+  }
+
+  // Fetch posts with media
+  let postWithMedia = [];
+  try {
+    postWithMedia = await prisma.post.findMany({
+      where: {
+        userId: id,
+        images: {
+          some: {},
+        },
+      },
+      include: {
+        images: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            surname: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch posts with media:", error.message);
+    postWithMedia = [];
   }
 
   const { userId } = await auth();
@@ -84,8 +122,8 @@ const ProfilePage = async ({ params }) => {
       const blocked = await prisma.block.findFirst({
         where: {
           OR: [
-            { blockerId: id, blockedId: userId }, // Profile owner blocks viewer
-            { blockerId: userId, blockedId: id }, // Viewer blocks profile owner
+            { blockerId: id, blockedId: userId },
+            { blockerId: userId, blockedId: id },
           ],
         },
       });
@@ -94,7 +132,7 @@ const ProfilePage = async ({ params }) => {
       }
     } catch (error) {
       console.error("Failed to check block status:", error.message);
-      isBlocked = false; // Fallback to not blocked
+      isBlocked = false;
     }
 
     if (isBlocked) {
@@ -121,7 +159,7 @@ const ProfilePage = async ({ params }) => {
         </div>
         <div className="flex lg:hidden">
           <Suspense fallback={<div>Loading...</div>}>
-            <UserMedia user={user} />
+            <UserMedia user={user} postWithMedia={postWithMedia} />
           </Suspense>
         </div>
         <div className="flex flex-col gap-5 w-full h-full">
@@ -136,7 +174,7 @@ const ProfilePage = async ({ params }) => {
           <UserDetail user={user} owner={isOwner} />
         </Suspense>
         <Suspense fallback={<div>Loading...</div>}>
-          <UserMedia user={user} />
+          <UserMedia user={user} postWithMedia={postWithMedia} />
         </Suspense>
         <Checkfriends />
       </div>

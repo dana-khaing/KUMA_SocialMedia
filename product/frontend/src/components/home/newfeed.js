@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import PostPopup from "./postPopup";
+import { useRouter } from "next/navigation";
 
 const Newfeed = ({ user, posts = [], owner }) => {
   const [expanded, setExpanded] = useState({}); // Track expanded state per post
@@ -22,7 +23,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
   const [postList, setPostList] = useState(posts);
   const [isPending, startTransition] = useTransition();
   const [selectedPost, setSelectedPost] = useState(null); // For popup
-
+  const router = useRouter();
   const openDeletePopUp = (postId) => {
     setDeletePostId(postId);
   };
@@ -50,6 +51,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
     try {
       const result = await deletePost(parsedPostId, user.id);
       if (result.success) {
+        router.refresh();
         toast("Post deleted successfully!");
         closeDeletePopUp();
       } else {

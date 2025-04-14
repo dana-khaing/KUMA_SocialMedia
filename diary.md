@@ -1,3 +1,13 @@
+#### 13 & 14 April
+
+- add post image model in the db
+- refactor the create post and post fetch functions form the server side action
+- refactor newfeed, addpost, homepage and studio components
+- modify the posting feature and now user can post multiple image
+- user can import muliple images and user can delete the images in the preview before posting
+- user can view up to 3 photos and if user upload more than 3 , user can view the photo in pop up view
+- refactor the comment box
+
 #### 11 April
 
 - start stories feature by using pop up view
