@@ -1,4 +1,12 @@
-#### 13 & 14 April
+#### 14 April
+
+- add bod colum in user model
+- refactor the data posting to db
+- birthday feature finished
+- any can view the user media by pop up view
+- refactor the neccessary posing feature
+
+#### 13 April
 
 - add post image model in the db
 - refactor the create post and post fetch functions form the server side action
