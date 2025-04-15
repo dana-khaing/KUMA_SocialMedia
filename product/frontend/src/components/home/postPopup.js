@@ -3,10 +3,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faClock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import ReactionBar from "./reactionBar";
 import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 
-const PostPopup = ({ post, user, owner, onClose }) => {
+const PostPopup = ({ post, user, owner, onClose, onReactionUpdate }) => {
   const formatPostTimestamp = (createdAt) => {
     const postDate = new Date(createdAt);
     const now = new Date();
@@ -19,9 +20,16 @@ const PostPopup = ({ post, user, owner, onClose }) => {
     }
   };
 
+  // Handler for reaction updates from ReactionBar
+  const handleReactionUpdate = (updatedPost) => {
+    if (onReactionUpdate) {
+      onReactionUpdate(updatedPost);
+    }
+  };
+
   return (
     <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-      <div className=" bg-white rounded-xl shadow-md border-t-[2px] border-b-[2px]   border-[#FF4E02] mx-auto flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%] relative">
+      <div className="bg-white rounded-xl shadow-md border-t-[2px] border-b-[2px] border-[#FF4E02] mx-auto flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%] relative">
         <div className="p-5 flex flex-col gap-4">
           {/* Post Details */}
           <div className="flex">
@@ -36,8 +44,9 @@ const PostPopup = ({ post, user, owner, onClose }) => {
               <div className="flex flex-col">
                 <Link href={`/profile/${post.user.id}`}>
                   <span className="text-gray-800 text-md font-semibold">
-                    {post.user.name + " " + post.user.surname ||
-                      post.user.username}
+                    {(post.user.name && post.user.surname
+                      ? `${post.user.name} ${post.user.surname}`
+                      : post.user.username) || "Unknown User"}
                   </span>
                 </Link>
                 <div className="text-slate-400 text-sm">
@@ -47,20 +56,22 @@ const PostPopup = ({ post, user, owner, onClose }) => {
               </div>
             </div>
             <div
-              className=" flex-0 w-10 h-10 hover:bg-gray-200 hover:text-black text-gray-600 rounded-full flex items-center justify-center cursor-pointer"
+              className="flex-0 w-10 h-10 hover:bg-gray-200 hover:text-black text-gray-600 rounded-full flex items-center justify-center cursor-pointer"
               onClick={onClose}
             >
               <FontAwesomeIcon icon={faXmark} size="md" />
             </div>
           </div>
-          <p className="text-justify py-2 px-5">{post.desc}</p>
+          <p className="text-justify py-2 px-5">
+            {post.desc || "No description"}
+          </p>
 
           {/* Image Carousel */}
           <div className="w-full h-[500px] overflow-hidden rounded-lg">
             <Carousel className="w-full">
               <CarouselContent loop={true}>
                 {post.images.map((image, index) => (
-                  <CarouselItem key={index}>
+                  <CarouselItem key={image.id || index}>
                     <div className="flex justify-center items-center pb-3 h-full">
                       <img
                         src={image.url}
@@ -73,6 +84,14 @@ const PostPopup = ({ post, user, owner, onClose }) => {
               </CarouselContent>
             </Carousel>
           </div>
+          {/* Reaction Bar */}
+
+          <ReactionBar
+            post={post}
+            user={user}
+            owner={owner}
+            onReactionUpdate={handleReactionUpdate}
+          />
         </div>
       </div>
     </div>

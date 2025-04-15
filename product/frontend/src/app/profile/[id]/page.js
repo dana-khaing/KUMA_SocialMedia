@@ -88,12 +88,14 @@ const ProfilePage = async ({ params }) => {
     postWithMedia = await prisma.post.findMany({
       where: {
         userId: id,
-        images: {
-          some: {},
-        },
+        images: { some: {} },
       },
       include: {
-        images: true,
+        images: {
+          include: {
+            post: { select: { id: true, desc: true, createdAt: true } },
+          },
+        },
         user: {
           select: {
             id: true,
@@ -103,10 +105,9 @@ const ProfilePage = async ({ params }) => {
             avatar: true,
           },
         },
+        _count: { select: { comments: true, likes: true, loves: true } },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
   } catch (error) {
     console.error("Failed to fetch posts with media:", error.message);
