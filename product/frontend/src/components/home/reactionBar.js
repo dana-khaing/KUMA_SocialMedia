@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import {
   faComment,
   faHeart,
@@ -14,69 +14,79 @@ import { useOptimistic } from "react";
 import CommentBox from "./commentBox";
 import { switchReaction, loadComments } from "@/lib/action";
 
-const ReactionBar = ({ post, user, owner, onReactionUpdate }) => {
-  const [showCommentbox, setShowCommentbox] = useState({});
-  const [comments, setComments] = useState({});
+const ReactionBar = ({
+  post,
+  user,
+  owner,
+  onReactionUpdate,
+  isCommentOpen = false,
+  onCommentBoxToggle,
+}) => {
+  const [showCommentbox, setShowCommentbox] = useState(isCommentOpen);
+  const [comments, setComments] = useState(post.comments || []);
   const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
   const [error, setError] = useState(null);
   const [isPending, startTransition] = useTransition();
+  const [commentsLoaded, setCommentsLoaded] = useState(!!post.comments?.length);
+
+  // Sync with isCommentOpen prop
+  useEffect(() => {
+    if (isCommentOpen !== showCommentbox) {
+      setShowCommentbox(isCommentOpen);
+      if (isCommentOpen && !commentsLoaded) {
+        loadPostComments(post.id);
+      }
+    }
+  }, [isCommentOpen]);
+
+  // Sync comments with post.comments prop
+  useEffect(() => {
+    if (post.comments) {
+      setComments(post.comments);
+      setCommentCount(post._count?.comments || post.comments.length);
+      setCommentsLoaded(true);
+    }
+  }, [post.comments, post._count?.comments]);
+
+  const loadPostComments = async (postId) => {
+    startTransition(async () => {
+      try {
+        const fetchedComments = await loadComments(postId);
+        setComments(fetchedComments);
+        setCommentCount(fetchedComments.length);
+        setCommentsLoaded(true);
+        setError(null);
+        // Update parent with new comments
+        if (onReactionUpdate) {
+          onReactionUpdate({
+            ...post,
+            comments: fetchedComments,
+            _count: { ...post._count, comments: fetchedComments.length },
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load comments:", error.message);
+        setError("Failed to load comments. Kuma");
+      }
+    });
+  };
 
   const toggleCommentBox = async (postId) => {
-    const isOpen = !showCommentbox[postId];
-    setShowCommentbox((prev) => ({
-      ...prev,
-      [postId]: isOpen,
-    }));
-
-    if (isOpen && !comments[postId]) {
-      startTransition(async () => {
-        try {
-          const fetchedComments = await loadComments(postId);
-          setComments((prev) => ({
-            ...prev,
-            [postId]: fetchedComments,
-          }));
-          setCommentCount(fetchedComments.length);
-          setError(null);
-          if (onReactionUpdate) {
-            onReactionUpdate({
-              ...post,
-              comments: fetchedComments,
-              _count: { ...post._count, comments: fetchedComments.length },
-            });
-          }
-        } catch (error) {
-          console.error("Failed to load comments:", error.message);
-          setError("Failed to load comments. Kuma");
-        }
-      });
+    const isOpen = !showCommentbox;
+    setShowCommentbox(isOpen);
+    if (onCommentBoxToggle) {
+      onCommentBoxToggle(isOpen);
+    }
+    if (isOpen && !commentsLoaded) {
+      await loadPostComments(postId);
     }
   };
 
   const handleNewComment = async (postId) => {
-    setCommentCount((prev) => prev + 1);
-
-    try {
-      const updatedComments = await loadComments(postId);
-      setComments((prev) => ({
-        ...prev,
-        [postId]: updatedComments,
-      }));
-      setCommentCount(updatedComments.length);
-      if (onReactionUpdate) {
-        onReactionUpdate({
-          ...post,
-          comments: updatedComments,
-          _count: { ...post._count, comments: updatedComments.length },
-        });
-      }
-    } catch (error) {
-      console.error("Failed to refresh comments:", error.message);
-      setCommentCount((prev) => prev - 1);
-    }
+    await loadPostComments(postId);
   };
 
-  // Like state
+  // Like and Love states
   const [liked, setLiked] = useState({
     isLiked: user?.id
       ? post.likes.some((like) => like.userId === user.id)
@@ -84,7 +94,6 @@ const ReactionBar = ({ post, user, owner, onReactionUpdate }) => {
     likeCount: post._count?.likes || 0,
   });
 
-  // Love state
   const [loved, setLoved] = useState({
     isLoved: user?.id
       ? post.loves.some((love) => love.userId === user.id)
@@ -92,7 +101,6 @@ const ReactionBar = ({ post, user, owner, onReactionUpdate }) => {
     loveCount: post._count?.loves || 0,
   });
 
-  // Optimistic updates for reactions
   const [optimisticReactions, updateOptimisticReactions] = useOptimistic(
     { liked, loved },
     (state, { reactionType }) => {
@@ -254,7 +262,7 @@ const ReactionBar = ({ post, user, owner, onReactionUpdate }) => {
         <Button
           onClick={() => toggleCommentBox(post.id)}
           className={`bg-inherit w-fit shadow-none hover:bg-transparent rounded-full ${
-            showCommentbox[post.id] ? "text-blue-600" : "text-black"
+            showCommentbox ? "text-blue-600" : "text-black"
           }`}
           disabled={isPending}
         >
@@ -271,15 +279,15 @@ const ReactionBar = ({ post, user, owner, onReactionUpdate }) => {
           <span className="hidden md:block">Share</span>
         </Button>
       </div>
-      {showCommentbox[post.id] && (
+      {showCommentbox && (
         <>
           {error && <p className="text-red-500 p-2">{error}</p>}
           <CommentBox
             user={user}
             post={post}
             owner={owner}
-            comments={comments[post.id] || []}
-            onNewComment={() => handleNewComment(post.id)}
+            comments={comments}
+            onNewComment={handleNewComment}
           />
         </>
       )}

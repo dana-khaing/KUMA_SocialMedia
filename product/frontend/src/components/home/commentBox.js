@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useTransition, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp, faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -7,45 +8,75 @@ import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
 import { createComment, switchCommentLike, deleteComment } from "@/lib/action";
 import { toast } from "sonner";
+
 const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   const [newComment, setNewComment] = useState("");
   const [commentLikes, setCommentLikes] = useState({});
-  const [deleteCommentId, setDeleteCommentId] = useState(null); // Track comment to delete
+  const [deleteCommentId, setDeleteCommentId] = useState(null);
   const [isPending, startTransition] = useTransition();
+  const [localComments, setLocalComments] = useState(comments || []);
 
-  // Sync commentLikes with comments prop
+  // Sync local comments with props
+  useEffect(() => {
+    setLocalComments(comments || []);
+  }, [comments]);
+
+  // Sync commentLikes with comments
   useEffect(() => {
     setCommentLikes((prev) => {
       const updatedLikes = { ...prev };
-      comments.forEach((comment) => {
+      localComments.forEach((comment) => {
         if (!updatedLikes[comment.id]) {
+          const likes = Array.isArray(comment.likes) ? comment.likes : [];
           updatedLikes[comment.id] = {
             isLiked: user?.id
-              ? comment.likes.some((like) => like.userId === user.id)
+              ? likes.some((like) => like.userId === user.id)
               : false,
-            likeCount: comment.likes.length || 0,
+            likeCount: likes.length || 0,
           };
         }
       });
       return updatedLikes;
     });
-  }, [comments, user?.id]);
+  }, [localComments, user?.id]);
 
   const handleCommentSubmit = async () => {
-    if (!newComment.trim()) {
-      return;
-    }
+    if (!newComment.trim()) return;
+
+    // Ensure user and likes are properly initialized for optimistic update
+    const optimisticComment = {
+      id: `temp-${Date.now()}`,
+      desc: newComment,
+      user: {
+        id: user?.id || "unknown",
+        name: user?.name || "",
+        surname: user?.surname || "",
+        username: user?.username || "Kuma User",
+        avatar: user?.avatar || "/user-default.png",
+      },
+      createdAt: new Date(),
+      likes: [], // Ensure likes is always an array
+    };
+
+    // Optimistically add the new comment
+    setLocalComments((prev) => [...prev, optimisticComment]);
 
     try {
       const result = await createComment(post.id, user.id, newComment);
       if (result.success) {
         toast("Comment posted successfully!");
         setNewComment("");
-        onNewComment();
+        // Trigger parent to refresh comments
+        if (onNewComment) {
+          onNewComment(post.id);
+        }
+      } else {
+        throw new Error("Failed to submit comment");
       }
     } catch (error) {
       console.error("Failed to submit comment:", error.message);
       toast("Failed to submit comment. Try again.");
+      setLocalComments(comments); // Revert to original comments
     }
   };
 
@@ -73,19 +104,24 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
     try {
       const result = await switchCommentLike(commentId, user.id);
       if (!result.success) {
-        toast("Try again.");
+        toast("Failed to toggle like. Try again.");
         throw new Error("Failed to toggle like");
+      }
+      // Refresh comments to ensure sync
+      if (onNewComment) {
+        onNewComment(post.id);
       }
     } catch (error) {
       console.error("Failed to like comment:", error.message);
       setCommentLikes((prev) => {
         const updatedLikes = { ...prev };
-        comments.forEach((comment) => {
+        localComments.forEach((comment) => {
+          const likes = Array.isArray(comment.likes) ? comment.likes : [];
           updatedLikes[comment.id] = {
             isLiked: user?.id
-              ? comment.likes.some((like) => like.userId === user.id)
+              ? likes.some((like) => like.userId === user.id)
               : false,
-            likeCount: comment.likes.length || 0,
+            likeCount: likes.length || 0,
           };
         });
         return updatedLikes;
@@ -99,22 +135,31 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const result = await deleteComment(commentId, user.id);
-        if (result.success) {
-          toast("Comment deleted successfully!");
-          setDeleteCommentId(null); // Close popup
-          onNewComment(); // Refetch comments to update UI
-        } else {
-          throw new Error("Failed to delete comment");
-        }
-      } catch (error) {
-        toast("Failed to delete comment. Try again.");
-        console.error("Failed to delete comment:", error.message);
-        setDeleteCommentId(null); // Close popup on error
-      }
+    startTransition(() => {
+      // Optimistically remove the comment
+      setLocalComments((prev) =>
+        prev.filter((comment) => comment.id !== commentId)
+      );
     });
+
+    try {
+      const result = await deleteComment(commentId, user.id);
+      if (result.success) {
+        toast("Comment deleted successfully!");
+        setDeleteCommentId(null);
+        // Refresh comments
+        if (onNewComment) {
+          onNewComment(post.id);
+        }
+      } else {
+        throw new Error("Failed to delete comment");
+      }
+    } catch (error) {
+      toast("Failed to delete comment. Try again.");
+      console.error("Failed to delete comment:", error.message);
+      setLocalComments(comments); // Revert to original comments
+      setDeleteCommentId(null);
+    }
   };
 
   const openDeletePopUp = (commentId) => {
@@ -125,12 +170,19 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
     setDeleteCommentId(null);
   };
 
+  // Helper function to get display name
+  const getDisplayName = (user) => {
+    if (!user) return "Kuma User";
+    if (user.name) return `${user.name} ${user.surname || ""}`.trim();
+    return user.username || "Kuma User";
+  };
+
   return (
     <div className="flex flex-col justify-center items-center">
       <Separator className="h-[0.1rem] bg-[#FF4E01] w-[90%] mx-auto" />
       <div className="w-full flex flex-col max-h-[30rem] scrollbar-hide overflow-y-scroll items-center p-2 cursor-default">
-        {comments.length > 0 ? (
-          comments.map((comment) => (
+        {localComments.length > 0 ? (
+          localComments.map((comment) => (
             <div
               key={comment.id}
               className="flex flex-row gap-3 py-2 hover:bg-slate-200 w-full px-7 rounded-xl md:px-14"
@@ -143,9 +195,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
               <div className="flex-1 flex-col items-center justify-center gap-1">
                 <div className="flex flex-row flex-1 items-center gap-5 justify-start">
                   <span className="text-black text-sm">
-                    {comment.user.name
-                      ? `${comment.user.name} ${comment.user.surname || ""}`
-                      : comment.user.username || "Kuma User"}
+                    {getDisplayName(comment.user)}
                   </span>
                   <span className="text-slate-400 text-xs">
                     {formatDistanceToNow(new Date(comment.createdAt), {
@@ -154,20 +204,20 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
                   </span>
                   <span className="text-slate-400 text-xs flex justify-end flex-1">
                     <button
-                      className={`bg-inherit shadow-none hover:bg-slate-200  h-8 w-8 flex justify-center items-center rounded-full ${
-                        owner === comment.user.id || owner === post.user.id
+                      className={`bg-inherit shadow-none hover:bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full ${
+                        owner === comment.user?.id || owner === post.user.id
                           ? "text-slate-500"
                           : "text-black opacity-50 cursor-not-allowed"
                       }`}
                       onClick={
-                        owner === comment.user.id || owner === post.user.id
+                        owner === comment.user?.id || owner === post.user.id
                           ? () => openDeletePopUp(comment.id)
                           : undefined
                       }
                       disabled={
                         isPending ||
                         !user?.id ||
-                        (owner !== comment.user.id && owner !== post.user.id)
+                        (owner !== comment.user?.id && owner !== post.user.id)
                       }
                     >
                       <FontAwesomeIcon icon={faXmark} size="md" />
@@ -199,6 +249,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
           <p className="text-slate-500 p-2">Be the first to comment, Kuma!</p>
         )}
       </div>
+
       {/* Delete Confirmation Popup */}
       {deleteCommentId && (
         <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-[1px]">
@@ -225,6 +276,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
           </div>
         </div>
       )}
+
       <Separator
         className="h-[0.05rem] w-[90%] mx-auto bg-[#FF4E01] my-auto"
         orientation="horizontal"

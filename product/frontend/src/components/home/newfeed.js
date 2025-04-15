@@ -23,6 +23,7 @@ const Newfeed = ({ user, posts = [], owner }) => {
   const [postList, setPostList] = useState(posts);
   const [isPending, startTransition] = useTransition();
   const [selectedPost, setSelectedPost] = useState(null);
+  const [openCommentBoxes, setOpenCommentBoxes] = useState({});
   const router = useRouter();
 
   const openDeletePopUp = (postId) => {
@@ -52,7 +53,6 @@ const Newfeed = ({ user, posts = [], owner }) => {
     try {
       const result = await deletePost(parsedPostId, user.id);
       if (result.success) {
-        router.refresh();
         toast("Post deleted successfully!");
         closeDeletePopUp();
       } else {
@@ -87,6 +87,13 @@ const Newfeed = ({ user, posts = [], owner }) => {
 
   const closePostPopup = () => {
     setSelectedPost(null);
+  };
+
+  const handleCommentBoxToggle = (postId, isOpen) => {
+    setOpenCommentBoxes((prev) => ({
+      ...prev,
+      [postId]: isOpen,
+    }));
   };
 
   const handleReactionUpdate = (updatedPost) => {
@@ -216,6 +223,10 @@ const Newfeed = ({ user, posts = [], owner }) => {
                 user={user}
                 owner={owner}
                 onReactionUpdate={handleReactionUpdate}
+                isCommentOpen={openCommentBoxes[post.id] || false}
+                onCommentBoxToggle={(isOpen) =>
+                  handleCommentBoxToggle(post.id, isOpen)
+                }
               />
 
               {deletePostId === post.id && (
