@@ -1,3 +1,8 @@
+#### 15 April
+
+- add reaction bar in post the pop-up view
+- refactor newfeed, commentbox, nwefeed components make sure reaction and comments to sycn the pop-up view and normal post view
+
 #### 14 April
 
 - add bod colum in user model
