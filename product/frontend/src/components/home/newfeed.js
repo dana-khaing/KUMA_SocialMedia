@@ -18,12 +18,13 @@ import PostPopup from "./postPopup";
 import { useRouter } from "next/navigation";
 
 const Newfeed = ({ user, posts = [], owner }) => {
-  const [expanded, setExpanded] = useState({}); // Track expanded state per post
+  const [expanded, setExpanded] = useState({});
   const [deletePostId, setDeletePostId] = useState(null);
   const [postList, setPostList] = useState(posts);
   const [isPending, startTransition] = useTransition();
-  const [selectedPost, setSelectedPost] = useState(null); // For popup
+  const [selectedPost, setSelectedPost] = useState(null);
   const router = useRouter();
+
   const openDeletePopUp = (postId) => {
     setDeletePostId(postId);
   };
@@ -88,13 +89,34 @@ const Newfeed = ({ user, posts = [], owner }) => {
     setSelectedPost(null);
   };
 
+  const handleReactionUpdate = (updatedPost) => {
+    setPostList((prev) =>
+      prev.map((post) =>
+        post.id === updatedPost.id
+          ? {
+              ...post,
+              likes: updatedPost.likes || post.likes,
+              loves: updatedPost.loves || post.loves,
+              comments: updatedPost.comments || post.comments,
+              _count: {
+                ...post._count,
+                likes: updatedPost._count?.likes ?? post._count.likes,
+                loves: updatedPost._count?.loves ?? post._count.loves,
+                comments: updatedPost._count?.comments ?? post._count.comments,
+              },
+            }
+          : post
+      )
+    );
+  };
+
   return (
     <div className="w-full h-fit">
       <div className="flex flex-col justify-center items-center gap-5">
         {postList.length > 0 ? (
           postList.map((post) => (
             <div
-              key={post.id}
+              key={`${post.id}-${post._count.likes}-${post._count.loves}-${post._count.comments}`}
               className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[95%] mx-auto px-5 border-[#FF4E02] md:px-7 py-4 md:py-5 text-sm"
             >
               <div className="flex gap-3">
@@ -113,9 +135,9 @@ const Newfeed = ({ user, posts = [], owner }) => {
                     href={`/profile/${post.user.id}`}
                     className="text-black font-semibold"
                   >
-                    {post.user.name + " " + post.user.surname ||
-                      post.user.username ||
-                      "Kuma User"}
+                    {post.user.name && post.user.surname
+                      ? `${post.user.name} ${post.user.surname}`
+                      : post.user.username || "Kuma User"}
                   </Link>
                   <div className="text-slate-400">
                     <FontAwesomeIcon icon={faClock} size="sm" />
@@ -186,17 +208,19 @@ const Newfeed = ({ user, posts = [], owner }) => {
                         </div>
                       </ResizablePanel>
                     ))}
-                    {/* {post.images.length > 1 && <ResizableHandle />}
-                    {post.images.length > 2 && <ResizableHandle />} */}
                   </ResizablePanelGroup>
                 )}
               </div>
-              <ReactionBar post={post} user={user} owner={owner} />
+              <ReactionBar
+                post={post}
+                user={user}
+                owner={owner}
+                onReactionUpdate={handleReactionUpdate}
+              />
 
-              {/* Delete Confirmation Popup */}
               {deletePostId === post.id && (
                 <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-sm">
-                  <div className="bg-white border-t-[2px] border-b-[2px]   border-[#FF4E02] w-[70%] md:w-[60%] lg:w-[35%] xl:w-[25%] h-[20%] md:h-[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
+                  <div className="bg-white border-t-[2px] border-b-[2px] border-[#FF4E02] w-[70%] md:w-[60%] lg:w-[35%] xl:w-[25%] h-[20%] md:h-[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
                     <p className="text-black">
                       Are you sure to delete this post, Kuma?
                     </p>
@@ -228,13 +252,13 @@ const Newfeed = ({ user, posts = [], owner }) => {
         )}
       </div>
 
-      {/* Post Popup */}
       {selectedPost && (
         <PostPopup
           post={selectedPost}
           user={user}
           owner={owner}
           onClose={closePostPopup}
+          onReactionUpdate={handleReactionUpdate}
         />
       )}
     </div>

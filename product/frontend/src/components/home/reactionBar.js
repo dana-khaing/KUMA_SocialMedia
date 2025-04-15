@@ -1,4 +1,6 @@
 "use client";
+
+import { useState, useTransition } from "react";
 import {
   faComment,
   faHeart,
@@ -8,12 +10,11 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { useState, useTransition } from "react";
-import CommentBox from "./commentBox";
 import { useOptimistic } from "react";
+import CommentBox from "./commentBox";
 import { switchReaction, loadComments } from "@/lib/action";
 
-const ReactionBar = ({ post, user, owner }) => {
+const ReactionBar = ({ post, user, owner, onReactionUpdate }) => {
   const [showCommentbox, setShowCommentbox] = useState({});
   const [comments, setComments] = useState({});
   const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
@@ -35,8 +36,15 @@ const ReactionBar = ({ post, user, owner }) => {
             ...prev,
             [postId]: fetchedComments,
           }));
-          setCommentCount(fetchedComments.length); // Sync count with fetched comments
+          setCommentCount(fetchedComments.length);
           setError(null);
+          if (onReactionUpdate) {
+            onReactionUpdate({
+              ...post,
+              comments: fetchedComments,
+              _count: { ...post._count, comments: fetchedComments.length },
+            });
+          }
         } catch (error) {
           console.error("Failed to load comments:", error.message);
           setError("Failed to load comments. Kuma");
@@ -46,7 +54,6 @@ const ReactionBar = ({ post, user, owner }) => {
   };
 
   const handleNewComment = async (postId) => {
-    // Optimistically increment comment count
     setCommentCount((prev) => prev + 1);
 
     try {
@@ -55,10 +62,17 @@ const ReactionBar = ({ post, user, owner }) => {
         ...prev,
         [postId]: updatedComments,
       }));
-      setCommentCount(updatedComments.length); // Sync with server
+      setCommentCount(updatedComments.length);
+      if (onReactionUpdate) {
+        onReactionUpdate({
+          ...post,
+          comments: updatedComments,
+          _count: { ...post._count, comments: updatedComments.length },
+        });
+      }
     } catch (error) {
       console.error("Failed to refresh comments:", error.message);
-      setCommentCount((prev) => prev - 1); // Revert on failure
+      setCommentCount((prev) => prev - 1);
     }
   };
 
@@ -78,7 +92,7 @@ const ReactionBar = ({ post, user, owner }) => {
     loveCount: post._count?.loves || 0,
   });
 
-  // Optimistic updates for both reactions
+  // Optimistic updates for reactions
   const [optimisticReactions, updateOptimisticReactions] = useOptimistic(
     { liked, loved },
     (state, { reactionType }) => {
@@ -123,16 +137,31 @@ const ReactionBar = ({ post, user, owner }) => {
     try {
       const result = await switchReaction(post.id, user.id, "like");
       if (result.success) {
-        setLiked((prev) => ({
-          isLiked: !prev.isLiked,
-          likeCount: prev.isLiked ? prev.likeCount - 1 : prev.likeCount + 1,
-        }));
-        if (loved.isLoved) {
-          setLoved((prev) => ({
-            ...prev,
-            isLoved: false,
-            loveCount: prev.loveCount - 1,
-          }));
+        const newLikeState = {
+          isLiked: !liked.isLiked,
+          likeCount: liked.isLiked ? liked.likeCount - 1 : liked.likeCount + 1,
+        };
+        setLiked(newLikeState);
+        const newLoveState = loved.isLoved
+          ? { isLoved: false, loveCount: loved.loveCount - 1 }
+          : loved;
+        setLoved(newLoveState);
+        if (onReactionUpdate) {
+          onReactionUpdate({
+            ...post,
+            likes: newLikeState.isLiked
+              ? [...post.likes, { userId: user.id, createdAt: new Date() }]
+              : post.likes.filter((like) => like.userId !== user.id),
+            loves: newLoveState.isLoved
+              ? post.loves
+              : post.loves.filter((love) => love.userId !== user.id),
+            _count: {
+              ...post._count,
+              likes: newLikeState.likeCount,
+              loves: newLoveState.loveCount,
+            },
+            comments: post.comments,
+          });
         }
       }
     } catch (error) {
@@ -155,16 +184,31 @@ const ReactionBar = ({ post, user, owner }) => {
     try {
       const result = await switchReaction(post.id, user.id, "love");
       if (result.success) {
-        setLoved((prev) => ({
-          isLoved: !prev.isLoved,
-          loveCount: prev.isLoved ? prev.loveCount - 1 : prev.loveCount + 1,
-        }));
-        if (liked.isLiked) {
-          setLiked((prev) => ({
-            ...prev,
-            isLiked: false,
-            likeCount: prev.likeCount - 1,
-          }));
+        const newLoveState = {
+          isLoved: !loved.isLoved,
+          loveCount: loved.isLoved ? loved.loveCount - 1 : loved.loveCount + 1,
+        };
+        setLoved(newLoveState);
+        const newLikeState = liked.isLiked
+          ? { isLiked: false, likeCount: liked.likeCount - 1 }
+          : liked;
+        setLiked(newLikeState);
+        if (onReactionUpdate) {
+          onReactionUpdate({
+            ...post,
+            loves: newLoveState.isLoved
+              ? [...post.loves, { userId: user.id, createdAt: new Date() }]
+              : post.loves.filter((love) => love.userId !== user.id),
+            likes: newLikeState.isLiked
+              ? post.likes
+              : post.likes.filter((like) => like.userId !== user.id),
+            _count: {
+              ...post._count,
+              likes: newLikeState.likeCount,
+              loves: newLoveState.loveCount,
+            },
+            comments: post.comments,
+          });
         }
       }
     } catch (error) {
@@ -215,7 +259,7 @@ const ReactionBar = ({ post, user, owner }) => {
           disabled={isPending}
         >
           <FontAwesomeIcon icon={faComment} size="sm" />
-          <span>{commentCount}</span> {/* Use dynamic count */}
+          <span>{commentCount}</span>
           <span className="hidden md:block">Comment</span>
         </Button>
         <Separator
