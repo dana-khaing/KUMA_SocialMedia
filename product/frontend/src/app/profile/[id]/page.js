@@ -64,7 +64,26 @@ const ProfilePage = async ({ params }) => {
           },
         },
         images: true,
-        comments: true,
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                username: true,
+                avatar: true,
+              },
+            },
+            likes: {
+              select: {
+                userId: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
         _count: {
           select: {
             comments: true,
@@ -104,6 +123,36 @@ const ProfilePage = async ({ params }) => {
             surname: true,
             avatar: true,
           },
+        },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        loves: {
+          select: {
+            userId: true,
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                username: true,
+                avatar: true,
+              },
+            },
+            likes: {
+              select: {
+                userId: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
         },
         _count: { select: { comments: true, likes: true, loves: true } },
       },

@@ -29,6 +29,13 @@ const ReactionBar = ({
   const [isPending, startTransition] = useTransition();
   const [commentsLoaded, setCommentsLoaded] = useState(!!post.comments?.length);
 
+  // Load comments immediately if comment box is open on mount
+  useEffect(() => {
+    if (isCommentOpen && !commentsLoaded) {
+      loadPostComments(post.id);
+    }
+  }, []); // Run once on mount
+
   // Sync with isCommentOpen prop
   useEffect(() => {
     if (isCommentOpen !== showCommentbox) {
