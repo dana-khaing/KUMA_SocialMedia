@@ -62,7 +62,26 @@ export const Studio = async () => {
       user: true,
       likes: true,
       loves: true,
-      comments: true,
+      comments: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              surname: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          likes: {
+            select: {
+              userId: true,
+              createdAt: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      },
       images: true,
       _count: { select: { likes: true, loves: true, comments: true } },
     },

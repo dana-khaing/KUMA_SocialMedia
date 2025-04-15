@@ -26,12 +26,51 @@ export default async function Home() {
     (await prisma.post.findMany({
       where: { userId: { in: followingIds } },
       include: {
-        user: true,
-        likes: { select: { userId: true } },
-        loves: { select: { userId: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            surname: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        likes: {
+          select: {
+            userId: true,
+            createdAt: true,
+          },
+        },
+        loves: {
+          select: {
+            userId: true,
+            createdAt: true,
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                username: true,
+                avatar: true,
+              },
+            },
+            likes: {
+              select: {
+                userId: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
         images: true,
-        comments: true,
-        _count: { select: { comments: true, likes: true, loves: true } },
+        _count: {
+          select: { likes: true, loves: true, comments: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     })) || [];

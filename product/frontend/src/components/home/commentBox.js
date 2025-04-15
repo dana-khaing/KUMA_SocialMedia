@@ -18,6 +18,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
 
   // Sync local comments with props
   useEffect(() => {
+    console.log("Comments received in CommentBox:", comments); // Debug log
     setLocalComments(comments || []);
   }, [comments]);
 
