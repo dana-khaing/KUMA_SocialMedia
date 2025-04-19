@@ -89,7 +89,8 @@ describe("POST /api/webhooks/clerk", () => {
         avatar: "http://example.com/avatar.jpg",
         name: "John",
         surname: "Doe",
-        cover: "/stories1.jpg",
+        cover: "/cover-default.jpg",
+        bio: "Hello, I'm new here! Kuma!",
       },
     });
     expect(response.status).toBe(200);
