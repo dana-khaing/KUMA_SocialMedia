@@ -545,6 +545,10 @@ export const createStory = async (payload) => {
     throw new Error("User not authenticated");
   }
 
+  if (!imageUrl) {
+    throw new Error("Story must contain an image");
+  }
+
   try {
     const storyData = {
       userId,
