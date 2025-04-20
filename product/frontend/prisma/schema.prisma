@@ -32,6 +32,8 @@ model User {
   loves                  Love[]
   posts                  Post[]
   stories                Story[]
+  sentNotifications      Notification[] @relation("NotificationSender")
+  receivedNotifications  Notification[] @relation("NotificationReceiver")
 }
 
 model Post {
@@ -44,7 +46,8 @@ model Post {
   likes     Like[]
   loves     Love[]
   user      User        @relation(fields: [userId], references: [id])
-  images    PostImage[] // New relation for multiple images
+  images    PostImage[] 
+  notifications Notification[] 
 
   @@index([userId], map: "Post_userId_fkey")
 }
@@ -95,6 +98,7 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   likes     Like[]
+  notifications Notification[]
 
   @@index([postId], map: "Comment_postId_fkey")
   @@index([userId], map: "Comment_userId_fkey")
@@ -106,6 +110,7 @@ model Story {
   createdAt DateTime @default(now())
   expiresAt DateTime
   userId    String
+  notifications Notification[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "Story_userId_fkey")
@@ -145,4 +150,27 @@ model Block {
 
   @@index([blockedId], map: "Block_blockedId_fkey")
   @@index([blockerId], map: "Block_blockerId_fkey")
+}
+model Notification {
+  id          Int      @id @default(autoincrement())
+  type        String   // e.g., "USER_CREATED", "POST_CREATED", "COMMENT", "LIKE", "LOVE", "STORY_CREATED"
+  message     String   // Notification message
+  createdAt   DateTime @default(now())
+  read        Boolean  @default(false)
+  senderId    String   // User who triggered the notification
+  receiverId  String   // User who receives the notification
+  postId      Int?     // Optional: Related post
+  commentId   Int?     // Optional: Related comment
+  storyId     Int?     // Optional: Related story
+  sender      User     @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment     Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  story       Story?   @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@index([senderId], map: "Notification_senderId_fkey")
+  @@index([receiverId], map: "Notification_receiverId_fkey")
+  @@index([postId], map: "Notification_postId_fkey")
+  @@index([commentId], map: "Notification_commentId_fkey")
+  @@index([storyId], map: "Notification_storyId_fkey")
 }
