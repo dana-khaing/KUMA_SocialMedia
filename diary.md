@@ -1,3 +1,12 @@
+#### 19 April
+
+- test for post creation and deleteion
+- test for reaction
+- test for comment section and comment react
+- test for search user engine
+- test or stories creation and deletion
+- test for user detail update
+
 #### 15 April
 
 - add reaction bar in post the pop-up view
