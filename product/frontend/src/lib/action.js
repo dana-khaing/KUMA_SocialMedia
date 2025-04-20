@@ -604,3 +604,149 @@ export const deleteStory = async (storyId, userId) => {
     throw new Error(`Failed to delete story: ${error.message}`);
   }
 };
+
+export async function createNotification({
+  type,
+  message,
+  senderId,
+  receiverId,
+  postId,
+  commentId,
+  storyId,
+}) {
+  try {
+    await prisma.notification.create({
+      data: {
+        type,
+        message,
+        senderId,
+        receiverId,
+        postId,
+        commentId,
+        storyId,
+      },
+    });
+  } catch (error) {
+    console.error("Error creating notification:", error);
+  }
+}
+
+export async function notifyUserCreated(userId) {
+  // Notify all users (or a specific group, e.g., admins) about new user
+  const sender = await prisma.user.findUnique({ where: { id: userId } });
+  const message = `${sender.username} just joined the platform!`;
+
+  // Example: Notify all users (modify as needed)
+  const users = await prisma.user.findMany({
+    where: { id: { not: userId } },
+    select: { id: true },
+  });
+
+  for (const user of users) {
+    await createNotification({
+      type: "USER_CREATED",
+      message,
+      senderId: userId,
+      receiverId: user.id,
+    });
+  }
+}
+
+export async function notifyPostCreated(postId) {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: { user: true },
+  });
+
+  const followers = await prisma.follower.findMany({
+    where: { followingId: post.userId },
+    select: { followerId: true },
+  });
+
+  const message = `${post.user.username} created a new post.`;
+
+  for (const follower of followers) {
+    await createNotification({
+      type: "POST_CREATED",
+      message,
+      senderId: post.userId,
+      receiverId: follower.followerId,
+      postId,
+    });
+  }
+}
+
+export async function notifyCommentCreated(commentId) {
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+    include: { user: true, post: { include: { user: true } } },
+  });
+
+  // Notify the post owner (if not the commenter)
+  if (comment.userId !== comment.post.userId) {
+    const message = `${comment.user.username} commented on your post.`;
+    await createNotification({
+      type: "COMMENT",
+      message,
+      senderId: comment.userId,
+      receiverId: comment.post.userId,
+      postId: comment.postId,
+      commentId,
+    });
+  }
+}
+
+export async function notifyReactionCreated(reactionType, reactionId) {
+  let reaction;
+  if (reactionType === "LIKE") {
+    reaction = await prisma.like.findUnique({
+      where: { id: reactionId },
+      include: { user: true, post: { include: { user: true } } },
+    });
+  } else if (reactionType === "LOVE") {
+    reaction = await prisma.love.findUnique({
+      where: { id: reactionId },
+      include: { user: true, post: { include: { user: true } } },
+    });
+  }
+
+  if (!reaction || !reaction.post) return;
+
+  // Notify the post owner (if not the reactor)
+  if (reaction.userId !== reaction.post.userId) {
+    const message = `${
+      reaction.user.username
+    } ${reactionType.toLowerCase()}d your post.`;
+    await createNotification({
+      type: reactionType,
+      message,
+      senderId: reaction.userId,
+      receiverId: reaction.post.userId,
+      postId: reaction.postId,
+    });
+  }
+}
+
+export async function notifyStoryCreated(storyId) {
+  const story = await prisma.story.findUnique({
+    where: { id: storyId },
+    include: { user: true },
+  });
+
+  const followers = await prisma.follower.findMany({
+    where: { followingId: story.userId },
+    select: { followerId: true },
+  });
+
+  const message = `${story.user.username} posted a new story.`;
+
+  for (const follower of followers) {
+    await createNotification({
+      type: "STORY_CREATED",
+      message,
+      senderId: story.userId,
+      receiverId: follower.followerId,
+      storyId,
+    });
+  }
+}
