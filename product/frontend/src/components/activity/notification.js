@@ -20,16 +20,9 @@ const Notification = ({ initialNotifications, userId }) => {
         prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
       );
       router.refresh();
-
-      // if (notification.postId) {
-      //   // Handle COMMENT_LIKE, COMMENT, LIKE, LOVE, POST_CREATED
-      //   router.push(`/post/${notification.postId}`);
-      // } else if (notification.storyId) {
-      //   // Handle STORY_CREATED
-      //   router.push(`/stories/${notification.senderId}`);
-      // } else if (notification.type === "USER_CREATED") {
-      //   router.push(`/profile/${notification.senderId}`);
-      // }
+      if (notification.type === "USER_CREATED") {
+        router.push(`/profile/${notification.senderId}`);
+      }
     } catch (error) {
       console.error("Error handling notification click:", error);
     }
