@@ -273,12 +273,10 @@ export const switchReaction = async (postId, userId, reactionType) => {
   }
 
   try {
-    // Determine the opposite reaction type
-    const oppositeType = reactionType === "like" ? "love" : "like";
-
-    // Start a transaction to ensure atomicity
+    let reactionId;
     await prisma.$transaction(async (tx) => {
-      // Check for existing reaction of the requested type
+      const oppositeType = reactionType === "like" ? "love" : "like";
+
       const existingReaction =
         reactionType === "like"
           ? await tx.like.findFirst({
@@ -288,7 +286,6 @@ export const switchReaction = async (postId, userId, reactionType) => {
               where: { postId, userId },
             });
 
-      // Check for opposite reaction
       const oppositeReaction =
         oppositeType === "like"
           ? await tx.like.findFirst({
@@ -298,7 +295,6 @@ export const switchReaction = async (postId, userId, reactionType) => {
               where: { postId, userId },
             });
 
-      // If opposite reaction exists, remove it
       if (oppositeReaction) {
         if (oppositeType === "like") {
           await tx.like.delete({
@@ -311,9 +307,7 @@ export const switchReaction = async (postId, userId, reactionType) => {
         }
       }
 
-      // Toggle the requested reaction
       if (existingReaction) {
-        // Remove the current reaction
         if (reactionType === "like") {
           await tx.like.delete({
             where: { id: existingReaction.id },
@@ -324,20 +318,28 @@ export const switchReaction = async (postId, userId, reactionType) => {
           });
         }
       } else {
-        // Add the new reaction
         if (reactionType === "like") {
-          await tx.like.create({
+          const newLike = await tx.like.create({
             data: { postId, userId },
           });
+          reactionId = newLike.id;
         } else {
-          await tx.love.create({
+          const newLove = await tx.love.create({
             data: { postId, userId },
           });
+          reactionId = newLove.id;
         }
       }
     });
+
+    // Trigger notification for reaction creation if a new reaction was added
+    if (reactionId) {
+      await notifyReactionCreated(reactionType.toUpperCase(), reactionId);
+    }
+
     return { success: true, reactionType };
   } catch (error) {
+    console.error("Error switching reaction:", error);
     throw new Error("Something went wrong, Kuma");
   }
 };
@@ -408,6 +410,8 @@ export const createComment = async (postId, userId, desc) => {
         likes: true,
       },
     });
+    // Notify the post owner about the new comment
+    await notifyCommentCreated(comment.id);
     return { success: true, comment };
   } catch (error) {
     //console.error("Error creating comment:", error);
@@ -525,6 +529,8 @@ export const createPost = async (payload) => {
         _count: { select: { likes: true, loves: true, comments: true } },
       },
     });
+    // Notify followers about the new post
+    await notifyPostCreated(post.id);
 
     return { success: true, post };
   } catch (error) {
@@ -566,7 +572,7 @@ export const createStory = async (payload) => {
         user: true,
       },
     });
-
+    await notifyStoryCreated(story.id);
     return { success: true, story };
   } catch (error) {
     //console.error("Error creating story:", error);
