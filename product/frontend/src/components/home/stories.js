@@ -14,7 +14,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import Autoplay from "embla-carousel-autoplay";
 import { CldUploadWidget } from "next-cloudinary";
-import { createStory, deleteStory } from "@/lib/action"; // Import deleteStory
+import { createStory, deleteStory } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -250,8 +250,14 @@ const Stories = ({ user, stories }) => {
 
       {/* Create Story Modal */}
       {showCreateModal && (
-        <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-          <div className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%] p-4 relative">
+        <div
+          onClick={handleCloseCreateModal}
+          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%] p-4 relative"
+          >
             <div className="relative flex flex-col items-center gap-4">
               <h3 className="absolute top-4 text-lg text-white">
                 Story Preview
@@ -283,8 +289,14 @@ const Stories = ({ user, stories }) => {
 
       {/* Story Viewing Modal */}
       {selectedUserStories && (
-        <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-          <div className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]">
+        <div
+          onClick={handleCloseModal}
+          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]"
+          >
             <Carousel
               opts={{ loop: false }}
               setApi={setApi}

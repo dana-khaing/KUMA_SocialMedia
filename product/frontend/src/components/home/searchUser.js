@@ -42,8 +42,14 @@ export const SearchUser = () => {
         <span className="hidden lg:inline hover:text-white">Search</span>
       </div>
       {open && (
-        <div className="fixed w-screen h-screen bg-black top-0 bg-opacity-50 left-0 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="p-5 border-t-[2px] border-b-[2px] border-[#FF4E02] bg-white rounded-lg shadow-md flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[30%] relative">
+        <div
+          onClick={handleClose}
+          className="fixed w-screen h-screen bg-black top-0 bg-opacity-50 left-0 flex items-center justify-center z-50 backdrop-blur-sm"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="p-5 border-t-[2px] border-b-[2px] border-[#FF4E02] bg-white rounded-lg shadow-md flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[30%] relative"
+          >
             <div className="flex justify-between text-base text-[#FF4E01] items-center h-6">
               <span className="flex flex-1 px-2 lg:px-5">Search</span>
               <span

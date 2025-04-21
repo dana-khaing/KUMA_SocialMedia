@@ -212,8 +212,14 @@ const Addpost = ({ user }) => {
 
       {/* Post Confirmation Modal */}
       {showPostModal && (
-        <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-          <div className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[25%] p-4 relative bg-white">
+        <div
+          onClick={handleClosePostModal}
+          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[25%] p-4 relative bg-white"
+          >
             <div className="flex flex-col gap-4">
               {/* User Info and Description */}
               <div className="flex items-center gap-3">
