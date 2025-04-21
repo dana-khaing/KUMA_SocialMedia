@@ -1,3 +1,7 @@
+#### 21 April
+
+- create post route to view a single thread post from the notification message
+
 #### 20 April
 
 - add notification feature

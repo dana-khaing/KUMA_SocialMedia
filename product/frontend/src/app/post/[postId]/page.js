@@ -9,7 +9,6 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 
 async function fetchPost(postId, userId) {
-  console.log("Fetching post with ID:", postId);
   // Validate postId
   if (!postId || isNaN(parseInt(postId))) {
     return null; // Invalid postId
@@ -67,7 +66,6 @@ async function fetchPost(postId, userId) {
       _count: { select: { likes: true, loves: true, comments: true } },
     },
   });
-  console.log("Chosen post:", chosenPost);
 
   if (!chosenPost) return null;
 
