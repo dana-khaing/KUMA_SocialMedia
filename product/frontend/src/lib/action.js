@@ -2,6 +2,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
+import { compareDesc } from "date-fns";
 
 // Follow action
 
@@ -437,17 +438,17 @@ export const switchCommentLike = async (commentId, userId) => {
       });
       return { success: true, action: "unliked" };
     } else {
-      await prisma.like.create({
+      const newLike = await prisma.like.create({
         data: {
           commentId,
           userId,
-          postId: null, // Assuming Like model allows null postId for comment likes
+          postId: null,
         },
       });
+      await notifyCommentLikeCreated(newLike.id);
       return { success: true, action: "liked" };
     }
   } catch (error) {
-    //console.error("Error switching comment like:", error);
     throw new Error("Failed to switch comment like");
   }
 };
@@ -621,6 +622,21 @@ export async function createNotification({
   storyId,
 }) {
   try {
+    const existingNotification = await prisma.notification.findFirst({
+      where: {
+        type,
+        senderId,
+        receiverId,
+        commentId,
+        postId,
+        storyId,
+      },
+    });
+
+    if (existingNotification) {
+      return;
+    }
+
     await prisma.notification.create({
       data: {
         type,
@@ -633,14 +649,16 @@ export async function createNotification({
       },
     });
   } catch (error) {
-    console.error("Error creating notification:", error);
+    throw new Error(`Failed to create notification: ${error.message}`);
   }
 }
 
 export async function notifyUserCreated(userId) {
   // Notify all users (or a specific group, e.g., admins) about new user
   const sender = await prisma.user.findUnique({ where: { id: userId } });
-  const message = `${sender.username} just joined the platform!`;
+  const message = `${
+    sender.name + " " + sender.surname
+  } just joined the platform!`;
 
   // Example: Notify all users (modify as needed)
   const users = await prisma.user.findMany({
@@ -669,7 +687,9 @@ export async function notifyPostCreated(postId) {
     select: { followerId: true },
   });
 
-  const message = `${post.user.username} created a new post.`;
+  const message = `${
+    post.user.name + " " + post.user.surname
+  } created a new post. Check it out! Kuma!`;
 
   for (const follower of followers) {
     await createNotification({
@@ -690,7 +710,9 @@ export async function notifyCommentCreated(commentId) {
 
   // Notify the post owner (if not the commenter)
   if (comment.userId !== comment.post.userId) {
-    const message = `${comment.user.username} commented on your post.`;
+    const message = `${
+      comment.user.name + " " + comment.user.surname
+    } commented "${comment.desc}" on your post. Check it out! Kuma!`;
     await createNotification({
       type: "COMMENT",
       message,
@@ -721,7 +743,7 @@ export async function notifyReactionCreated(reactionType, reactionId) {
   // Notify the post owner (if not the reactor)
   if (reaction.userId !== reaction.post.userId) {
     const message = `${
-      reaction.user.username
+      reaction.user.name + " " + reaction.user.surname
     } ${reactionType.toLowerCase()}d your post.`;
     await createNotification({
       type: reactionType,
@@ -744,7 +766,9 @@ export async function notifyStoryCreated(storyId) {
     select: { followerId: true },
   });
 
-  const message = `${story.user.username} posted a new story.`;
+  const message = `${
+    story.user.name + " " + story.user.surname
+  } posted a new story. Check it out! Kuma!`;
 
   for (const follower of followers) {
     await createNotification({
@@ -756,3 +780,69 @@ export async function notifyStoryCreated(storyId) {
     });
   }
 }
+export async function notifyCommentLikeCreated(likeId) {
+  try {
+    const like = await prisma.like.findUnique({
+      where: { id: likeId },
+      include: {
+        user: { select: { id: true, username: true } },
+        comment: {
+          include: {
+            user: { select: { id: true } },
+            post: { select: { id: true } },
+          },
+        },
+      },
+    });
+
+    if (
+      !like ||
+      !like.comment ||
+      !like.user ||
+      !like.comment.user ||
+      !like.user.username
+    ) {
+      return; // Silently return if data is incomplete
+    }
+
+    if (like.userId !== like.comment.userId) {
+      const message = `${
+        like.user.name + " " + like.user.surname
+      } liked your comment.`;
+      await createNotification({
+        type: "COMMENT_LIKE",
+        message,
+        senderId: like.userId,
+        receiverId: like.comment.userId,
+        postId: like.comment.postId,
+        commentId: like.comment.id,
+      });
+    }
+  } catch (error) {
+    throw new Error(
+      `Failed to create comment like notification: ${error.message}`
+    );
+  }
+}
+
+export const markNotificationAsRead = async (notificationId, userId) => {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    await prisma.notification.update({
+      where: {
+        id: notificationId,
+        receiverId: userId, // Ensure the user owns the notification
+      },
+      data: {
+        read: true,
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    throw new Error("Failed to mark notification as read");
+  }
+};
