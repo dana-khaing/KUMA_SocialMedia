@@ -11,11 +11,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function NavItem() {
   const { user } = useUser();
   const userId = user?.id;
   const pathname = usePathname();
+  const router = useRouter();
 
   // Define routes
   const routes = {
@@ -30,6 +32,7 @@ export default function NavItem() {
     <div>
       <div className="items-center gap-2 hidden md:flex justify-around">
         <Link
+          onClick={() => router.refresh()}
           href="/"
           className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
             pathname === routes.home ? "bg-[#FF4E02] text-white" : ""
@@ -43,6 +46,7 @@ export default function NavItem() {
           />
         </Link>
         <Link
+          onClick={() => router.refresh()}
           href="/friendlist"
           className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
             pathname === routes.friendlist ? "bg-[#FF4E02] text-white" : ""
@@ -55,6 +59,7 @@ export default function NavItem() {
           />
         </Link>
         <Link
+          onClick={() => router.refresh()}
           href="/studio"
           className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
             pathname === routes.studio ? "bg-[#FF4E02] text-white" : ""
@@ -67,6 +72,7 @@ export default function NavItem() {
           />
         </Link>
         <Link
+          onClick={() => router.refresh()}
           href={`/profile/${userId}`}
           className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
             pathname === routes.profile ? "bg-[#FF4E02] text-white" : ""
@@ -75,6 +81,7 @@ export default function NavItem() {
           <FontAwesomeIcon className="w-6 h-6" icon={faUser} size="lg" />
         </Link>
         <Link
+          onClick={() => router.refresh()}
           href="/activity"
           className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
             pathname === routes.activity ? "bg-[#FF4E02] text-white" : ""
