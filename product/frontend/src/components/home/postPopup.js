@@ -28,8 +28,14 @@ const PostPopup = ({ post, user, owner, onClose, onReactionUpdate }) => {
   };
 
   return (
-    <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-md border-t-[2px] border-b-[2px] border-[#FF4E02] mx-auto flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%] relative">
+    <div
+      onClick={onClose}
+      className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-xl shadow-md border-t-[2px] border-b-[2px] border-[#FF4E02] mx-auto flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%] relative"
+      >
         <div className="p-5 flex flex-col gap-4">
           {/* Post Details */}
           <div className="flex">
