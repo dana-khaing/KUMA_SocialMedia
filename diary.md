@@ -1,3 +1,10 @@
+#### 20 April
+
+- add notification feature
+- when new user is create every existing user will get notification to follow
+- when user creat post or stories, follower will get notification
+- user will get notification when someone comment or react user's post
+
 #### 19 April
 
 - test for post creation and deleteion

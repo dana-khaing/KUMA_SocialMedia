@@ -2,10 +2,8 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
-import { compareDesc } from "date-fns";
 
 // Follow action
-
 export const followAction = async (userId) => {
   const { userId: currentUserId } = await auth();
   if (!currentUserId) {
