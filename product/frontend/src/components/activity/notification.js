@@ -1,7 +1,34 @@
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import Dummynoti from "./dummynoti";
+import { auth } from "@clerk/nextjs/server";
 
-export const Notification = () => {
+export const Notification = async () => {
+  const { userId } = await auth();
+  if (!userId) return null;
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return null;
+    }
+    // get notification
+    const notification = await prisma.notification.findMany({
+      where: { userId: userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            surname: true,
+            username: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+
   return (
     <div className=" w-full h-[120vh] bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default ">
       <div className="flex items-center justify-between px-4">
@@ -33,19 +60,6 @@ export const Notification = () => {
             </span>
           </span>
         </div>
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
-        <Dummynoti />
       </div>
     </div>
   );
