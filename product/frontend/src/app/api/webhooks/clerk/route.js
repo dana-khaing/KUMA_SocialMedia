@@ -2,6 +2,7 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 
 import prisma from "@/lib/client";
+import { notifyUserCreated } from "@/lib/action";
 
 export async function POST(req) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
@@ -67,6 +68,7 @@ export async function POST(req) {
           bio: "Hello, I'm new here! Kuma!",
         },
       });
+      await notifyUserCreated(evt.data.id);
       return new Response("User has been created!.", { status: 200 });
     } catch (err) {
       console.log(err);
