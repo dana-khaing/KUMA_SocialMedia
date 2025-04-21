@@ -23,6 +23,15 @@ const Notification = ({ initialNotifications, userId }) => {
       if (notification.type === "USER_CREATED") {
         router.push(`/profile/${notification.senderId}`);
       }
+      if (notification.type === "POST_LIKE") {
+        router.push(`/post/${notification.post.id}`);
+      }
+      if (notification.type === "COMMENT_LIKE") {
+        router.push(`/post/${notification.post.id}`);
+      }
+      if (notification.type === "COMMENT_REPLY") {
+        router.push(`/post/${notification.post.id}`);
+      }
     } catch (error) {
       console.error("Error handling notification click:", error);
     }

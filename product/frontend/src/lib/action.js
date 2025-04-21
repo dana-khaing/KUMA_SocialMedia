@@ -800,7 +800,7 @@ export async function notifyCommentLikeCreated(likeId) {
       !like.comment.user ||
       !like.user.username
     ) {
-      return; // Silently return if data is incomplete
+      return;
     }
 
     if (like.userId !== like.comment.userId) {
