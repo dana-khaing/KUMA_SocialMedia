@@ -85,7 +85,7 @@ async function fetchPost(postId, userId) {
 }
 
 export default async function Post({ params }) {
-  const { postId } = params;
+  const { postId } = await params;
   const { userId } = await auth();
 
   if (!userId) {
