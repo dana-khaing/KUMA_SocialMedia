@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
@@ -17,13 +17,18 @@ import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import PostPopup from "./postPopup";
 import { useRouter } from "next/navigation";
 
-const Newfeed = ({ user, posts = [], owner }) => {
+const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
   const [expanded, setExpanded] = useState({});
   const [deletePostId, setDeletePostId] = useState(null);
   const [postList, setPostList] = useState(posts);
   const [isPending, startTransition] = useTransition();
   const [selectedPost, setSelectedPost] = useState(null);
   const [openCommentBoxes, setOpenCommentBoxes] = useState({});
+  useEffect(() => {
+    if (autoOpenCommentId != null) {
+      setOpenCommentBoxes({ [autoOpenCommentId]: true });
+    }
+  }, [autoOpenCommentId]);
   const router = useRouter();
 
   const openDeletePopUp = (postId) => {

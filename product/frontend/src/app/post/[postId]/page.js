@@ -128,7 +128,12 @@ export default async function Post({ params }) {
       </div>
       <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 overflow-y-scroll scrollbar-hide overscroll-x-none">
         <div className="flex flex-col gap-5 h-screen overflow-y-scroll scrollbar-hide overscroll-x-none">
-          <Newfeed posts={[chosenPost]} user={user} owner={userId} />
+          <Newfeed
+            posts={[chosenPost]}
+            user={user}
+            owner={userId}
+            autoOpenCommentId={chosenPost.id}
+          />
         </div>
       </div>
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">

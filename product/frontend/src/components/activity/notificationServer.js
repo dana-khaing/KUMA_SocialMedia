@@ -9,11 +9,6 @@ export const NotificationServer = async () => {
   if (!userId) return null;
 
   try {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return null;
-    }
-
     const notifications = await prisma.notification.findMany({
       where: { receiverId: userId },
       include: {
@@ -26,21 +21,9 @@ export const NotificationServer = async () => {
             avatar: true,
           },
         },
-        post: {
-          select: {
-            id: true,
-          },
-        },
-        comment: {
-          select: {
-            id: true,
-          },
-        },
-        story: {
-          select: {
-            id: true,
-          },
-        },
+        post: { select: { id: true } },
+        comment: { select: { id: true } },
+        story: { select: { id: true } },
       },
       orderBy: { createdAt: "desc" },
       take: 50,
