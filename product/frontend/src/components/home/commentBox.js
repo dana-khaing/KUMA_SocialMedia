@@ -195,15 +195,14 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
               />
               <div className="flex-1 flex-col items-center justify-center gap-1">
                 <div className="flex flex-row flex-1 items-center gap-5 justify-start">
-                  <span className="text-black text-sm">
+                  <div className="text-black text-sm flex-1">
                     {getDisplayName(comment.user)}
-                  </span>
-                  <span className="text-slate-400 text-xs">
+                  </div>
+
+                  <div className="text-slate-400 text-xs flex gap-2 justify-end items-center flex-0">
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
                     })}
-                  </span>
-                  <span className="text-slate-400 text-xs flex justify-end flex-1">
                     <button
                       className={`bg-inherit shadow-none hover:bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full ${
                         owner === comment.user?.id || owner === post.user.id
@@ -223,7 +222,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
                     >
                       <FontAwesomeIcon icon={faXmark} size="md" />
                     </button>
-                  </span>
+                  </div>
                 </div>
                 <div className="text-black px-2 pt-2 w-full rounded-xl">
                   <p className="break-all">{comment.desc}</p>

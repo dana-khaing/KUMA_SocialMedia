@@ -783,7 +783,9 @@ export async function notifyCommentLikeCreated(likeId) {
     const like = await prisma.like.findUnique({
       where: { id: likeId },
       include: {
-        user: { select: { id: true, username: true } },
+        user: {
+          select: { id: true, username: true, name: true, surname: true },
+        },
         comment: {
           include: {
             user: { select: { id: true } },
