@@ -4,15 +4,16 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Prisma](https://img.shields.io/badge/Prisma-MySQL-2D3748?logo=prisma)
 ![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF?logo=clerk&logoColor=white)
+![SSR](https://img.shields.io/badge/Rendering-Server--Side-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## About
 
-KUMA is a student-focused social media web application built for the Royal Holloway, University of London community.
+KUMA is a student-focused server-side rendering social media web application built for the Royal Holloway, University of London community.
 
 It gives RHUL students a familiar place to create profiles, connect with classmates, share posts and stories, react to content, write comments, and keep up with activity across their network.
 
-**Tags:** `social-media` `student-community` `nextjs` `react` `prisma` `mysql` `clerk` `cloudinary` `tailwindcss` `final-year-project`
+**Tags:** `social-media` `student-community` `server-side-rendering` `nextjs` `react` `prisma` `mysql` `clerk` `cloudinary` `tailwindcss` `final-year-project`
 
 This repository contains the final year project source code, supporting documentation, tests, and presentation materials.
 
@@ -34,6 +35,7 @@ This repository contains the final year project source code, supporting document
 ## Tech Stack
 
 - **Framework:** Next.js 15
+- **Rendering:** Server-side rendering with the Next.js App Router
 - **UI:** React 19, Tailwind CSS, shadcn/ui-style components, Radix UI, Font Awesome, Lucide
 - **Authentication:** Clerk
 - **Database:** MySQL with Prisma ORM
