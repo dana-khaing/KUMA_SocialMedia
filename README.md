@@ -1,6 +1,18 @@
 # KUMA Social Media
 
-KUMA is a social media web application built for the Royal Holloway, University of London community. It gives students a shared space to connect with each other, post updates, share media, view stories, react to content, comment on posts, and manage their social circle through follows, follow requests, and blocks.
+![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Prisma](https://img.shields.io/badge/Prisma-MySQL-2D3748?logo=prisma)
+![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF?logo=clerk&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+## About
+
+KUMA is a student-focused social media web application built for the Royal Holloway, University of London community.
+
+It gives RHUL students a familiar place to create profiles, connect with classmates, share posts and stories, react to content, write comments, and keep up with activity across their network.
+
+**Tags:** `social-media` `student-community` `nextjs` `react` `prisma` `mysql` `clerk` `cloudinary` `tailwindcss` `final-year-project`
 
 This repository contains the final year project source code, supporting documentation, tests, and presentation materials.
 
@@ -28,6 +40,10 @@ This repository contains the final year project source code, supporting document
 - **Media uploads:** Cloudinary / next-cloudinary
 - **Validation:** Zod
 - **Testing:** Jest and React Testing Library
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ## Repository Structure
 
