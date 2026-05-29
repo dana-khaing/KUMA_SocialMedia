@@ -825,24 +825,182 @@ export async function notifyCommentLikeCreated(likeId) {
   }
 }
 
-export const markNotificationAsRead = async (notificationId, userId) => {
+const defaultNotificationPreferences = {
+  posts: true,
+  stories: true,
+  comments: true,
+  reactions: true,
+  follows: true,
+  newUsers: true,
+};
+
+const normalizeNotificationPreferences = (preferences = {}) => {
+  return Object.fromEntries(
+    Object.entries(defaultNotificationPreferences).map(([key, value]) => [
+      key,
+      typeof preferences[key] === "boolean" ? preferences[key] : value,
+    ])
+  );
+};
+
+const getAuthenticatedUserId = async () => {
+  const { userId } = await auth();
+
   if (!userId) {
     throw new Error("User not authenticated");
   }
 
+  return userId;
+};
+
+const parseNotificationId = (notificationId) => {
+  const parsedId = Number(notificationId);
+
+  if (!Number.isInteger(parsedId) || parsedId < 1) {
+    throw new Error("Invalid notification id");
+  }
+
+  return parsedId;
+};
+
+export const getUnreadNotificationCount = async () => {
+  const userId = await getAuthenticatedUserId();
+
   try {
-    await prisma.notification.update({
+    return await prisma.notification.count({
       where: {
-        id: notificationId,
-        receiverId: userId, // Ensure the user owns the notification
+        receiverId: userId,
+        read: false,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching unread notification count:", error);
+    throw new Error("Failed to fetch unread notification count");
+  }
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  const userId = await getAuthenticatedUserId();
+  const id = parseNotificationId(notificationId);
+
+  try {
+    const result = await prisma.notification.updateMany({
+      where: {
+        id,
+        receiverId: userId,
       },
       data: {
         read: true,
       },
     });
-    return { success: true };
+    return { success: true, count: result.count };
   } catch (error) {
     console.error("Error marking notification as read:", error);
     throw new Error("Failed to mark notification as read");
+  }
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const userId = await getAuthenticatedUserId();
+
+  try {
+    const result = await prisma.notification.updateMany({
+      where: {
+        receiverId: userId,
+        read: false,
+      },
+      data: {
+        read: true,
+      },
+    });
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    throw new Error("Failed to mark all notifications as read");
+  }
+};
+
+export const deleteNotification = async (notificationId) => {
+  const userId = await getAuthenticatedUserId();
+  const id = parseNotificationId(notificationId);
+
+  try {
+    const result = await prisma.notification.deleteMany({
+      where: {
+        id,
+        receiverId: userId,
+      },
+    });
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    throw new Error("Failed to delete notification");
+  }
+};
+
+export const clearReadNotifications = async () => {
+  const userId = await getAuthenticatedUserId();
+
+  try {
+    const result = await prisma.notification.deleteMany({
+      where: {
+        receiverId: userId,
+        read: true,
+      },
+    });
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Error clearing read notifications:", error);
+    throw new Error("Failed to clear read notifications");
+  }
+};
+
+export const getNotificationPreferences = async () => {
+  const userId = await getAuthenticatedUserId();
+
+  try {
+    const preferences = await prisma.notificationPreference.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    return {
+      userId,
+      ...defaultNotificationPreferences,
+      ...(preferences ? normalizeNotificationPreferences(preferences) : {}),
+    };
+  } catch (error) {
+    console.error("Error fetching notification preferences:", error);
+    throw new Error("Failed to fetch notification preferences");
+  }
+};
+
+export const updateNotificationPreferences = async (preferences) => {
+  const userId = await getAuthenticatedUserId();
+  const data = normalizeNotificationPreferences(preferences ?? {});
+
+  try {
+    const updatedPreferences = await prisma.notificationPreference.upsert({
+      where: {
+        userId,
+      },
+      create: {
+        userId,
+        ...data,
+      },
+      update: data,
+    });
+
+    return {
+      success: true,
+      preferences: {
+        userId,
+        ...normalizeNotificationPreferences(updatedPreferences),
+      },
+    };
+  } catch (error) {
+    console.error("Error updating notification preferences:", error);
+    throw new Error("Failed to update notification preferences");
   }
 };
