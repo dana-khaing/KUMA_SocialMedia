@@ -11,11 +11,23 @@ jest.mock("@clerk/nextjs/server", () => ({
 jest.mock("../lib/client", () => ({
   comment: {
     create: jest.fn(),
+    findUnique: jest.fn(),
   },
   post: {
     findUnique: jest.fn(),
     delete: jest.fn(),
   },
+  notificationPreference: {
+    findUnique: jest.fn(),
+  },
+  notification: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+  },
+}));
+
+jest.mock("../lib/pusherServer", () => ({
+  triggerNotificationCreated: jest.fn(),
 }));
 
 describe("Server Actions", () => {
@@ -27,6 +39,14 @@ describe("Server Actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId: currentUserId });
+    prisma.comment.findUnique.mockResolvedValue({
+      id: "comment1",
+      postId,
+      userId: currentUserId,
+      desc: commentDesc,
+      user: { id: currentUserId, name: "Test", surname: "User" },
+      post: { userId: currentUserId, user: { id: currentUserId } },
+    });
   });
 
   // createComment Tests
