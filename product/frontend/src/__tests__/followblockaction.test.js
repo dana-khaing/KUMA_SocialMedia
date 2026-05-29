@@ -24,11 +24,25 @@ jest.mock("../lib/client", () => ({
     create: jest.fn(),
     delete: jest.fn(),
   },
+  user: {
+    findUnique: jest.fn(),
+  },
+  notificationPreference: {
+    findUnique: jest.fn(),
+  },
+  notification: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+  },
   block: {
     findFirst: jest.fn(),
     create: jest.fn(),
     delete: jest.fn(),
   },
+}));
+
+jest.mock("../lib/pusherServer", () => ({
+  triggerNotificationCreated: jest.fn(),
 }));
 
 describe("Server Actions", () => {
@@ -38,6 +52,15 @@ describe("Server Actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId: currentUserId });
+    prisma.user.findUnique.mockResolvedValue({
+      id: currentUserId,
+      name: "Current",
+      surname: "User",
+      username: "currentuser",
+    });
+    prisma.notificationPreference.findUnique.mockResolvedValue(null);
+    prisma.notification.findFirst.mockResolvedValue(null);
+    prisma.notification.create.mockResolvedValue({ id: 1 });
   });
 
   // followAction Tests
@@ -74,16 +97,30 @@ describe("Server Actions", () => {
         where: { id: "req1" },
       });
       expect(prisma.followRequest.create).not.toHaveBeenCalled();
+      expect(prisma.notification.create).not.toHaveBeenCalled();
     });
 
     it("creates follow request if no follow or request exists", async () => {
       prisma.follower.findFirst.mockResolvedValue(null);
       prisma.followRequest.findFirst.mockResolvedValue(null);
+      prisma.followRequest.create.mockResolvedValue({
+        senderId: currentUserId,
+        receiverId: userId,
+      });
       await followAction(userId);
 
       expect(prisma.followRequest.create).toHaveBeenCalledWith({
         data: { senderId: currentUserId, receiverId: userId },
       });
+      expect(prisma.notification.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: "FOLLOW_REQUEST",
+            senderId: currentUserId,
+            receiverId: userId,
+          }),
+        })
+      );
     });
 
     it("throws error on database failure", async () => {
@@ -178,6 +215,15 @@ describe("Server Actions", () => {
       expect(prisma.follower.create).toHaveBeenCalledWith({
         data: { followerId: userId, followingId: currentUserId },
       });
+      expect(prisma.notification.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: "FOLLOW_ACCEPTED",
+            senderId: currentUserId,
+            receiverId: userId,
+          }),
+        })
+      );
     });
 
     it("does nothing if no follow request exists", async () => {

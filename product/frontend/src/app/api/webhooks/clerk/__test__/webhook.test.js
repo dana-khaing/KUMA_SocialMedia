@@ -20,7 +20,20 @@ jest.mock("@/lib/client", () => ({
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    findUnique: jest.fn(),
+    findMany: jest.fn(),
   },
+  notificationPreference: {
+    findUnique: jest.fn(),
+  },
+  notification: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+  },
+}));
+
+jest.mock("@/lib/pusherServer", () => ({
+  triggerNotificationCreated: jest.fn(),
 }));
 
 describe("POST /api/webhooks/clerk", () => {
@@ -28,6 +41,16 @@ describe("POST /api/webhooks/clerk", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.SIGNING_SECRET = "test-secret";
+    prisma.user.findUnique.mockResolvedValue({
+      id: "user-123",
+      username: "testuser",
+      name: "John",
+      surname: "Doe",
+    });
+    prisma.user.findMany.mockResolvedValue([]);
+    prisma.notificationPreference.findUnique.mockResolvedValue(null);
+    prisma.notification.findFirst.mockResolvedValue(null);
+    prisma.notification.create.mockResolvedValue({ id: 1 });
     const mockHeaders = new Map([
       ["svix-id", "test-id"],
       ["svix-timestamp", "1234567890"],
