@@ -2,6 +2,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
+import { triggerNotificationCreated } from "./pusherServer";
 
 // Follow action
 export const followAction = async (userId) => {
@@ -650,7 +651,7 @@ export async function createNotification({
       return existingNotification;
     }
 
-    return await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type,
         message,
@@ -660,7 +661,22 @@ export async function createNotification({
         commentId,
         storyId,
       },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            surname: true,
+            username: true,
+            avatar: true,
+          },
+        },
+      },
     });
+
+    await triggerNotificationCreated(notification);
+
+    return notification;
   } catch (error) {
     throw new Error(`Failed to create notification: ${error.message}`);
   }
