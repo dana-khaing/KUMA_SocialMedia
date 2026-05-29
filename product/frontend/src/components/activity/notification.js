@@ -33,9 +33,17 @@ const Notification = ({ initialNotifications, userId }) => {
         case "LOVE":
         case "COMMENT":
         case "COMMENT_LIKE":
+        case "POST_COMMENTED":
+        case "POST_LIKED":
+        case "POST_LOVED":
+        case "COMMENT_LIKED":
           if (notification.postId) {
             router.push(`/post/${notification.postId}`);
           }
+          break;
+        case "FOLLOW_REQUEST":
+        case "FOLLOW_ACCEPTED":
+          router.push(`/profile/${notification.senderId}`);
           break;
         case "STORY_CREATED":
           if (notification.storyId) {
