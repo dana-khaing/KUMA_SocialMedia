@@ -106,6 +106,11 @@ SIGNING_SECRET="your_clerk_webhook_signing_secret"
 NEXT_PUBLIC_CLERK_FALLBACK_URL="/sign-in"
 
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloudinary_cloud_name"
+
+PUSHER_APP_ID="your_pusher_app_id"
+PUSHER_SECRET="your_pusher_secret"
+NEXT_PUBLIC_PUSHER_KEY="your_pusher_key"
+NEXT_PUBLIC_PUSHER_CLUSTER="your_pusher_cluster"
 ```
 
 The current upload preset used in the app is:
