@@ -3,6 +3,7 @@
 import Pusher from "pusher-js";
 
 let pusherClient;
+const channelSubscriptions = new Map();
 
 export function getNotificationChannelName(userId) {
   return `private-user-${userId}`;
@@ -34,12 +35,36 @@ export function subscribeToNotificationEvents(userId, onNotificationCreated) {
   }
 
   const channelName = getNotificationChannelName(userId);
-  const channel = pusher.subscribe(channelName);
+  let subscription = channelSubscriptions.get(channelName);
 
-  channel.bind("notification:new", onNotificationCreated);
+  if (!subscription) {
+    subscription = {
+      channel: pusher.subscribe(channelName),
+      count: 0,
+    };
+    channelSubscriptions.set(channelName, subscription);
+  }
+
+  subscription.count += 1;
+
+  subscription.channel.bind("notification:new", onNotificationCreated);
 
   return () => {
-    channel.unbind("notification:new", onNotificationCreated);
-    pusher.unsubscribe(channelName);
+    const currentSubscription = channelSubscriptions.get(channelName);
+
+    if (!currentSubscription) {
+      return;
+    }
+
+    currentSubscription.channel.unbind(
+      "notification:new",
+      onNotificationCreated
+    );
+    currentSubscription.count -= 1;
+
+    if (currentSubscription.count < 1) {
+      pusher.unsubscribe(channelName);
+      channelSubscriptions.delete(channelName);
+    }
   };
 }
