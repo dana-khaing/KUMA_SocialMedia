@@ -12,6 +12,7 @@ import {
 import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import NotificationBadge from "./notificationBadge";
 
 export default function NavItem() {
   const { user } = useUser();
@@ -83,11 +84,12 @@ export default function NavItem() {
         <Link
           onClick={() => router.refresh()}
           href="/activity"
-          className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
+          className={`relative flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
             pathname === routes.activity ? "bg-[#FF4E02] text-white" : ""
           }`}
         >
           <FontAwesomeIcon className="w-6 h-6" icon={faBell} size="lg" />
+          <NotificationBadge className="absolute top-1 right-7" />
         </Link>
       </div>
     </div>

@@ -2,6 +2,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
+import { triggerNotificationCreated } from "./pusherServer";
 
 // Follow action
 export const followAction = async (userId) => {
@@ -37,12 +38,16 @@ export const followAction = async (userId) => {
           },
         });
       } else {
-        await prisma.followRequest.create({
+        const followRequest = await prisma.followRequest.create({
           data: {
             senderId: currentUserId,
             receiverId: userId,
           },
         });
+        await notifyFollowRequestCreated(
+          followRequest.senderId,
+          followRequest.receiverId
+        );
       }
     }
   } catch (error) {
@@ -136,6 +141,7 @@ export const acceptFollowRequest = async (userId) => {
           followingId: currentUserId,
         },
       });
+      await notifyFollowAccepted(userId, currentUserId);
     }
   } catch (error) {
     // console.log(error);
@@ -620,6 +626,16 @@ export async function createNotification({
   storyId,
 }) {
   try {
+    if (senderId === receiverId) {
+      return null;
+    }
+
+    const enabled = await isNotificationEnabled(receiverId, type);
+
+    if (!enabled) {
+      return null;
+    }
+
     const existingNotification = await prisma.notification.findFirst({
       where: {
         type,
@@ -632,10 +648,10 @@ export async function createNotification({
     });
 
     if (existingNotification) {
-      return;
+      return existingNotification;
     }
 
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type,
         message,
@@ -645,18 +661,80 @@ export async function createNotification({
         commentId,
         storyId,
       },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            surname: true,
+            username: true,
+            avatar: true,
+          },
+        },
+      },
     });
+
+    await triggerNotificationCreated(notification);
+
+    return notification;
   } catch (error) {
     throw new Error(`Failed to create notification: ${error.message}`);
   }
 }
 
+const notificationPreferenceTypeMap = {
+  USER_CREATED: "newUsers",
+  POST_CREATED: "posts",
+  STORY_CREATED: "stories",
+  COMMENT: "comments",
+  POST_COMMENTED: "comments",
+  LIKE: "reactions",
+  LOVE: "reactions",
+  POST_LIKED: "reactions",
+  POST_LOVED: "reactions",
+  COMMENT_LIKE: "reactions",
+  COMMENT_LIKED: "reactions",
+  FOLLOW_REQUEST: "follows",
+  FOLLOW_ACCEPTED: "follows",
+};
+
+async function isNotificationEnabled(receiverId, type) {
+  const preferenceKey = notificationPreferenceTypeMap[type];
+
+  if (!preferenceKey) {
+    return true;
+  }
+
+  const preferences = await prisma.notificationPreference.findUnique({
+    where: {
+      userId: receiverId,
+    },
+  });
+
+  return preferences ? preferences[preferenceKey] !== false : true;
+}
+
+function getUserDisplayName(user) {
+  if (!user) {
+    return "Someone";
+  }
+
+  return (
+    [user.name, user.surname].filter(Boolean).join(" ") ||
+    user.username ||
+    "Someone"
+  );
+}
+
 export async function notifyUserCreated(userId) {
   // Notify all users (or a specific group, e.g., admins) about new user
   const sender = await prisma.user.findUnique({ where: { id: userId } });
-  const message = `${
-    sender.name + " " + sender.surname
-  } just joined the platform!`;
+
+  if (!sender) {
+    return;
+  }
+
+  const message = `${getUserDisplayName(sender)} just joined the platform!`;
 
   // Example: Notify all users (modify as needed)
   const users = await prisma.user.findMany({
@@ -680,14 +758,18 @@ export async function notifyPostCreated(postId) {
     include: { user: true },
   });
 
+  if (!post) {
+    return;
+  }
+
   const followers = await prisma.follower.findMany({
     where: { followingId: post.userId },
     select: { followerId: true },
   });
 
-  const message = `${
-    post.user.name + " " + post.user.surname
-  } created a new post. Check it out! Kuma!`;
+  const message = `${getUserDisplayName(
+    post.user
+  )} created a new post. Check it out! Kuma!`;
 
   for (const follower of followers) {
     await createNotification({
@@ -706,13 +788,17 @@ export async function notifyCommentCreated(commentId) {
     include: { user: true, post: { include: { user: true } } },
   });
 
+  if (!comment) {
+    return;
+  }
+
   // Notify the post owner (if not the commenter)
   if (comment.userId !== comment.post.userId) {
-    const message = `${
-      comment.user.name + " " + comment.user.surname
-    } commented "${comment.desc}" on your post. Check it out! Kuma!`;
+    const message = `${getUserDisplayName(comment.user)} commented "${
+      comment.desc
+    }" on your post. Check it out! Kuma!`;
     await createNotification({
-      type: "COMMENT",
+      type: "POST_COMMENTED",
       message,
       senderId: comment.userId,
       receiverId: comment.post.userId,
@@ -740,11 +826,11 @@ export async function notifyReactionCreated(reactionType, reactionId) {
 
   // Notify the post owner (if not the reactor)
   if (reaction.userId !== reaction.post.userId) {
-    const message = `${
-      reaction.user.name + " " + reaction.user.surname
-    } ${reactionType.toLowerCase()}d your post.`;
+    const message = `${getUserDisplayName(
+      reaction.user
+    )} ${reactionType.toLowerCase()}d your post.`;
     await createNotification({
-      type: reactionType,
+      type: reactionType === "LOVE" ? "POST_LOVED" : "POST_LIKED",
       message,
       senderId: reaction.userId,
       receiverId: reaction.post.userId,
@@ -759,14 +845,18 @@ export async function notifyStoryCreated(storyId) {
     include: { user: true },
   });
 
+  if (!story) {
+    return;
+  }
+
   const followers = await prisma.follower.findMany({
     where: { followingId: story.userId },
     select: { followerId: true },
   });
 
-  const message = `${
-    story.user.name + " " + story.user.surname
-  } posted a new story. Check it out! Kuma!`;
+  const message = `${getUserDisplayName(
+    story.user
+  )} posted a new story. Check it out! Kuma!`;
 
   for (const follower of followers) {
     await createNotification({
@@ -807,10 +897,10 @@ export async function notifyCommentLikeCreated(likeId) {
 
     if (like.userId !== like.comment.userId) {
       const message = `${
-        like.user.name + " " + like.user.surname
+        getUserDisplayName(like.user)
       } liked your comment.`;
       await createNotification({
-        type: "COMMENT_LIKE",
+        type: "COMMENT_LIKED",
         message,
         senderId: like.userId,
         receiverId: like.comment.userId,
@@ -825,24 +915,220 @@ export async function notifyCommentLikeCreated(likeId) {
   }
 }
 
-export const markNotificationAsRead = async (notificationId, userId) => {
+async function notifyFollowRequestCreated(senderId, receiverId) {
+  const sender = await prisma.user.findUnique({
+    where: {
+      id: senderId,
+    },
+  });
+
+  if (!sender) {
+    return;
+  }
+
+  await createNotification({
+    type: "FOLLOW_REQUEST",
+    message: `${getUserDisplayName(sender)} sent you a follow request.`,
+    senderId,
+    receiverId,
+  });
+}
+
+async function notifyFollowAccepted(followerId, followingId) {
+  const following = await prisma.user.findUnique({
+    where: {
+      id: followingId,
+    },
+  });
+
+  if (!following) {
+    return;
+  }
+
+  await createNotification({
+    type: "FOLLOW_ACCEPTED",
+    message: `${getUserDisplayName(following)} accepted your follow request.`,
+    senderId: followingId,
+    receiverId: followerId,
+  });
+}
+
+const defaultNotificationPreferences = {
+  posts: true,
+  stories: true,
+  comments: true,
+  reactions: true,
+  follows: true,
+  newUsers: true,
+};
+
+const normalizeNotificationPreferences = (preferences = {}) => {
+  return Object.fromEntries(
+    Object.entries(defaultNotificationPreferences).map(([key, value]) => [
+      key,
+      typeof preferences[key] === "boolean" ? preferences[key] : value,
+    ])
+  );
+};
+
+const getAuthenticatedUserId = async () => {
+  const { userId } = await auth();
+
   if (!userId) {
     throw new Error("User not authenticated");
   }
 
+  return userId;
+};
+
+const parseNotificationId = (notificationId) => {
+  const parsedId = Number(notificationId);
+
+  if (!Number.isInteger(parsedId) || parsedId < 1) {
+    throw new Error("Invalid notification id");
+  }
+
+  return parsedId;
+};
+
+export const getUnreadNotificationCount = async () => {
+  const userId = await getAuthenticatedUserId();
+
   try {
-    await prisma.notification.update({
+    return await prisma.notification.count({
       where: {
-        id: notificationId,
-        receiverId: userId, // Ensure the user owns the notification
+        receiverId: userId,
+        read: false,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching unread notification count:", error);
+    throw new Error("Failed to fetch unread notification count");
+  }
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  const userId = await getAuthenticatedUserId();
+  const id = parseNotificationId(notificationId);
+
+  try {
+    const result = await prisma.notification.updateMany({
+      where: {
+        id,
+        receiverId: userId,
       },
       data: {
         read: true,
       },
     });
-    return { success: true };
+    return { success: true, count: result.count };
   } catch (error) {
     console.error("Error marking notification as read:", error);
     throw new Error("Failed to mark notification as read");
+  }
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const userId = await getAuthenticatedUserId();
+
+  try {
+    const result = await prisma.notification.updateMany({
+      where: {
+        receiverId: userId,
+        read: false,
+      },
+      data: {
+        read: true,
+      },
+    });
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    throw new Error("Failed to mark all notifications as read");
+  }
+};
+
+export const deleteNotification = async (notificationId) => {
+  const userId = await getAuthenticatedUserId();
+  const id = parseNotificationId(notificationId);
+
+  try {
+    const result = await prisma.notification.deleteMany({
+      where: {
+        id,
+        receiverId: userId,
+      },
+    });
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    throw new Error("Failed to delete notification");
+  }
+};
+
+export const clearReadNotifications = async () => {
+  const userId = await getAuthenticatedUserId();
+
+  try {
+    const result = await prisma.notification.deleteMany({
+      where: {
+        receiverId: userId,
+        read: true,
+      },
+    });
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Error clearing read notifications:", error);
+    throw new Error("Failed to clear read notifications");
+  }
+};
+
+export const getNotificationPreferences = async () => {
+  const userId = await getAuthenticatedUserId();
+
+  try {
+    const preferences = await prisma.notificationPreference.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    return {
+      userId,
+      ...defaultNotificationPreferences,
+      ...(preferences ? normalizeNotificationPreferences(preferences) : {}),
+    };
+  } catch (error) {
+    console.error("Error fetching notification preferences:", error);
+    throw new Error("Failed to fetch notification preferences");
+  }
+};
+
+export const updateNotificationPreferences = async (preferences) => {
+  const userId = await getAuthenticatedUserId();
+  const data = normalizeNotificationPreferences(preferences ?? {});
+
+  try {
+    const updatedPreferences = await prisma.notificationPreference.upsert({
+      where: {
+        userId,
+      },
+      create: {
+        userId,
+        ...data,
+      },
+      update: data,
+    });
+
+    return {
+      success: true,
+      preferences: {
+        userId,
+        ...normalizeNotificationPreferences(updatedPreferences),
+      },
+    };
+  } catch (error) {
+    console.error("Error updating notification preferences:", error);
+    throw new Error("Failed to update notification preferences");
   }
 };

@@ -9,6 +9,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { auth } from "@clerk/nextjs/server";
 
 import Link from "next/link";
+import NotificationBadge from "./notificationBadge";
 
 export const NavitemMobile = async () => {
   const { userId } = await auth();
@@ -66,13 +67,14 @@ export const NavitemMobile = async () => {
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
             <Link href="/activity">
-              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer ">
+              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
                 <FontAwesomeIcon
                   icon={faBell}
                   size="md"
                   className="mr-2 text-[#FF4E02]"
                 />
-                Notification
+                <span>Notification</span>
+                <NotificationBadge className="ml-auto" />
               </DropdownMenu.Item>
             </Link>
           </DropdownMenu.Content>
