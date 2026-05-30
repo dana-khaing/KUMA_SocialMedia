@@ -22,9 +22,21 @@ jest.mock("../lib/client", () => ({
   },
   like: {
     findFirst: jest.fn(),
+    findUnique: jest.fn(),
     create: jest.fn(),
     delete: jest.fn(),
   },
+  notificationPreference: {
+    findUnique: jest.fn(),
+  },
+  notification: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+  },
+}));
+
+jest.mock("../lib/pusherServer", () => ({
+  triggerNotificationCreated: jest.fn(),
 }));
 
 describe("Server Actions", () => {
@@ -36,6 +48,7 @@ describe("Server Actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId });
+    prisma.like.findUnique.mockResolvedValue(null);
   });
 
   // loadComments Tests

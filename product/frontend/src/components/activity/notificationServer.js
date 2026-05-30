@@ -3,34 +3,42 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import Notification from "./notification";
+import { getNotificationPreferences } from "@/lib/action";
 
 export const NotificationServer = async () => {
   const { userId } = await auth();
   if (!userId) return null;
 
   try {
-    const notifications = await prisma.notification.findMany({
-      where: { receiverId: userId },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            surname: true,
-            username: true,
-            avatar: true,
+    const [notifications, preferences] = await Promise.all([
+      prisma.notification.findMany({
+        where: { receiverId: userId },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              surname: true,
+              username: true,
+              avatar: true,
+            },
           },
+          post: { select: { id: true } },
+          comment: { select: { id: true } },
+          story: { select: { id: true } },
         },
-        post: { select: { id: true } },
-        comment: { select: { id: true } },
-        story: { select: { id: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    });
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      }),
+      getNotificationPreferences(),
+    ]);
 
     return (
-      <Notification initialNotifications={notifications} userId={userId} />
+      <Notification
+        initialNotifications={notifications}
+        initialPreferences={preferences}
+        userId={userId}
+      />
     );
   } catch (error) {
     console.error("Error fetching notifications:", error);
