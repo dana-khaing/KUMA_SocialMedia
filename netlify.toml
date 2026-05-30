@@ -1,0 +1,8 @@
+[build]
+  base = "product/frontend"
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "8.15.1"
