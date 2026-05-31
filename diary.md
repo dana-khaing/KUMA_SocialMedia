@@ -1,3 +1,14 @@
+#### 31 May
+
+- add optimistic post creation so new posts appear in the feed immediately while the server saves them
+- add home feed client state to replace temporary posts with saved posts and remove failed posts
+- add route preloading and loading improvements for feed and notification navigation
+- add tests for optimistic posting, route preloading, and notification component behaviour
+
+#### 30 May
+
+- add Netlify deployment configuration for the frontend app
+
 #### 21 April
 
 - create post route to view a single thread post from the notification message
