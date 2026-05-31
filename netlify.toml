@@ -6,6 +6,7 @@
 [build.environment]
   NODE_VERSION = "20"
   PNPM_VERSION = "8.15.1"
+  NEXT_DISABLE_NETLIFY_EDGE = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
