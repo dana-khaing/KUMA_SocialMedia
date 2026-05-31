@@ -12,16 +12,22 @@ import {
 
 const mockPush = jest.fn();
 const mockRefresh = jest.fn();
+const mockPrefetch = jest.fn();
+let realtimeHandler;
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: mockPush,
     refresh: mockRefresh,
+    prefetch: mockPrefetch,
   }),
 }));
 
 jest.mock("@/lib/pusherClient", () => ({
-  subscribeToNotificationEvents: jest.fn(() => jest.fn()),
+  subscribeToNotificationEvents: jest.fn((userId, handler) => {
+    realtimeHandler = handler;
+    return jest.fn();
+  }),
 }));
 
 jest.mock("@/components/navbar/notificationBadge", () => ({
@@ -88,6 +94,7 @@ function renderNotification() {
 describe("Notification component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    realtimeHandler = null;
     markNotificationAsRead.mockResolvedValue({ success: true });
     markAllNotificationsAsRead.mockResolvedValue({ success: true });
     deleteNotification.mockResolvedValue({ success: true });
@@ -128,6 +135,29 @@ describe("Notification component", () => {
       expect(markNotificationAsRead).toHaveBeenCalledWith(1);
       expect(mockPush).toHaveBeenCalledWith("/post/10");
     });
+  });
+
+  it("prefetches initial and realtime notification routes", async () => {
+    renderNotification();
+
+    await waitFor(() => {
+      expect(mockPrefetch).toHaveBeenCalledWith("/post/10");
+      expect(mockPrefetch).toHaveBeenCalledWith("/post/11");
+      expect(mockPrefetch).toHaveBeenCalledWith("/profile/user-4");
+    });
+
+    realtimeHandler({
+      id: 4,
+      type: "STORY_CREATED",
+      message: "Dana posted a story.",
+      createdAt: "2026-05-29T11:00:00.000Z",
+      read: false,
+      senderId: "user-2",
+      storyId: 20,
+      sender: { avatar: null },
+    });
+
+    expect(mockPrefetch).toHaveBeenCalledWith("/story/20");
   });
 
   it("routes follow notifications to the sender profile", async () => {
