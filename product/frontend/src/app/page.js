@@ -1,6 +1,5 @@
 import Stories from "@/components/home/stories";
-import Addpost from "@/components/home/addpost";
-import Newfeed from "@/components/home/newfeed";
+import HomeFeedClient from "@/components/home/homeFeedClient";
 import FriendRequest from "@/components/userfriends/friendRequest";
 import Birthday from "@/components/userfriends/birthday";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
@@ -130,8 +129,7 @@ export default async function Home() {
       <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%]">
         <div className="flex flex-col gap-5 w-full overflow-y-scroll scrollbar-hide overscroll-x-none">
           <Stories user={user} stories={finalStories} />
-          <Addpost user={user} />
-          <Newfeed user={user} posts={posts} owner={userId} />
+          <HomeFeedClient user={user} posts={posts} owner={userId} />
         </div>
       </div>
       {/* Right Sidebar */}

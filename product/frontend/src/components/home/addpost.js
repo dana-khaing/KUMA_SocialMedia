@@ -16,7 +16,44 @@ import { createPost } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const Addpost = ({ user }) => {
+const createOptimisticPost = ({ desc, imageUrls, user }) => {
+  const timestamp = Date.now();
+  const tempId = `temp-post-${timestamp}`;
+
+  return {
+    id: tempId,
+    desc: desc.trim(),
+    createdAt: new Date().toISOString(),
+    isOptimistic: true,
+    user: {
+      id: user.id,
+      name: user.name,
+      surname: user.surname,
+      username: user.username,
+      avatar: user.avatar,
+    },
+    images: imageUrls.map((url, index) => ({
+      id: `temp-image-${timestamp}-${index}`,
+      url,
+      postId: tempId,
+    })),
+    likes: [],
+    loves: [],
+    comments: [],
+    _count: {
+      likes: 0,
+      loves: 0,
+      comments: 0,
+    },
+  };
+};
+
+const Addpost = ({
+  user,
+  onOptimisticPost,
+  onPostConfirmed,
+  onPostFailed,
+}) => {
   const [desc, setDesc] = useState("");
   const [images, setImages] = useState([]); // Store multiple images
   const [isPending, startTransition] = useTransition();
@@ -38,30 +75,42 @@ const Addpost = ({ user }) => {
       return;
     }
 
+    const optimisticDesc = desc.trim();
+    const imageUrls = images.map((img) => img.secure_url);
+    const tempPost = createOptimisticPost({
+      desc: optimisticDesc,
+      imageUrls,
+      user,
+    });
+
+    onOptimisticPost?.(tempPost);
+    setDesc("");
+    setImages([]);
+    setError(null);
+    setSuccess(null);
+    setShowPostModal(false);
+
     startTransition(async () => {
       try {
-        const imageUrls = images.map((img) => img.secure_url);
         const result = await createPost({
           userId: user.id,
-          desc,
+          desc: optimisticDesc,
           imageUrls,
         });
         if (result.success) {
+          onPostConfirmed?.(tempPost.id, result.post);
           router.refresh();
-          setDesc("");
-          setImages([]);
           setSuccess("Post created successfully!");
           toast("Post created successfully!");
           setError(null);
-          setShowPostModal(false);
         } else {
           throw new Error(result.error || "Failed to create post");
         }
       } catch (err) {
+        onPostFailed?.(tempPost.id);
         setError("Failed to create post. Try again.");
         toast("Failed to create post. Try again.");
         setSuccess(null);
-        setShowPostModal(false);
       }
     });
   };
