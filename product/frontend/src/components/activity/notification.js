@@ -24,6 +24,29 @@ const preferenceLabels = [
   ["newUsers", "New users"],
 ];
 
+export function getNotificationHref(notification) {
+  switch (notification.type) {
+    case "USER_CREATED":
+    case "FOLLOW_REQUEST":
+    case "FOLLOW_ACCEPTED":
+      return notification.senderId ? `/profile/${notification.senderId}` : null;
+    case "POST_CREATED":
+    case "LIKE":
+    case "LOVE":
+    case "COMMENT":
+    case "COMMENT_LIKE":
+    case "POST_COMMENTED":
+    case "POST_LIKED":
+    case "POST_LOVED":
+    case "COMMENT_LIKED":
+      return notification.postId ? `/post/${notification.postId}` : null;
+    case "STORY_CREATED":
+      return notification.storyId ? `/story/${notification.storyId}` : null;
+    default:
+      return null;
+  }
+}
+
 const Notification = ({ initialNotifications, initialPreferences, userId }) => {
   const [notifications, setNotifications] = useState(
     initialNotifications || []
@@ -46,6 +69,12 @@ const Notification = ({ initialNotifications, initialPreferences, userId }) => {
 
   useEffect(() => {
     return subscribeToNotificationEvents(userId, (notification) => {
+      const href = getNotificationHref(notification);
+
+      if (href) {
+        router.prefetch(href);
+      }
+
       setNotifications((currentNotifications) => {
         if (currentNotifications.some((item) => item.id === notification.id)) {
           return currentNotifications;
@@ -54,7 +83,17 @@ const Notification = ({ initialNotifications, initialPreferences, userId }) => {
         return [notification, ...currentNotifications].slice(0, 50);
       });
     });
-  }, [userId]);
+  }, [router, userId]);
+
+  useEffect(() => {
+    notifications.slice(0, 10).forEach((notification) => {
+      const href = getNotificationHref(notification);
+
+      if (href) {
+        router.prefetch(href);
+      }
+    });
+  }, [notifications, router]);
 
   const notifyNotificationStateChanged = () => {
     window.dispatchEvent(new Event(NOTIFICATION_CHANGED_EVENT));
@@ -72,36 +111,10 @@ const Notification = ({ initialNotifications, initialPreferences, userId }) => {
       // Refresh any server-side data dependencies
       router.refresh();
 
-      // Navigate to the correct page based on notification type
-      switch (notification.type) {
-        case "USER_CREATED":
-          router.push(`/profile/${notification.senderId}`);
-          break;
-        case "POST_CREATED":
-        case "LIKE":
-        case "LOVE":
-        case "COMMENT":
-        case "COMMENT_LIKE":
-        case "POST_COMMENTED":
-        case "POST_LIKED":
-        case "POST_LOVED":
-        case "COMMENT_LIKED":
-          if (notification.postId) {
-            router.push(`/post/${notification.postId}`);
-          }
-          break;
-        case "FOLLOW_REQUEST":
-        case "FOLLOW_ACCEPTED":
-          router.push(`/profile/${notification.senderId}`);
-          break;
-        case "STORY_CREATED":
-          if (notification.storyId) {
-            router.push(`/story/${notification.storyId}`);
-          }
-          break;
-        default:
-          // Unhandled notification types
-          break;
+      const href = getNotificationHref(notification);
+
+      if (href) {
+        router.push(href);
       }
     } catch (error) {
       console.error("Error handling notification click:", error);

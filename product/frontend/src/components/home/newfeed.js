@@ -24,12 +24,32 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
   const [isPending, startTransition] = useTransition();
   const [selectedPost, setSelectedPost] = useState(null);
   const [openCommentBoxes, setOpenCommentBoxes] = useState({});
+  const router = useRouter();
+
+  useEffect(() => {
+    setPostList(posts);
+  }, [posts]);
+
   useEffect(() => {
     if (autoOpenCommentId != null) {
       setOpenCommentBoxes({ [autoOpenCommentId]: true });
     }
   }, [autoOpenCommentId]);
-  const router = useRouter();
+
+  useEffect(() => {
+    postList
+      .filter((post) => !post.isOptimistic)
+      .slice(0, 10)
+      .forEach((post) => {
+        router.prefetch(`/post/${post.id}`);
+      });
+  }, [postList, router]);
+
+  const prefetchPost = (post) => {
+    if (!post.isOptimistic) {
+      router.prefetch(`/post/${post.id}`);
+    }
+  };
 
   const openDeletePopUp = (postId) => {
     setDeletePostId(postId);
@@ -129,6 +149,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
           postList.map((post) => (
             <div
               key={`${post.id}-${post._count.likes}-${post._count.loves}-${post._count.comments}`}
+              onMouseEnter={() => prefetchPost(post)}
               className="h-fit rounded-2xl shadow-md border-t-[2px] border-b-[2px] w-[95%] mx-auto px-5 border-[#FF4E02] md:px-7 py-4 md:py-5 text-sm"
             >
               <div className="flex gap-3">
@@ -154,21 +175,31 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                   <div className="text-slate-400">
                     <FontAwesomeIcon icon={faClock} size="sm" />
                     <span>{" " + formatPostTimestamp(post.createdAt)}</span>
+                    {post.isOptimistic && (
+                      <span className="ml-2 text-[#FF4E02] font-medium">
+                        Posting...
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 items-center">
                   <button
                     className={`bg-inherit flex justify-center items-center w-10 h-10 shadow-none hover:bg-slate-200 rounded-full ${
-                      owner === post.user.id
+                      owner === post.user.id && !post.isOptimistic
                         ? "text-black"
                         : "text-black opacity-50 cursor-not-allowed"
                     }`}
                     onClick={
-                      owner === post.user.id
+                      owner === post.user.id && !post.isOptimistic
                         ? () => openDeletePopUp(post.id)
                         : undefined
                     }
-                    disabled={isPending || !user?.id || owner !== post.user.id}
+                    disabled={
+                      isPending ||
+                      !user?.id ||
+                      owner !== post.user.id ||
+                      post.isOptimistic
+                    }
                   >
                     <FontAwesomeIcon icon={faXmark} size="lg" />
                   </button>
@@ -223,16 +254,23 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                   </ResizablePanelGroup>
                 )}
               </div>
-              <ReactionBar
-                post={post}
-                user={user}
-                owner={owner}
-                onReactionUpdate={handleReactionUpdate}
-                isCommentOpen={openCommentBoxes[post.id] || false}
-                onCommentBoxToggle={(isOpen) =>
-                  handleCommentBoxToggle(post.id, isOpen)
-                }
-              />
+              {post.isOptimistic ? (
+                <div className="px-2 py-3 text-xs text-slate-500">
+                  Reactions and comments will be available after the post is
+                  saved.
+                </div>
+              ) : (
+                <ReactionBar
+                  post={post}
+                  user={user}
+                  owner={owner}
+                  onReactionUpdate={handleReactionUpdate}
+                  isCommentOpen={openCommentBoxes[post.id] || false}
+                  onCommentBoxToggle={(isOpen) =>
+                    handleCommentBoxToggle(post.id, isOpen)
+                  }
+                />
+              )}
 
               {deletePostId === post.id && (
                 <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-sm">
