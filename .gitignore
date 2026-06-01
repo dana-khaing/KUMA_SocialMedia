@@ -37,3 +37,6 @@ build/
 # IDE settings
 .vscode/
 .idea/
+
+# Local Netlify folder
+.netlify
