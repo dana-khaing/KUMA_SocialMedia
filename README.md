@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme/kuma-readme-banner.svg" alt="KUMA Social - student-focused social media for the RHUL community" width="100%" />
+  <img src="assets/readme/kuma-professional-banner.svg" alt="KUMA Social - student-focused social media for the RHUL community" width="100%" />
 </p>
 
 <h1 align="center">KUMA Social Media</h1>
