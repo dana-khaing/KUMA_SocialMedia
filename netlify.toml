@@ -1,6 +1,7 @@
 [build]
-  command = "pnpm --dir product/frontend build"
-  publish = "product/frontend/.next"
+  base = "product/frontend"
+  command = "pnpm build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -9,6 +10,3 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-[[plugins]]
-  package = "./netlify-plugin-fix-next-runtime"
