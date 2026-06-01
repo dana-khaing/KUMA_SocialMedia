@@ -6,6 +6,7 @@ import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Checkfriends from "@/components/userfriends/checkfriends";
 import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/client";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -98,19 +99,19 @@ export default async function Home() {
 
   // Separate owner's stories and sort others by oldest story
   const ownerStories = groupedStories.filter(
-    (group) => group.user.id === userId
+    (group) => group.user.id === userId,
   );
   const otherStories = groupedStories.filter(
-    (group) => group.user.id !== userId
+    (group) => group.user.id !== userId,
   );
 
   // Sort other stories by the oldest story in each group
   otherStories.sort((a, b) => {
     const aOldest = Math.min(
-      ...a.stories.map((s) => new Date(s.createdAt).getTime())
+      ...a.stories.map((s) => new Date(s.createdAt).getTime()),
     );
     const bOldest = Math.min(
-      ...b.stories.map((s) => new Date(s.createdAt).getTime())
+      ...b.stories.map((s) => new Date(s.createdAt).getTime()),
     );
     return aOldest - bOldest; // Ascending order (oldest first)
   });
