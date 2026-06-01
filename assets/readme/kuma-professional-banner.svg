@@ -33,11 +33,10 @@
     <rect x="73" y="65" width="680" height="290" rx="29" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
   </g>
 
-  <g transform="translate(112 104)">
-    <rect x="0" y="0" width="104" height="104" rx="28" fill="#FFF7ED"/>
-    <path d="M28 72V28L49 50L73 29" stroke="#FF4E01" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M77 72V41H91C100 41 107 48 107 57C107 66 100 73 91 73H77" transform="translate(-10 -1)" stroke="#FF4E01" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M27 73C42 90 67 90 82 73" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+  <g transform="translate(112 106)">
+    <text x="0" y="70" fill="#FF4E01" font-family="Inter, Arial, sans-serif" font-size="74" font-weight="900" letter-spacing="-1">KUMA</text>
+    <path d="M6 82C40 104 112 104 154 78" stroke="#FFF7ED" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="178" cy="28" r="10" fill="#FF4E01"/>
   </g>
 
   <text x="112" y="252" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="74" font-weight="850" letter-spacing="0">KUMA Social</text>
