@@ -4,6 +4,15 @@ import { headers } from "next/headers";
 import prisma from "@/lib/client";
 import { notifyUserCreated } from "@/lib/action";
 
+function getUsername(data) {
+  return (
+    data.username ||
+    data.email_addresses?.[0]?.email_address?.split("@")[0] ||
+    data.first_name ||
+    `user_${data.id.slice(-6)}`
+  );
+}
+
 export async function POST(req) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
@@ -43,16 +52,18 @@ export async function POST(req) {
 
   if (eventType === "user.created") {
     try {
-      const username =
-        data.username ||
-        data.email_addresses?.[0]?.email_address?.split("@")[0] ||
-        data.first_name ||
-        `user_${data.id.slice(-6)}`;
-
-      await prisma.user.create({
-        data: {
+      await prisma.user.upsert({
+        where: { id: data.id },
+        update: {
+          username: getUsername(data),
+          avatar:
+            data.image_url || data.profile_image_url || "/user-default.png",
+          name: data.first_name || "Kuma",
+          surname: data.last_name || "",
+        },
+        create: {
           id: data.id,
-          username,
+          username: getUsername(data),
           avatar:
             data.image_url || data.profile_image_url || "/user-default.png",
           name: data.first_name || "Kuma",
@@ -66,79 +77,65 @@ export async function POST(req) {
 
       return new Response("User has been created!", { status: 200 });
     } catch (err) {
-      console.error("Failed to create user:", err);
-      return new Response("Failed to create user", { status: 500 });
+      console.error("CREATE ERROR:", err);
+      return new Response(JSON.stringify({ error: err.message }), {
+        status: 500,
+      });
     }
   }
 
   if (eventType === "user.updated") {
     try {
-      await prisma.user.update({
-        where: {
-          id: evt.data.id,
+      await prisma.user.upsert({
+        where: { id: data.id },
+        update: {
+          username: getUsername(data),
+          avatar:
+            data.image_url || data.profile_image_url || "/user-default.png",
+          name: data.first_name || "Kuma",
+          surname: data.last_name || "",
         },
-        data: {
-          name: evt.data.first_name || "",
-          surname: evt.data.last_name || "",
-          username:
-            evt.data.username ||
-            evt.data.primary_email_address?.email_address?.split("@")[0] ||
-            `user_${evt.data.id.slice(-6)}`,
-          avatar: evt.data.image_url || "/user-default.png",
+        create: {
+          id: data.id,
+          username: getUsername(data),
+          avatar:
+            data.image_url || data.profile_image_url || "/user-default.png",
+          name: data.first_name || "Kuma",
+          surname: data.last_name || "",
+          cover: "/cover-default.jpg",
+          bio: "Hello, I'm new here! Kuma!",
         },
       });
 
-      return new Response("User updated", {
-        status: 200,
-      });
+      return new Response("User has been updated!", { status: 200 });
     } catch (err) {
       console.error("UPDATE ERROR:", err);
-
-      return new Response(
-        JSON.stringify({
-          error: err.message,
-        }),
-        {
-          status: 500,
-        },
-      );
+      return new Response(JSON.stringify({ error: err.message }), {
+        status: 500,
+      });
     }
   }
 
   if (eventType === "user.deleted") {
     try {
       const existingUser = await prisma.user.findUnique({
-        where: {
-          id: evt.data.id,
-        },
+        where: { id: data.id },
       });
 
       if (!existingUser) {
-        return new Response("User already removed", {
-          status: 200,
-        });
+        return new Response("User already deleted", { status: 200 });
       }
 
       await prisma.user.delete({
-        where: {
-          id: evt.data.id,
-        },
+        where: { id: data.id },
       });
 
-      return new Response("User deleted", {
-        status: 200,
-      });
+      return new Response("User has been deleted!", { status: 200 });
     } catch (err) {
       console.error("DELETE ERROR:", err);
-
-      return new Response(
-        JSON.stringify({
-          error: err.message,
-        }),
-        {
-          status: 500,
-        },
-      );
+      return new Response(JSON.stringify({ error: err.message }), {
+        status: 500,
+      });
     }
   }
 
