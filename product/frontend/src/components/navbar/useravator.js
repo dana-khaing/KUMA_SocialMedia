@@ -3,6 +3,7 @@ import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/client";
 
 export default async function Useravator() {
   const { userId } = await auth();
