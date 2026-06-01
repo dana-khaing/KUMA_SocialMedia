@@ -1,6 +1,5 @@
 [build]
-  base = "product/frontend"
-  command = "pnpm build"
+  command = "pnpm --dir product/frontend build"
   publish = "product/frontend/.next"
 
 [build.environment]
