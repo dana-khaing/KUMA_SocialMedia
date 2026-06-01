@@ -8,34 +8,25 @@ export async function POST(req) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
   if (!SIGNING_SECRET) {
-    throw new Error(
-      "Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local"
-    );
+    return new Response("Missing SIGNING_SECRET", { status: 500 });
   }
 
-  // Create new Svix instance with secret
   const wh = new Webhook(SIGNING_SECRET);
 
-  // Get headers
   const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
 
-  // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response("Error: Missing Svix headers", {
-      status: 400,
-    });
+    return new Response("Missing Svix headers", { status: 400 });
   }
 
-  // Get body
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
   let evt;
 
-  // Verify payload with headers
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -43,56 +34,68 @@ export async function POST(req) {
       "svix-signature": svix_signature,
     });
   } catch (err) {
-    console.error("Error: Could not verify webhook:", err);
-    return new Response("Error: Verification error", {
-      status: 400,
-    });
+    console.error("Webhook verification failed:", err);
+    return new Response("Webhook verification failed", { status: 400 });
   }
 
-  // Do something with payload
-  // For this guide, log payload to console
-  const { id } = evt.data;
   const eventType = evt.type;
-  //console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
-  // console.log("Webhook payload:", body);
+  const data = evt.data;
+
   if (eventType === "user.created") {
     try {
+      const username =
+        data.username ||
+        data.email_addresses?.[0]?.email_address?.split("@")[0] ||
+        data.first_name ||
+        `user_${data.id.slice(-6)}`;
+
       await prisma.user.create({
         data: {
-          id: evt.data.id,
-          username: evt.data.username,
-          avatar: evt.data.image_url || "/user-default.png",
-          name: evt.data.first_name,
-          surname: evt.data.last_name,
+          id: data.id,
+          username,
+          avatar:
+            data.image_url || data.profile_image_url || "/user-default.png",
+          name: data.first_name || "Kuma",
+          surname: data.last_name || "",
           cover: "/cover-default.jpg",
           bio: "Hello, I'm new here! Kuma!",
         },
       });
-      await notifyUserCreated(evt.data.id);
-      return new Response("User has been created!.", { status: 200 });
+
+      await notifyUserCreated(data.id);
+
+      return new Response("User has been created!", { status: 200 });
     } catch (err) {
-      console.log(err);
-      return new console.error("Failed to create user!", { status: 500 });
+      console.error("Failed to create user:", err);
+      return new Response("Failed to create user", { status: 500 });
     }
   }
 
   if (eventType === "user.updated") {
     try {
+      const username =
+        data.username ||
+        data.email_addresses?.[0]?.email_address?.split("@")[0] ||
+        data.first_name ||
+        `user_${data.id.slice(-6)}`;
+
       await prisma.user.update({
         where: {
-          id: evt.data.id,
+          id: data.id,
         },
         data: {
-          name: JSON.parse(body).data.first_name,
-          surname: JSON.parse(body).data.last_name,
-          username: JSON.parse(body).data.username,
-          avatar: JSON.parse(body).data.image_url || "/user-default.png",
+          username,
+          avatar:
+            data.image_url || data.profile_image_url || "/user-default.png",
+          name: data.first_name || "Kuma",
+          surname: data.last_name || "",
         },
       });
 
-      return new Response("User has been updated!.", { status: 200 });
+      return new Response("User has been updated!", { status: 200 });
     } catch (err) {
-      console.error("Failed to update user!", { status: 500 });
+      console.error("Failed to update user:", err);
+      return new Response("Failed to update user", { status: 500 });
     }
   }
 
@@ -100,12 +103,14 @@ export async function POST(req) {
     try {
       await prisma.user.delete({
         where: {
-          id: evt.data.id,
+          id: data.id,
         },
       });
-      return new Response("User has been deleted!.", { status: 200 });
+
+      return new Response("User has been deleted!", { status: 200 });
     } catch (err) {
-      console.error("Failed to delete user!", { status: 500 });
+      console.error("Failed to delete user:", err);
+      return new Response("Failed to delete user", { status: 500 });
     }
   }
 
