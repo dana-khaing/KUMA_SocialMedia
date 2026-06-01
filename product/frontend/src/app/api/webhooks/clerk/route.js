@@ -73,44 +73,72 @@ export async function POST(req) {
 
   if (eventType === "user.updated") {
     try {
-      const username =
-        data.username ||
-        data.email_addresses?.[0]?.email_address?.split("@")[0] ||
-        data.first_name ||
-        `user_${data.id.slice(-6)}`;
-
       await prisma.user.update({
         where: {
-          id: data.id,
+          id: evt.data.id,
         },
         data: {
-          username,
-          avatar:
-            data.image_url || data.profile_image_url || "/user-default.png",
-          name: data.first_name || "Kuma",
-          surname: data.last_name || "",
+          name: evt.data.first_name || "",
+          surname: evt.data.last_name || "",
+          username:
+            evt.data.username ||
+            evt.data.primary_email_address?.email_address?.split("@")[0] ||
+            `user_${evt.data.id.slice(-6)}`,
+          avatar: evt.data.image_url || "/user-default.png",
         },
       });
 
-      return new Response("User has been updated!", { status: 200 });
+      return new Response("User updated", {
+        status: 200,
+      });
     } catch (err) {
-      console.error("Failed to update user:", err);
-      return new Response("Failed to update user", { status: 500 });
+      console.error("UPDATE ERROR:", err);
+
+      return new Response(
+        JSON.stringify({
+          error: err.message,
+        }),
+        {
+          status: 500,
+        },
+      );
     }
   }
 
   if (eventType === "user.deleted") {
     try {
-      await prisma.user.delete({
+      const existingUser = await prisma.user.findUnique({
         where: {
-          id: data.id,
+          id: evt.data.id,
         },
       });
 
-      return new Response("User has been deleted!", { status: 200 });
+      if (!existingUser) {
+        return new Response("User already removed", {
+          status: 200,
+        });
+      }
+
+      await prisma.user.delete({
+        where: {
+          id: evt.data.id,
+        },
+      });
+
+      return new Response("User deleted", {
+        status: 200,
+      });
     } catch (err) {
-      console.error("Failed to delete user:", err);
-      return new Response("Failed to delete user", { status: 500 });
+      console.error("DELETE ERROR:", err);
+
+      return new Response(
+        JSON.stringify({
+          error: err.message,
+        }),
+        {
+          status: 500,
+        },
+      );
     }
   }
 
