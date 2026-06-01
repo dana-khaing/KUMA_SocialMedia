@@ -33,15 +33,9 @@
     <rect x="73" y="65" width="680" height="290" rx="29" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
   </g>
 
-  <g transform="translate(112 106)">
-    <text x="0" y="70" fill="#FF4E01" font-family="Inter, Arial, sans-serif" font-size="74" font-weight="900" letter-spacing="-1">KUMA</text>
-    <path d="M6 82C40 104 112 104 154 78" stroke="#FFF7ED" stroke-width="9" stroke-linecap="round"/>
-    <circle cx="178" cy="28" r="10" fill="#FF4E01"/>
-  </g>
-
-  <text x="112" y="252" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="74" font-weight="850" letter-spacing="0">KUMA Social</text>
-  <text x="116" y="304" fill="#FFF7ED" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="0">Student-focused social media for RHUL</text>
-  <text x="116" y="342" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="520" letter-spacing="0">Profiles, posts, stories, follows, comments, and realtime activity.</text>
+  <text x="112" y="178" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="76" font-weight="850" letter-spacing="0">KUMA Social</text>
+  <text x="116" y="237" fill="#FFF7ED" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="700" letter-spacing="0">Student-focused social media for RHUL</text>
+  <text x="116" y="282" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="520" letter-spacing="0">Profiles, posts, stories, follows, comments, and realtime activity.</text>
 
   <g transform="translate(112 374)">
     <rect x="0" y="0" width="96" height="28" rx="14" fill="#FFFFFF" fill-opacity="0.14"/>
