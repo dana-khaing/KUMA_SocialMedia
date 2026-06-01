@@ -1,6 +1,7 @@
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { CheckfriendsAction } from "./checkfriendsAction";
 import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/client";
 
 export const Checkfriends = async () => {
   const { userId } = await auth();
@@ -41,19 +42,19 @@ export const Checkfriends = async () => {
         },
       });
       const friendFollowerIds = new Set(
-        friendFollowers.map((f) => f.followerId)
+        friendFollowers.map((f) => f.followerId),
       );
 
       // Mutual friends are those in both myFollowerIds and friendFollowerIds
       const mutualFriendsCount = [...friendFollowerIds].filter((id) =>
-        myFollowerIds.has(id)
+        myFollowerIds.has(id),
       ).length;
 
       return {
         ...friend,
         mutualFriendsCount,
       };
-    })
+    }),
   );
 
   return (
