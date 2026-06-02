@@ -36,6 +36,8 @@ model User {
   sentNotifications      Notification[] @relation("NotificationSender")
   receivedNotifications  Notification[] @relation("NotificationReceiver")
   notificationPreference NotificationPreference?
+  conversationParticipants ConversationParticipant[]
+  sentMessages            Message[] @relation("MessageSender")
 }
 
 model Post {
@@ -191,4 +193,43 @@ model NotificationPreference {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id           Int                       @id @default(autoincrement())
+  directKey    String                    @unique
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([updatedAt], map: "Conversation_updatedAt_idx")
+}
+
+model ConversationParticipant {
+  id             Int          @id @default(autoincrement())
+  conversationId Int
+  userId         String
+  lastReadAt     DateTime?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId], map: "ConversationParticipant_conversation_user_key")
+  @@index([userId], map: "ConversationParticipant_userId_idx")
+  @@index([conversationId], map: "ConversationParticipant_conversationId_idx")
+}
+
+model Message {
+  id             Int          @id @default(autoincrement())
+  conversationId Int
+  senderId       String
+  body           String       @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt], map: "Message_conversation_createdAt_idx")
+  @@index([senderId], map: "Message_senderId_idx")
 }
