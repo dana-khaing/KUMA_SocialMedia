@@ -3,21 +3,32 @@ import Link from "next/link";
 
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
+import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 export const ProfileSmallCard = async () => {
   const { userId } = await auth();
   if (!userId) {
     return null;
   }
-  const user = await prisma.user.findFirst({
-    where: {
-      id: userId,
-    },
-    include: {
-      _count: {
-        select: { followers: true, followings: true, posts: true },
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id: userId,
       },
-    },
-  });
+      include: {
+        _count: {
+          select: { followers: true, followings: true, posts: true },
+        },
+      },
+    });
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback variant="compact" />;
+    }
+
+    throw error;
+  }
 
   return (
     <div className="w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-col cursor-default overflow-hidden pb-4">

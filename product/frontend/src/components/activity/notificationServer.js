@@ -4,6 +4,8 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import Notification from "./notification";
 import { getNotificationPreferences } from "@/lib/action";
+import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 export const NotificationServer = async () => {
   const { userId } = await auth();
@@ -41,14 +43,11 @@ export const NotificationServer = async () => {
       />
     );
   } catch (error) {
-    console.error("Error fetching notifications:", error);
-    return (
-      <div className="w-full max-h-[80vh] bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default">
-        <div className="p-4 text-center text-red-500">
-          Failed to load notifications.
-        </div>
-      </div>
-    );
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback variant="compact" />;
+    }
+
+    throw error;
   }
 };
 
