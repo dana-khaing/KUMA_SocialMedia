@@ -18,6 +18,7 @@ import {
   sendTypingEvent,
 } from "@/lib/messageAction";
 import { subscribeToMessageEvents } from "@/lib/pusherClient";
+import { MESSAGE_CHANGED_EVENT } from "@/components/navbar/messageBadge";
 
 function getDisplayName(user) {
   if (!user) return "KUMA User";
@@ -45,6 +46,10 @@ function sortConversations(conversations) {
 
     return bTime - aTime;
   });
+}
+
+function notifyMessageStateChanged() {
+  window.dispatchEvent(new Event(MESSAGE_CHANGED_EVENT));
 }
 
 function Avatar({ user, size = "md" }) {
@@ -118,6 +123,7 @@ export default function MessagesPage({ initialConversations, userId }) {
           activeConversationId
         );
         await markConversationRead(activeConversationId);
+        notifyMessageStateChanged();
 
         if (active) {
           setMessages(conversationMessages);
@@ -176,6 +182,7 @@ export default function MessagesPage({ initialConversations, userId }) {
           markConversationRead(activeConversationId).catch((error) => {
             console.error("Error marking realtime message read:", error);
           });
+          notifyMessageStateChanged();
         }
       },
       onTyping: ({ conversationId }) => {
@@ -256,6 +263,7 @@ export default function MessagesPage({ initialConversations, userId }) {
           )
         )
       );
+      notifyMessageStateChanged();
     } catch (error) {
       console.error("Error sending message:", error);
       setDraft(body);
