@@ -239,10 +239,10 @@ const ProfilePage = async ({ params }) => {
         <Suspense fallback={<div>Loading...</div>}>
           <UserDetail user={user} owner={isOwner} />
         </Suspense>
+        {!isOwner && <ProfileSendMessageBox user={user} />}
         <Suspense fallback={<div>Loading...</div>}>
           <UserMedia user={user} postWithMedia={postWithMedia} />
         </Suspense>
-        {!isOwner && <ProfileSendMessageBox user={user} />}
         <Checkfriends />
       </div>
     </div>

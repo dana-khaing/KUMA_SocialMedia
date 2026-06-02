@@ -662,10 +662,10 @@ export default function MessagesPage({
                           }`}
                         >
                           <div
-                            className={`max-w-[78%] rounded-2xl border-[1px] px-4 py-2 text-sm shadow-md ${
+                            className={`max-w-[78%] rounded-2xl border-2 px-4 py-2 text-sm shadow-md ${
                               isMine
-                                ? "rounded-br-sm border-[#FF4E01] bg-[#FF4E01] text-white"
-                                : "rounded-bl-sm border-orange-100 bg-slate-50 text-slate-900"
+                                ? "rounded-br-sm border-orange-700 bg-[#FF4E01] text-white"
+                                : "rounded-bl-sm border-orange-200 bg-slate-50 text-slate-900"
                             }`}
                           >
                             {message.kind === "IMAGE" && message.imageUrl ? (
