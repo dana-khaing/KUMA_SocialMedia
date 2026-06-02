@@ -63,6 +63,52 @@ describe("pusher server helpers", () => {
     );
   });
 
+  it("triggers private message and typing events when configured", async () => {
+    process.env.PUSHER_APP_ID = "app";
+    process.env.PUSHER_KEY = "key";
+    process.env.PUSHER_SECRET = "secret";
+    process.env.PUSHER_CLUSTER = "eu";
+    const { triggerMessageCreated, triggerMessageTyping } = await import(
+      "../lib/pusherServer"
+    );
+
+    await triggerMessageCreated({
+      receiverId: "user-1",
+      message: {
+        id: 2,
+        conversationId: 10,
+        senderId: "user-2",
+        body: "Hello",
+        createdAt: new Date("2026-06-02T10:00:00.000Z"),
+        sender: { id: "user-2", username: "dana" },
+      },
+    });
+    await triggerMessageTyping({
+      receiverId: "user-1",
+      conversationId: 10,
+      userId: "user-2",
+    });
+
+    expect(mockTrigger).toHaveBeenCalledWith(
+      "private-user-user-1",
+      "message:new",
+      expect.objectContaining({
+        id: 2,
+        conversationId: 10,
+        body: "Hello",
+        createdAt: "2026-06-02T10:00:00.000Z",
+      })
+    );
+    expect(mockTrigger).toHaveBeenCalledWith(
+      "private-user-user-1",
+      "message:typing",
+      {
+        conversationId: 10,
+        userId: "user-2",
+      }
+    );
+  });
+
   it("swallows trigger failures so DB writes can still succeed", async () => {
     process.env.PUSHER_APP_ID = "app";
     process.env.PUSHER_KEY = "key";
