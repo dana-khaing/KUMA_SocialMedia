@@ -1,6 +1,8 @@
 import {
   findOrCreateDirectConversation,
   markConversationRead,
+  sendAudioMessage,
+  sendImageMessage,
   sendMessage,
 } from "@/lib/messageAction";
 import { auth } from "@clerk/nextjs/server";
@@ -111,7 +113,11 @@ describe("messaging actions", () => {
       id: 5,
       conversationId: 10,
       senderId: currentUserId,
+      kind: "TEXT",
       body: "Hello Kuma",
+      audioUrl: null,
+      audioDurationMs: null,
+      imageUrl: null,
       createdAt: new Date("2026-06-02T10:00:00.000Z"),
       sender: { id: currentUserId, username: "me" },
     };
@@ -131,6 +137,7 @@ describe("messaging actions", () => {
         data: {
           conversationId: 10,
           senderId: currentUserId,
+          kind: "TEXT",
           body: "Hello Kuma",
         },
       })
@@ -139,6 +146,113 @@ describe("messaging actions", () => {
       receiverId: otherUserId,
       message,
     });
+  });
+
+  it("creates audio messages with Cloudinary metadata", async () => {
+    const conversation = {
+      id: 10,
+      participants: [
+        { userId: currentUserId, user: { id: currentUserId } },
+        { userId: otherUserId, user: { id: otherUserId } },
+      ],
+    };
+    const message = {
+      id: 6,
+      conversationId: 10,
+      senderId: currentUserId,
+      kind: "AUDIO",
+      body: "",
+      audioUrl: "https://res.cloudinary.com/kuma/video/upload/audio.webm",
+      audioDurationMs: 1420,
+      imageUrl: null,
+      createdAt: new Date("2026-06-02T10:01:00.000Z"),
+      sender: { id: currentUserId, username: "me" },
+    };
+    prisma.conversation.findFirst.mockResolvedValue(conversation);
+    prisma.message.create.mockResolvedValue(message);
+    prisma.conversation.update.mockResolvedValue({ id: 10 });
+
+    await expect(
+      sendAudioMessage(
+        10,
+        "https://res.cloudinary.com/kuma/video/upload/audio.webm",
+        1420
+      )
+    ).resolves.toEqual(
+      expect.objectContaining({
+        kind: "AUDIO",
+        audioUrl: "https://res.cloudinary.com/kuma/video/upload/audio.webm",
+        audioDurationMs: 1420,
+      })
+    );
+
+    expect(prisma.message.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          kind: "AUDIO",
+          body: "",
+          audioUrl: "https://res.cloudinary.com/kuma/video/upload/audio.webm",
+          audioDurationMs: 1420,
+        }),
+      })
+    );
+  });
+
+  it("creates image messages with optional captions", async () => {
+    const conversation = {
+      id: 10,
+      participants: [
+        { userId: currentUserId, user: { id: currentUserId } },
+        { userId: otherUserId, user: { id: otherUserId } },
+      ],
+    };
+    const message = {
+      id: 7,
+      conversationId: 10,
+      senderId: currentUserId,
+      kind: "IMAGE",
+      body: "Photo caption",
+      audioUrl: null,
+      audioDurationMs: null,
+      imageUrl: "https://res.cloudinary.com/kuma/image/upload/photo.jpg",
+      createdAt: new Date("2026-06-02T10:02:00.000Z"),
+      sender: { id: currentUserId, username: "me" },
+    };
+    prisma.conversation.findFirst.mockResolvedValue(conversation);
+    prisma.message.create.mockResolvedValue(message);
+    prisma.conversation.update.mockResolvedValue({ id: 10 });
+
+    await expect(
+      sendImageMessage(
+        10,
+        "https://res.cloudinary.com/kuma/image/upload/photo.jpg",
+        " Photo caption "
+      )
+    ).resolves.toEqual(
+      expect.objectContaining({
+        kind: "IMAGE",
+        body: "Photo caption",
+        imageUrl: "https://res.cloudinary.com/kuma/image/upload/photo.jpg",
+      })
+    );
+
+    expect(prisma.message.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          kind: "IMAGE",
+          body: "Photo caption",
+          imageUrl: "https://res.cloudinary.com/kuma/image/upload/photo.jpg",
+        }),
+      })
+    );
+  });
+
+  it("rejects media messages from non-Cloudinary URLs", async () => {
+    await expect(
+      sendImageMessage(10, "https://example.com/photo.jpg")
+    ).rejects.toThrow("Invalid image URL");
+
+    expect(prisma.message.create).not.toHaveBeenCalled();
   });
 
   it("marks a conversation read for the authenticated participant", async () => {
