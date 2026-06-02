@@ -7,7 +7,6 @@ import {
   deleteNotification,
   markAllNotificationsAsRead,
   markNotificationAsRead,
-  updateNotificationPreferences,
 } from "@/lib/action";
 
 const mockPush = jest.fn();
@@ -39,7 +38,6 @@ jest.mock("@/lib/action", () => ({
   deleteNotification: jest.fn(),
   markAllNotificationsAsRead: jest.fn(),
   markNotificationAsRead: jest.fn(),
-  updateNotificationPreferences: jest.fn(),
 }));
 
 const notifications = [
@@ -72,22 +70,20 @@ const notifications = [
     senderId: "user-4",
     sender: { avatar: null },
   },
+  {
+    id: 4,
+    type: "BIRTHDAY_CELEBRATION",
+    message: "Ari has their birthday today. Let's celebrate Kuma!",
+    createdAt: "2026-05-29T07:00:00.000Z",
+    read: false,
+    senderId: "user-5",
+    sender: { avatar: null },
+  },
 ];
 
 function renderNotification() {
   return render(
-    <Notification
-      initialNotifications={notifications}
-      initialPreferences={{
-        posts: true,
-        stories: true,
-        comments: true,
-        reactions: true,
-        follows: true,
-        newUsers: true,
-      }}
-      userId="user-1"
-    />
+    <Notification initialNotifications={notifications} userId="user-1" />
   );
 }
 
@@ -99,16 +95,6 @@ describe("Notification component", () => {
     markAllNotificationsAsRead.mockResolvedValue({ success: true });
     deleteNotification.mockResolvedValue({ success: true });
     clearReadNotifications.mockResolvedValue({ success: true });
-    updateNotificationPreferences.mockResolvedValue({
-      preferences: {
-        posts: false,
-        stories: true,
-        comments: true,
-        reactions: true,
-        follows: true,
-        newUsers: true,
-      },
-    });
   });
 
   it("filters unread notifications without losing all notifications", () => {
@@ -144,6 +130,7 @@ describe("Notification component", () => {
       expect(mockPrefetch).toHaveBeenCalledWith("/post/10");
       expect(mockPrefetch).toHaveBeenCalledWith("/post/11");
       expect(mockPrefetch).toHaveBeenCalledWith("/profile/user-4");
+      expect(mockPrefetch).toHaveBeenCalledWith("/profile/user-5");
     });
 
     realtimeHandler({
@@ -170,21 +157,29 @@ describe("Notification component", () => {
     });
   });
 
-  it("supports mark all, delete one, clear read, and preferences", async () => {
+  it("routes birthday notifications to the sender profile", async () => {
+    renderNotification();
+
+    fireEvent.click(
+      screen.getByText("Ari has their birthday today. Let's celebrate Kuma!")
+    );
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/profile/user-5");
+    });
+  });
+
+  it("supports mark all, delete one, and clear read", async () => {
     renderNotification();
 
     fireEvent.click(screen.getByTitle("Mark all as read"));
     fireEvent.click(screen.getAllByTitle("Delete notification")[0]);
     fireEvent.click(screen.getByTitle("Clear read notifications"));
-    fireEvent.click(screen.getByLabelText("Posts"));
 
     await waitFor(() => {
       expect(markAllNotificationsAsRead).toHaveBeenCalled();
       expect(deleteNotification).toHaveBeenCalledWith(1);
       expect(clearReadNotifications).toHaveBeenCalled();
-      expect(updateNotificationPreferences).toHaveBeenCalledWith(
-        expect.objectContaining({ posts: false })
-      );
     });
   });
 });

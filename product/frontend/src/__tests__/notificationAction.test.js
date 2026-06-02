@@ -2,6 +2,7 @@ import {
   clearReadNotifications,
   createNotification,
   deleteNotification,
+  ensureBirthdayNotificationsForUser,
   getNotificationPreferences,
   getUnreadNotificationCount,
   markAllNotificationsAsRead,
@@ -32,6 +33,9 @@ jest.mock("../lib/client", () => ({
     findUnique: jest.fn(),
     upsert: jest.fn(),
   },
+  follower: {
+    findMany: jest.fn(),
+  },
 }));
 
 describe("notification actions", () => {
@@ -42,6 +46,7 @@ describe("notification actions", () => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId });
     prisma.notificationPreference.findUnique.mockResolvedValue(null);
+    prisma.follower.findMany.mockResolvedValue([]);
   });
 
   it("counts unread notifications for the authenticated receiver", async () => {
@@ -242,6 +247,116 @@ describe("notification actions", () => {
         postId: 10,
       })
     ).resolves.toBe(existingNotification);
+
+    expect(prisma.notification.create).not.toHaveBeenCalled();
+    expect(triggerNotificationCreated).not.toHaveBeenCalled();
+  });
+
+  it("creates birthday notifications for followed users in the next seven days", async () => {
+    const upcomingBirthday = new Date();
+    upcomingBirthday.setDate(upcomingBirthday.getDate() + 3);
+    const dob = new Date(
+      1990,
+      upcomingBirthday.getMonth(),
+      upcomingBirthday.getDate()
+    );
+    const notification = {
+      id: 3,
+      type: "BIRTHDAY_CELEBRATION",
+      senderId,
+      receiverId: userId,
+    };
+
+    prisma.follower.findMany.mockResolvedValue([
+      {
+        following: {
+          id: senderId,
+          username: "friend",
+          name: "Birthday",
+          surname: "Friend",
+          dob,
+        },
+      },
+    ]);
+    prisma.notification.findFirst.mockResolvedValue(null);
+    prisma.notification.create.mockResolvedValue(notification);
+
+    await ensureBirthdayNotificationsForUser(userId);
+
+    expect(prisma.follower.findMany).toHaveBeenCalledWith({
+      where: {
+        followerId: userId,
+        following: {
+          dob: {
+            not: null,
+          },
+        },
+      },
+      select: {
+        following: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            surname: true,
+            dob: true,
+          },
+        },
+      },
+    });
+    expect(prisma.notification.findFirst).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        type: "BIRTHDAY_CELEBRATION",
+        senderId,
+        receiverId: userId,
+        createdAt: { gte: expect.any(Date) },
+      }),
+    });
+    expect(prisma.notification.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          type: "BIRTHDAY_CELEBRATION",
+          senderId,
+          receiverId: userId,
+        }),
+      })
+    );
+    expect(triggerNotificationCreated).toHaveBeenCalledWith(notification);
+  });
+
+  it("does not create birthday notifications for users who are not followed", async () => {
+    prisma.follower.findMany.mockResolvedValue([]);
+
+    await ensureBirthdayNotificationsForUser(userId);
+
+    expect(prisma.notification.create).not.toHaveBeenCalled();
+    expect(triggerNotificationCreated).not.toHaveBeenCalled();
+  });
+
+  it("does not duplicate birthday notifications in the same birthday window", async () => {
+    const birthday = new Date();
+    const dob = new Date(1990, birthday.getMonth(), birthday.getDate());
+    const existingNotification = {
+      id: 4,
+      type: "BIRTHDAY_CELEBRATION",
+      senderId,
+      receiverId: userId,
+    };
+
+    prisma.follower.findMany.mockResolvedValue([
+      {
+        following: {
+          id: senderId,
+          username: "friend",
+          name: "Birthday",
+          surname: "Friend",
+          dob,
+        },
+      },
+    ]);
+    prisma.notification.findFirst.mockResolvedValue(existingNotification);
+
+    await ensureBirthdayNotificationsForUser(userId);
 
     expect(prisma.notification.create).not.toHaveBeenCalled();
     expect(triggerNotificationCreated).not.toHaveBeenCalled();
