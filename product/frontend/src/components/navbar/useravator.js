@@ -4,18 +4,28 @@ import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
+import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 export default async function Useravator() {
   const { userId } = await auth();
   if (!userId) {
     return null;
   }
-  // fetch user name from prisma db
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+  let user;
+  try {
+    user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback variant="compact" />;
+    }
+
+    throw error;
+  }
   return (
     <div className="text-[#FF4E01] flex w-fit items-center justify-end cursor-default">
       <SignedIn>

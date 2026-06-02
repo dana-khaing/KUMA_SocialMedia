@@ -7,6 +7,8 @@ import Newfeed from "@/components/home/newfeed";
 
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
+import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 async function fetchPost(postId, userId) {
   // Validate postId
@@ -96,9 +98,22 @@ export default async function Post({ params }) {
     );
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  let user;
+  let chosenPost;
+
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    chosenPost = await fetchPost(postId, userId);
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback />;
+    }
+
+    throw error;
+  }
 
   if (!user) {
     return (
@@ -107,8 +122,6 @@ export default async function Post({ params }) {
       </div>
     );
   }
-
-  const chosenPost = await fetchPost(postId, userId);
 
   if (!chosenPost) {
     return (

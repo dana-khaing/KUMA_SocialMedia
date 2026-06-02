@@ -5,6 +5,8 @@ import UsefulTool from "@/components/home/usefulTool";
 import Newfeed from "@/components/home/newfeed";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client"; // Ensure this import is correct
+import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 export const Studio = async () => {
   const { userId } = await auth();
@@ -12,81 +14,92 @@ export const Studio = async () => {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  let user;
+  let allPosts;
 
-  // Fetch users blocked by the current user
-  const blockedByMe = await prisma.block.findMany({
-    where: { blockerId: userId },
-    select: { blockedId: true },
-  });
-  const blockedByMeIds = blockedByMe.map((b) => b.blockedId);
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-  // Fetch users who blocked the current user
-  const blockedMe = await prisma.block.findMany({
-    where: { blockedId: userId },
-    select: { blockerId: true },
-  });
-  const blockedMeIds = blockedMe.map((b) => b.blockerId);
+    // Fetch users blocked by the current user
+    const blockedByMe = await prisma.block.findMany({
+      where: { blockerId: userId },
+      select: { blockedId: true },
+    });
+    const blockedByMeIds = blockedByMe.map((b) => b.blockedId);
 
-  // Combine all blocked user IDs
-  const allBlockedIds = [...new Set([...blockedByMeIds, ...blockedMeIds])];
+    // Fetch users who blocked the current user
+    const blockedMe = await prisma.block.findMany({
+      where: { blockedId: userId },
+      select: { blockerId: true },
+    });
+    const blockedMeIds = blockedMe.map((b) => b.blockerId);
 
-  // Fetch following IDs
-  const following = await prisma.follower.findMany({
-    where: { followerId: userId },
-    select: { followingId: true },
-  });
-  const followingIds = following.map((f) => f.followingId);
+    // Combine all blocked user IDs
+    const allBlockedIds = [...new Set([...blockedByMeIds, ...blockedMeIds])];
 
-  // Fetch follower IDs
-  const followers = await prisma.follower.findMany({
-    where: { followingId: userId },
-    select: { followerId: true },
-  });
-  const followerIds = followers.map((f) => f.followerId);
+    // Fetch following IDs
+    const following = await prisma.follower.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+    const followingIds = following.map((f) => f.followingId);
 
-  // Combine all relevant user IDs
-  const allUserIds = [...new Set([userId, ...followingIds, ...followerIds])];
+    // Fetch follower IDs
+    const followers = await prisma.follower.findMany({
+      where: { followingId: userId },
+      select: { followerId: true },
+    });
+    const followerIds = followers.map((f) => f.followerId);
 
-  // Fetch all posts, including images, excluding blocked users
-  const allPosts = await prisma.post.findMany({
-    where: {
-      userId: {
-        in: allUserIds,
-        notIn: allBlockedIds,
-      },
-    },
-    include: {
-      user: true,
-      likes: true,
-      loves: true,
-      comments: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              surname: true,
-              username: true,
-              avatar: true,
-            },
-          },
-          likes: {
-            select: {
-              userId: true,
-              createdAt: true,
-            },
-          },
+    // Combine all relevant user IDs
+    const allUserIds = [...new Set([userId, ...followingIds, ...followerIds])];
+
+    // Fetch all posts, including images, excluding blocked users
+    allPosts = await prisma.post.findMany({
+      where: {
+        userId: {
+          in: allUserIds,
+          notIn: allBlockedIds,
         },
-        orderBy: { createdAt: "desc" },
       },
-      images: true,
-      _count: { select: { likes: true, loves: true, comments: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      include: {
+        user: true,
+        likes: true,
+        loves: true,
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                username: true,
+                avatar: true,
+              },
+            },
+            likes: {
+              select: {
+                userId: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+        images: true,
+        _count: { select: { likes: true, loves: true, comments: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback />;
+    }
+
+    throw error;
+  }
 
   return (
     <div className="h-screen w-full flex items-start justify-center gap-4 p-4">

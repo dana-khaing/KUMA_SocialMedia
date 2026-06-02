@@ -10,6 +10,8 @@ import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import Checkfriends from "@/components/userfriends/checkfriends";
+import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 const ProfilePage = async ({ params }) => {
   const { id } = await params;
@@ -28,8 +30,12 @@ const ProfilePage = async ({ params }) => {
       },
     });
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback />;
+    }
+
     console.error("Failed to fetch user:", error.message);
-    return notFound();
+    throw error;
   }
 
   if (!user) {
@@ -97,8 +103,11 @@ const ProfilePage = async ({ params }) => {
       },
     });
   } catch (error) {
-    console.error("Failed to fetch posts:", error.message);
-    posts = [];
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback />;
+    }
+
+    throw error;
   }
 
   // Fetch posts with media
@@ -159,8 +168,11 @@ const ProfilePage = async ({ params }) => {
       orderBy: { createdAt: "desc" },
     });
   } catch (error) {
-    console.error("Failed to fetch posts with media:", error.message);
-    postWithMedia = [];
+    if (isDatabaseUnavailableError(error)) {
+      return <BetaDatabaseFallback />;
+    }
+
+    throw error;
   }
 
   const { userId } = await auth();
@@ -181,8 +193,11 @@ const ProfilePage = async ({ params }) => {
         isBlocked = true;
       }
     } catch (error) {
-      console.error("Failed to check block status:", error.message);
-      isBlocked = false;
+      if (isDatabaseUnavailableError(error)) {
+        return <BetaDatabaseFallback />;
+      }
+
+      throw error;
     }
 
     if (isBlocked) {
