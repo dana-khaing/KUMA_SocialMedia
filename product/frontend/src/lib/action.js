@@ -698,6 +698,63 @@ const notificationPreferenceTypeMap = {
   FOLLOW_ACCEPTED: "follows",
 };
 
+function getUtcDayBounds(date = new Date()) {
+  const start = new Date(date);
+  start.setUTCHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 7);
+  end.setUTCHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+function getNextBirthdayDate(dob, fromDate = new Date()) {
+  if (!dob) {
+    return null;
+  }
+
+  const birthday = new Date(dob);
+
+  if (Number.isNaN(birthday.getTime())) {
+    return null;
+  }
+
+  const today = new Date(fromDate);
+  today.setUTCHours(0, 0, 0, 0);
+
+  const nextBirthday = new Date(
+    Date.UTC(
+      today.getUTCFullYear(),
+      birthday.getUTCMonth(),
+      birthday.getUTCDate()
+    )
+  );
+
+  if (nextBirthday < today) {
+    nextBirthday.setUTCFullYear(nextBirthday.getUTCFullYear() + 1);
+  }
+
+  return nextBirthday;
+}
+
+function formatBirthdayNotificationMessage(user, birthdayDate, fromDate) {
+  const today = new Date(fromDate);
+  today.setUTCHours(0, 0, 0, 0);
+
+  if (birthdayDate.getTime() === today.getTime()) {
+    return `${getUserDisplayName(user)} has a birthday today.`;
+  }
+
+  const dateText = birthdayDate.toLocaleDateString("en", {
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+
+  return `${getUserDisplayName(user)} has a birthday on ${dateText}.`;
+}
+
 async function isNotificationEnabled(receiverId, type) {
   const preferenceKey = notificationPreferenceTypeMap[type];
 
@@ -724,6 +781,82 @@ function getUserDisplayName(user) {
     user.username ||
     "Someone"
   );
+}
+
+export async function generateBirthdayNotificationsForUser(userId, now = new Date()) {
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  const { start, end } = getUtcDayBounds(now);
+
+  const followings = await prisma.follower.findMany({
+    where: { followerId: userId },
+    include: {
+      following: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          surname: true,
+          avatar: true,
+          dob: true,
+        },
+      },
+    },
+  });
+
+  const createdNotifications = [];
+
+  for (const following of followings) {
+    const person = following.following;
+    const birthdayDate = getNextBirthdayDate(person?.dob, start);
+
+    if (!person || !birthdayDate || birthdayDate < start || birthdayDate > end) {
+      continue;
+    }
+
+    const existingNotification = await prisma.notification.findFirst({
+      where: {
+        type: "BIRTHDAY",
+        senderId: person.id,
+        receiverId: userId,
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
+    if (existingNotification) {
+      continue;
+    }
+
+    const notification = await prisma.notification.create({
+      data: {
+        type: "BIRTHDAY",
+        message: formatBirthdayNotificationMessage(person, birthdayDate, start),
+        senderId: person.id,
+        receiverId: userId,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            surname: true,
+            username: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    await triggerNotificationCreated(notification);
+    createdNotifications.push(notification);
+  }
+
+  return createdNotifications;
 }
 
 export async function notifyUserCreated(userId) {

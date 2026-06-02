@@ -7,7 +7,6 @@ import {
   deleteNotification,
   markAllNotificationsAsRead,
   markNotificationAsRead,
-  updateNotificationPreferences,
 } from "@/lib/action";
 
 const mockPush = jest.fn();
@@ -39,7 +38,6 @@ jest.mock("@/lib/action", () => ({
   deleteNotification: jest.fn(),
   markAllNotificationsAsRead: jest.fn(),
   markNotificationAsRead: jest.fn(),
-  updateNotificationPreferences: jest.fn(),
 }));
 
 const notifications = [
@@ -78,14 +76,6 @@ function renderNotification() {
   return render(
     <Notification
       initialNotifications={notifications}
-      initialPreferences={{
-        posts: true,
-        stories: true,
-        comments: true,
-        reactions: true,
-        follows: true,
-        newUsers: true,
-      }}
       userId="user-1"
     />
   );
@@ -99,31 +89,18 @@ describe("Notification component", () => {
     markAllNotificationsAsRead.mockResolvedValue({ success: true });
     deleteNotification.mockResolvedValue({ success: true });
     clearReadNotifications.mockResolvedValue({ success: true });
-    updateNotificationPreferences.mockResolvedValue({
-      preferences: {
-        posts: false,
-        stories: true,
-        comments: true,
-        reactions: true,
-        follows: true,
-        newUsers: true,
-      },
-    });
   });
 
-  it("filters unread notifications without losing all notifications", () => {
+  it("shows a single notification list without filters or preference checkboxes", () => {
     renderNotification();
 
-    fireEvent.click(screen.getByRole("button", { name: /Unread/i }));
-
     expect(screen.getByText("Dana liked your post.")).toBeInTheDocument();
-    expect(
-      screen.queryByText("Alex commented on your post.")
-    ).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "All" }));
-
     expect(screen.getByText("Alex commented on your post.")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Unread/i })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "All" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Posts")).not.toBeInTheDocument();
   });
 
   it("marks and routes post notifications when clicked", async () => {
@@ -170,21 +147,17 @@ describe("Notification component", () => {
     });
   });
 
-  it("supports mark all, delete one, clear read, and preferences", async () => {
+  it("supports mark all, delete one, and clear read", async () => {
     renderNotification();
 
     fireEvent.click(screen.getByTitle("Mark all as read"));
     fireEvent.click(screen.getAllByTitle("Delete notification")[0]);
     fireEvent.click(screen.getByTitle("Clear read notifications"));
-    fireEvent.click(screen.getByLabelText("Posts"));
 
     await waitFor(() => {
       expect(markAllNotificationsAsRead).toHaveBeenCalled();
       expect(deleteNotification).toHaveBeenCalledWith(1);
       expect(clearReadNotifications).toHaveBeenCalled();
-      expect(updateNotificationPreferences).toHaveBeenCalledWith(
-        expect.objectContaining({ posts: false })
-      );
     });
   });
 });
