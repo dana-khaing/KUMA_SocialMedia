@@ -78,7 +78,11 @@ describe("pusher server helpers", () => {
         id: 2,
         conversationId: 10,
         senderId: "user-2",
+        kind: "AUDIO",
         body: "Hello",
+        audioUrl: "https://res.cloudinary.com/kuma/video/upload/audio.webm",
+        audioDurationMs: 2200,
+        imageUrl: null,
         createdAt: new Date("2026-06-02T10:00:00.000Z"),
         sender: { id: "user-2", username: "dana" },
       },
@@ -95,7 +99,11 @@ describe("pusher server helpers", () => {
       expect.objectContaining({
         id: 2,
         conversationId: 10,
+        kind: "AUDIO",
         body: "Hello",
+        audioUrl: "https://res.cloudinary.com/kuma/video/upload/audio.webm",
+        audioDurationMs: 2200,
+        imageUrl: null,
         createdAt: "2026-06-02T10:00:00.000Z",
       })
     );

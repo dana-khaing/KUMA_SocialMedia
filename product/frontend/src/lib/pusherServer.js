@@ -74,7 +74,11 @@ function serializeMessage(message) {
     id: message.id,
     conversationId: message.conversationId,
     senderId: message.senderId,
+    kind: message.kind || "TEXT",
     body: message.body,
+    audioUrl: message.audioUrl || null,
+    audioDurationMs: message.audioDurationMs || null,
+    imageUrl: message.imageUrl || null,
     createdAt:
       message.createdAt instanceof Date
         ? message.createdAt.toISOString()

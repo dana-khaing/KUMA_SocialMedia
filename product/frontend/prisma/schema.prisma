@@ -224,7 +224,11 @@ model Message {
   id             Int          @id @default(autoincrement())
   conversationId Int
   senderId       String
+  kind           MessageKind  @default(TEXT)
   body           String       @db.Text
+  audioUrl       String?
+  audioDurationMs Int?
+  imageUrl       String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -232,4 +236,10 @@ model Message {
 
   @@index([conversationId, createdAt], map: "Message_conversation_createdAt_idx")
   @@index([senderId], map: "Message_senderId_idx")
+}
+
+enum MessageKind {
+  TEXT
+  AUDIO
+  IMAGE
 }

@@ -8,6 +8,7 @@ import {
 } from "@/lib/pusherServer";
 
 const MESSAGE_LIMIT = 50;
+const CLOUDINARY_HOST_PATTERN = /(^|\.)res\.cloudinary\.com$/;
 
 function getDirectKey(userIdA, userIdB) {
   return [userIdA, userIdB].sort().join("::");
@@ -28,7 +29,11 @@ function serializeMessage(message) {
     id: message.id,
     conversationId: message.conversationId,
     senderId: message.senderId,
+    kind: message.kind || "TEXT",
     body: message.body,
+    audioUrl: message.audioUrl || null,
+    audioDurationMs: message.audioDurationMs || null,
+    imageUrl: message.imageUrl || null,
     createdAt:
       message.createdAt instanceof Date
         ? message.createdAt.toISOString()
@@ -139,6 +144,102 @@ async function getConversationUnreadCount(conversationId, userId, lastReadAt) {
       ...(lastReadAt ? { createdAt: { gt: lastReadAt } } : {}),
     },
   });
+}
+
+function parseConversationId(conversationId) {
+  const parsedConversationId = Number(conversationId);
+
+  if (!Number.isInteger(parsedConversationId)) {
+    throw new Error("Invalid conversation id");
+  }
+
+  return parsedConversationId;
+}
+
+function validateCaption(body) {
+  const trimmedBody = String(body || "").trim();
+
+  if (trimmedBody.length > 2000) {
+    throw new Error("Message must be 2000 characters or fewer");
+  }
+
+  return trimmedBody;
+}
+
+function validateCloudinaryUrl(url, label) {
+  const value = String(url || "").trim();
+
+  try {
+    const parsedUrl = new URL(value);
+
+    if (
+      parsedUrl.protocol !== "https:" ||
+      !CLOUDINARY_HOST_PATTERN.test(parsedUrl.hostname)
+    ) {
+      throw new Error();
+    }
+
+    return parsedUrl.toString();
+  } catch {
+    throw new Error(`Invalid ${label} URL`);
+  }
+}
+
+async function createMessage({
+  conversationId,
+  userId,
+  kind,
+  body = "",
+  audioUrl,
+  audioDurationMs,
+  imageUrl,
+}) {
+  const conversation = await requireConversationParticipant(
+    conversationId,
+    userId
+  );
+  const otherParticipant = getOtherParticipant(conversation, userId);
+
+  if (!otherParticipant) {
+    throw new Error("Conversation recipient not found");
+  }
+
+  await ensureCanMessage(userId, otherParticipant.userId);
+
+  const message = await prisma.message.create({
+    data: {
+      conversationId,
+      senderId: userId,
+      kind,
+      body,
+      ...(audioUrl ? { audioUrl } : {}),
+      ...(typeof audioDurationMs === "number" ? { audioDurationMs } : {}),
+      ...(imageUrl ? { imageUrl } : {}),
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          surname: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  await prisma.conversation.update({
+    where: { id: conversationId },
+    data: { updatedAt: new Date() },
+  });
+
+  await triggerMessageCreated({
+    receiverId: otherParticipant.userId,
+    message,
+  });
+
+  return serializeMessage(message);
 }
 
 export async function listMessageConversations() {
@@ -303,11 +404,7 @@ export async function findOrCreateDirectConversation(otherUserId) {
 
 export async function getConversationMessages(conversationId) {
   const userId = await getAuthenticatedUserId();
-  const parsedConversationId = Number(conversationId);
-
-  if (!Number.isInteger(parsedConversationId)) {
-    throw new Error("Invalid conversation id");
-  }
+  const parsedConversationId = parseConversationId(conversationId);
 
   await requireConversationParticipant(parsedConversationId, userId);
 
@@ -333,68 +430,63 @@ export async function getConversationMessages(conversationId) {
 
 export async function sendMessage(conversationId, body) {
   const userId = await getAuthenticatedUserId();
-  const parsedConversationId = Number(conversationId);
-  const trimmedBody = String(body || "").trim();
+  const parsedConversationId = parseConversationId(conversationId);
+  const trimmedBody = validateCaption(body);
 
-  if (!Number.isInteger(parsedConversationId)) {
-    throw new Error("Invalid conversation id");
-  }
-
-  if (!trimmedBody || trimmedBody.length > 2000) {
+  if (!trimmedBody) {
     throw new Error("Message must be between 1 and 2000 characters");
   }
 
-  const conversation = await requireConversationParticipant(
-    parsedConversationId,
-    userId
-  );
-  const otherParticipant = getOtherParticipant(conversation, userId);
+  return createMessage({
+    conversationId: parsedConversationId,
+    userId,
+    kind: "TEXT",
+    body: trimmedBody,
+  });
+}
 
-  if (!otherParticipant) {
-    throw new Error("Conversation recipient not found");
+export async function sendAudioMessage(conversationId, audioUrl, audioDurationMs) {
+  const userId = await getAuthenticatedUserId();
+  const parsedConversationId = parseConversationId(conversationId);
+  const safeAudioUrl = validateCloudinaryUrl(audioUrl, "audio");
+  const parsedDuration = Number(audioDurationMs);
+
+  if (
+    !Number.isFinite(parsedDuration) ||
+    parsedDuration < 0 ||
+    parsedDuration > 60 * 60 * 1000
+  ) {
+    throw new Error("Invalid audio duration");
   }
 
-  await ensureCanMessage(userId, otherParticipant.userId);
-
-  const message = await prisma.message.create({
-    data: {
-      conversationId: parsedConversationId,
-      senderId: userId,
-      body: trimmedBody,
-    },
-    include: {
-      sender: {
-        select: {
-          id: true,
-          username: true,
-          name: true,
-          surname: true,
-          avatar: true,
-        },
-      },
-    },
+  return createMessage({
+    conversationId: parsedConversationId,
+    userId,
+    kind: "AUDIO",
+    body: "",
+    audioUrl: safeAudioUrl,
+    audioDurationMs: Math.round(parsedDuration),
   });
+}
 
-  await prisma.conversation.update({
-    where: { id: parsedConversationId },
-    data: { updatedAt: new Date() },
+export async function sendImageMessage(conversationId, imageUrl, body = "") {
+  const userId = await getAuthenticatedUserId();
+  const parsedConversationId = parseConversationId(conversationId);
+  const safeImageUrl = validateCloudinaryUrl(imageUrl, "image");
+  const trimmedBody = validateCaption(body);
+
+  return createMessage({
+    conversationId: parsedConversationId,
+    userId,
+    kind: "IMAGE",
+    body: trimmedBody,
+    imageUrl: safeImageUrl,
   });
-
-  await triggerMessageCreated({
-    receiverId: otherParticipant.userId,
-    message,
-  });
-
-  return serializeMessage(message);
 }
 
 export async function markConversationRead(conversationId) {
   const userId = await getAuthenticatedUserId();
-  const parsedConversationId = Number(conversationId);
-
-  if (!Number.isInteger(parsedConversationId)) {
-    throw new Error("Invalid conversation id");
-  }
+  const parsedConversationId = parseConversationId(conversationId);
 
   await prisma.conversationParticipant.updateMany({
     where: {
@@ -411,11 +503,7 @@ export async function markConversationRead(conversationId) {
 
 export async function sendTypingEvent(conversationId) {
   const userId = await getAuthenticatedUserId();
-  const parsedConversationId = Number(conversationId);
-
-  if (!Number.isInteger(parsedConversationId)) {
-    throw new Error("Invalid conversation id");
-  }
+  const parsedConversationId = parseConversationId(conversationId);
 
   const conversation = await requireConversationParticipant(
     parsedConversationId,
