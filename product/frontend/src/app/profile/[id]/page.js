@@ -10,6 +10,7 @@ import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import Checkfriends from "@/components/userfriends/checkfriends";
+import ProfileSendMessageBox from "@/components/messages/profileSendMessageBox";
 import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
 import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
@@ -241,6 +242,7 @@ const ProfilePage = async ({ params }) => {
         <Suspense fallback={<div>Loading...</div>}>
           <UserMedia user={user} postWithMedia={postWithMedia} />
         </Suspense>
+        {!isOwner && <ProfileSendMessageBox user={user} />}
         <Checkfriends />
       </div>
     </div>

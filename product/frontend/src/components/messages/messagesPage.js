@@ -4,15 +4,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Check,
+  Image,
   MessageCircle,
+  Mic,
   Search,
   Send,
+  Square,
+  Trash2,
   UserRound,
+  X,
 } from "lucide-react";
 import {
   findOrCreateDirectConversation,
   getConversationMessages,
   markConversationRead,
+  sendAudioMessage,
+  sendImageMessage,
   searchMessageUsers,
   sendMessage,
   sendTypingEvent,
@@ -52,6 +60,42 @@ function notifyMessageStateChanged() {
   window.dispatchEvent(new Event(MESSAGE_CHANGED_EVENT));
 }
 
+function getMessagePreview(message) {
+  if (!message) return "No messages yet";
+
+  if (message.kind === "AUDIO") return "Voice message";
+  if (message.kind === "IMAGE") return "Photo";
+
+  return message.body || "No messages yet";
+}
+
+async function uploadToCloudinary(file, resourceType) {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  if (!cloudName) {
+    throw new Error("Cloudinary cloud name is not configured");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "kumasocialmedia");
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Upload failed");
+  }
+
+  const data = await response.json();
+  return data.secure_url;
+}
+
 function Avatar({ user, size = "md" }) {
   const sizeClass = size === "lg" ? "h-12 w-12" : "h-10 w-10";
 
@@ -64,19 +108,38 @@ function Avatar({ user, size = "md" }) {
   );
 }
 
-export default function MessagesPage({ initialConversations, userId }) {
+export default function MessagesPage({
+  initialConversations,
+  initialConversationId,
+  userId,
+}) {
   const [conversations, setConversations] = useState(
     sortConversations(initialConversations || [])
   );
   const [activeConversationId, setActiveConversationId] = useState(
-    initialConversations?.[0]?.id || null
+    Number.isInteger(initialConversationId)
+      ? initialConversationId
+      : initialConversations?.[0]?.id || null
   );
   const [messages, setMessages] = useState([]);
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [draft, setDraft] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImagePreview, setSelectedImagePreview] = useState("");
+  const [isSendingMedia, setIsSendingMedia] = useState(false);
+  const [recordingState, setRecordingState] = useState("idle");
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [recordedAudio, setRecordedAudio] = useState(null);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [typingConversationId, setTypingConversationId] = useState(null);
+  const textareaRef = useRef(null);
+  const imageInputRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const recordingChunksRef = useRef([]);
+  const recordingCancelledRef = useRef(false);
+  const recordingStartedAtRef = useRef(null);
+  const recordingIntervalRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const lastTypingSentRef = useRef(0);
 
@@ -87,6 +150,31 @@ export default function MessagesPage({ initialConversations, userId }) {
       ) || null,
     [activeConversationId, conversations]
   );
+
+  const canSend =
+    Boolean(activeConversationId) &&
+    (Boolean(draft.trim()) ||
+      Boolean(selectedImage) ||
+      Boolean(recordedAudio)) &&
+    !isSendingMedia;
+
+  const updateConversationWithMessage = (message) => {
+    setMessages((current) =>
+      current.some((item) => item.id === message.id)
+        ? current
+        : [...current, message]
+    );
+    setConversations((current) =>
+      sortConversations(
+        current.map((conversation) =>
+          conversation.id === message.conversationId
+            ? { ...conversation, latestMessage: message, unreadCount: 0 }
+            : conversation
+        )
+      )
+    );
+    notifyMessageStateChanged();
+  };
 
   useEffect(() => {
     const trimmedQuery = query.trim();
@@ -199,6 +287,26 @@ export default function MessagesPage({ initialConversations, userId }) {
     });
   }, [activeConversationId, userId]);
 
+  useEffect(() => {
+    return () => {
+      if (selectedImagePreview) {
+        URL.revokeObjectURL(selectedImagePreview);
+      }
+    };
+  }, [selectedImagePreview]);
+
+  useEffect(() => {
+    return () => {
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    resizeComposer();
+  }, [draft]);
+
   const handleSelectConversation = (conversationId) => {
     setActiveConversationId(conversationId);
   };
@@ -241,32 +349,168 @@ export default function MessagesPage({ initialConversations, userId }) {
     });
   };
 
+  const resizeComposer = () => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) {
+      return;
+    }
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 64)}px`;
+  };
+
+  const handleComposerKeyDown = (event) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    handleSendMessage(event);
+  };
+
+  const handleImageSelected = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (selectedImagePreview) {
+      URL.revokeObjectURL(selectedImagePreview);
+    }
+
+    setSelectedImage(file);
+    setSelectedImagePreview(URL.createObjectURL(file));
+  };
+
+  const clearSelectedImage = () => {
+    if (selectedImagePreview) {
+      URL.revokeObjectURL(selectedImagePreview);
+    }
+
+    setSelectedImage(null);
+    setSelectedImagePreview("");
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
+  const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      console.error("Audio recording is not supported in this browser");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      recordingChunksRef.current = [];
+      recordingCancelledRef.current = false;
+      recordingStartedAtRef.current = Date.now();
+      setRecordedAudio(null);
+      setRecordingSeconds(0);
+      setRecordingState("recording");
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordingChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+
+        if (recordingCancelledRef.current) {
+          return;
+        }
+
+        const blob = new Blob(recordingChunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
+        const durationMs = recordingStartedAtRef.current
+          ? Date.now() - recordingStartedAtRef.current
+          : 0;
+
+        setRecordedAudio({ blob, durationMs });
+        setRecordingState("ready");
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSeconds((Date.now() - recordingStartedAtRef.current) / 1000);
+      }, 250);
+    } catch (error) {
+      console.error("Error starting audio recording:", error);
+      setRecordingState("idle");
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  const cancelRecording = () => {
+    recordingCancelledRef.current = true;
+    setRecordedAudio(null);
+    setRecordingSeconds(0);
+    stopRecording();
+    setTimeout(() => setRecordingState("idle"), 0);
+  };
+
   const handleSendMessage = async (event) => {
     event.preventDefault();
 
-    if (!activeConversationId || !draft.trim()) {
+    if (!canSend) {
       return;
     }
 
     const body = draft;
-    setDraft("");
+    const imageFile = selectedImage;
+    const audio = recordedAudio;
 
     try {
-      const message = await sendMessage(activeConversationId, body);
-      setMessages((current) => [...current, message]);
-      setConversations((current) =>
-        sortConversations(
-          current.map((conversation) =>
-            conversation.id === activeConversationId
-              ? { ...conversation, latestMessage: message, unreadCount: 0 }
-              : conversation
-          )
-        )
-      );
-      notifyMessageStateChanged();
+      setIsSendingMedia(true);
+
+      let message;
+
+      if (imageFile) {
+        const imageUrl = await uploadToCloudinary(imageFile, "image");
+        message = await sendImageMessage(activeConversationId, imageUrl, body);
+        clearSelectedImage();
+      } else if (audio) {
+        const audioFile = new File([audio.blob], "voice-message.webm", {
+          type: audio.blob.type || "audio/webm",
+        });
+        const audioUrl = await uploadToCloudinary(audioFile, "video");
+        message = await sendAudioMessage(
+          activeConversationId,
+          audioUrl,
+          audio.durationMs
+        );
+        setRecordedAudio(null);
+        setRecordingState("idle");
+        setRecordingSeconds(0);
+      } else {
+        message = await sendMessage(activeConversationId, body);
+      }
+
+      setDraft("");
+      updateConversationWithMessage(message);
     } catch (error) {
       console.error("Error sending message:", error);
       setDraft(body);
+    } finally {
+      setIsSendingMedia(false);
     }
   };
 
@@ -283,7 +527,7 @@ export default function MessagesPage({ initialConversations, userId }) {
               <h1 className="text-xl font-bold text-slate-950">Messages</h1>
               <MessageCircle className="h-5 w-5 text-[#FF4E01]" />
             </div>
-            <div className="mt-4 flex h-10 items-center gap-2 rounded-full bg-slate-100 px-3 text-slate-500">
+            <div className="mt-4 flex h-10 items-center gap-2 rounded-full bg-slate-100 px-3 text-slate-500 focus-within:border focus-within:border-[#FF4E01] focus-within:ring-2 focus-within:ring-[#FF4E01]/30">
               <Search className="h-4 w-4" />
               <input
                 value={query}
@@ -346,7 +590,7 @@ export default function MessagesPage({ initialConversations, userId }) {
                       </span>
                     </div>
                     <p className="truncate text-xs text-slate-500">
-                      {conversation.latestMessage?.body || "No messages yet"}
+                      {getMessagePreview(conversation.latestMessage)}
                     </p>
                   </div>
                   {conversation.unreadCount > 0 && (
@@ -418,15 +662,36 @@ export default function MessagesPage({ initialConversations, userId }) {
                           }`}
                         >
                           <div
-                            className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
+                            className={`max-w-[78%] rounded-2xl border-[1px] px-4 py-2 text-sm shadow-md ${
                               isMine
-                                ? "rounded-br-sm bg-[#FF4E01] text-white"
-                                : "rounded-bl-sm bg-white text-slate-900"
+                                ? "rounded-br-sm border-[#FF4E01] bg-[#FF4E01] text-white"
+                                : "rounded-bl-sm border-orange-100 bg-slate-50 text-slate-900"
                             }`}
                           >
-                            <p className="whitespace-pre-wrap break-words">
-                              {message.body}
-                            </p>
+                            {message.kind === "IMAGE" && message.imageUrl ? (
+                              <div className="space-y-2">
+                                <img
+                                  src={message.imageUrl}
+                                  alt={message.body || "Message image"}
+                                  className="max-h-80 rounded-xl border border-orange-100 object-cover"
+                                />
+                                {message.body ? (
+                                  <p className="whitespace-pre-wrap break-words">
+                                    {message.body}
+                                  </p>
+                                ) : null}
+                              </div>
+                            ) : message.kind === "AUDIO" && message.audioUrl ? (
+                              <audio
+                                controls
+                                src={message.audioUrl}
+                                className="h-10 max-w-full"
+                              />
+                            ) : (
+                              <p className="whitespace-pre-wrap break-words">
+                                {message.body}
+                              </p>
+                            )}
                             <p
                               className={`mt-1 text-[0.68rem] ${
                                 isMine ? "text-white/80" : "text-slate-400"
@@ -447,23 +712,102 @@ export default function MessagesPage({ initialConversations, userId }) {
 
               <form
                 onSubmit={handleSendMessage}
-                className="flex items-end gap-2 border-t border-orange-100 bg-white p-3"
+                className="border-t border-orange-100 bg-white p-3"
               >
-                <textarea
-                  value={draft}
-                  onChange={handleDraftChange}
-                  rows={1}
-                  maxLength={2000}
-                  placeholder="Write a message"
-                  className="max-h-28 min-h-11 flex-1 resize-none rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-[#FF4E01]/30"
-                />
-                <button
-                  type="submit"
-                  disabled={!draft.trim()}
-                  className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#FF4E01] text-white shadow disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <Send className="h-4 w-4" />
-                </button>
+                {selectedImagePreview && (
+                  <div className="mb-3 flex items-center gap-3 rounded-2xl border border-orange-100 bg-slate-50 p-2 shadow-md">
+                    <img
+                      src={selectedImagePreview}
+                      alt="Selected upload"
+                      className="h-16 w-16 rounded-xl object-cover"
+                    />
+                    <span className="min-w-0 flex-1 truncate text-xs text-slate-600">
+                      {selectedImage?.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={clearSelectedImage}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#FF4E01] hover:bg-orange-50"
+                      title="Remove image"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                {recordingState !== "idle" && (
+                  <div className="mb-3 flex items-center gap-2 rounded-2xl border border-orange-100 bg-slate-50 p-2 text-sm shadow-md">
+                    <span className="h-2 w-2 rounded-full bg-[#FF4E01]" />
+                    <span className="flex-1 text-slate-700">
+                      {recordingState === "recording"
+                        ? `Recording ${Math.floor(recordingSeconds)}s`
+                        : `Voice message ${Math.floor(recordingSeconds)}s`}
+                    </span>
+                    {recordingState === "recording" ? (
+                      <button
+                        type="button"
+                        onClick={stopRecording}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#FF4E01] hover:bg-orange-50"
+                        title="Stop recording"
+                      >
+                        <Square className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <Check className="h-4 w-4 text-[#FF4E01]" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={cancelRecording}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+                      title="Cancel recording"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-end gap-2">
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelected}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 bg-slate-50 text-[#FF4E01] shadow-md hover:bg-orange-50"
+                    title="Add image"
+                  >
+                    <Image className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={startRecording}
+                    disabled={recordingState === "recording"}
+                    className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 bg-slate-50 text-[#FF4E01] shadow-md hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    title="Record voice message"
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
+                  <textarea
+                    ref={textareaRef}
+                    value={draft}
+                    onChange={handleDraftChange}
+                    onKeyDown={handleComposerKeyDown}
+                    rows={1}
+                    maxLength={2000}
+                    placeholder="Write a message"
+                    className="max-h-16 min-h-11 flex-1 resize-none overflow-y-auto rounded-2xl border border-orange-100 bg-slate-50 px-4 py-3 text-sm text-slate-950 shadow-md outline-none placeholder:text-slate-400 focus:border-[#FF4E01] focus:ring-2 focus:ring-[#FF4E01]/30"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!canSend}
+                    className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#FF4E01] text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
+                    title="Send"
+                  >
+                    <Send className="h-4 w-4" />
+                  </button>
+                </div>
               </form>
             </>
           )}
