@@ -10,19 +10,9 @@ import {
   deleteNotification,
   markAllNotificationsAsRead,
   markNotificationAsRead,
-  updateNotificationPreferences,
 } from "@/lib/action";
 import { subscribeToNotificationEvents } from "@/lib/pusherClient";
 import { NOTIFICATION_CHANGED_EVENT } from "@/components/navbar/notificationBadge";
-
-const preferenceLabels = [
-  ["posts", "Posts"],
-  ["stories", "Stories"],
-  ["comments", "Comments"],
-  ["reactions", "Reactions"],
-  ["follows", "Follows"],
-  ["newUsers", "New users"],
-];
 
 export function getNotificationHref(notification) {
   switch (notification.type) {
@@ -47,12 +37,11 @@ export function getNotificationHref(notification) {
   }
 }
 
-const Notification = ({ initialNotifications, initialPreferences, userId }) => {
+const Notification = ({ initialNotifications, userId }) => {
   const [notifications, setNotifications] = useState(
     initialNotifications || []
   );
   const [activeFilter, setActiveFilter] = useState("all");
-  const [preferences, setPreferences] = useState(initialPreferences || {});
   const router = useRouter();
 
   const unreadCount = useMemo(() => {
@@ -162,24 +151,6 @@ const Notification = ({ initialNotifications, initialPreferences, userId }) => {
     }
   };
 
-  const handlePreferenceChange = async (key, enabled) => {
-    const nextPreferences = {
-      ...preferences,
-      [key]: enabled,
-    };
-
-    setPreferences(nextPreferences);
-
-    try {
-      const result = await updateNotificationPreferences(nextPreferences);
-      setPreferences(result.preferences);
-      router.refresh();
-    } catch (error) {
-      console.error("Error updating notification preferences:", error);
-      setPreferences(preferences);
-    }
-  };
-
   return (
     <div className="w-full max-h-[80vh] bg-slate-50 rounded-2xl shadow-md text-sm pb-4 border-[1px] flex-shrink-0 flex-col pt-4 cursor-default">
       <div className="flex flex-col gap-3 px-4">
@@ -229,24 +200,6 @@ const Notification = ({ initialNotifications, initialPreferences, userId }) => {
           >
             Unread {unreadCount ? `(${unreadCount})` : ""}
           </button>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {preferenceLabels.map(([key, label]) => (
-            <label
-              key={key}
-              className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-gray-700 shadow-sm"
-            >
-              <input
-                type="checkbox"
-                checked={preferences[key] !== false}
-                onChange={(event) =>
-                  handlePreferenceChange(key, event.target.checked)
-                }
-                className="h-4 w-4 accent-[#FF4E01]"
-              />
-              <span>{label}</span>
-            </label>
-          ))}
         </div>
       </div>
       <Separator
