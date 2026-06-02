@@ -6,8 +6,10 @@ const isPublicRoute = createRouteMatcher([
   "/api(.*)",
 ]);
 
+const PUBLIC_FILE = /\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)$/i;
+
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
+  if (!isPublicRoute(request) && !PUBLIC_FILE.test(request.nextUrl.pathname)) {
     try {
       await auth.protect();
     } catch (error) {
@@ -28,8 +30,8 @@ export default clerkMiddleware(async (auth, request) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Run Clerk for every app route, including missing static assets that render not-found.
+    "/((?!_next).*)",
     // Always run for API routes
     "/(api|trpc)(.*)",
   ],

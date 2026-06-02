@@ -43,7 +43,7 @@ describe("Clerk Middleware", () => {
     // Default request object
     request = {
       url: "http://localhost:3000/",
-      nextUrl: { origin: "http://localhost:3000" },
+      nextUrl: { origin: "http://localhost:3000", pathname: "/" },
     };
 
     // Set environment variable
@@ -58,6 +58,17 @@ describe("Clerk Middleware", () => {
     const publicRoutes = ["/sign-in", "/sign-up", "/api/webhooks/clerk"];
     for (const route of publicRoutes) {
       request.url = `http://localhost:3000${route}`;
+      request.nextUrl.pathname = route;
+      await middleware(auth, request);
+      expect(auth.protect).not.toHaveBeenCalled();
+    }
+  });
+
+  it("allows public file requests without authentication", async () => {
+    const publicFiles = ["/kuma.svg", "/apple-touch-icon.png"];
+    for (const filePath of publicFiles) {
+      request.url = `http://localhost:3000${filePath}`;
+      request.nextUrl.pathname = filePath;
       await middleware(auth, request);
       expect(auth.protect).not.toHaveBeenCalled();
     }
@@ -66,6 +77,7 @@ describe("Clerk Middleware", () => {
   // for non-public routes
   it("protects non-public routes and allows authenticated users", async () => {
     request.url = "http://localhost:3000/dashboard";
+    request.nextUrl.pathname = "/dashboard";
     await middleware(auth, request);
     expect(auth.protect).toHaveBeenCalled();
     expect(MockResponse.redirect).not.toHaveBeenCalled();
@@ -75,6 +87,7 @@ describe("Clerk Middleware", () => {
   it("redirects to sign-in on 404 (unauthenticated) for protected routes", async () => {
     auth.protect.mockRejectedValue({ status: 404 }); // Simulate unauthenticated user
     request.url = "http://localhost:3000/dashboard";
+    request.nextUrl.pathname = "/dashboard";
     const response = await middleware(auth, request);
     expect(auth.protect).toHaveBeenCalled();
     expect(MockResponse.redirect).toHaveBeenCalledWith(
@@ -93,6 +106,7 @@ describe("Clerk Middleware", () => {
     error.status = 500;
     auth.protect.mockRejectedValue(error);
     request.url = "http://localhost:3000/dashboard";
+    request.nextUrl.pathname = "/dashboard";
     await expect(middleware(auth, request)).rejects.toThrow("Server error");
     expect(auth.protect).toHaveBeenCalled();
     expect(MockResponse.redirect).not.toHaveBeenCalled();
