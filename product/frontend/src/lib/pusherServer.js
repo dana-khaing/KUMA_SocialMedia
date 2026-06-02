@@ -57,6 +57,32 @@ function serializeNotification(notification) {
   };
 }
 
+function serializeUser(user) {
+  return user
+    ? {
+        id: user.id,
+        name: user.name,
+        surname: user.surname,
+        username: user.username,
+        avatar: user.avatar,
+      }
+    : null;
+}
+
+function serializeMessage(message) {
+  return {
+    id: message.id,
+    conversationId: message.conversationId,
+    senderId: message.senderId,
+    body: message.body,
+    createdAt:
+      message.createdAt instanceof Date
+        ? message.createdAt.toISOString()
+        : message.createdAt,
+    sender: serializeUser(message.sender),
+  };
+}
+
 export async function triggerNotificationCreated(notification) {
   const pusher = getPusherServer();
 
@@ -72,6 +98,41 @@ export async function triggerNotificationCreated(notification) {
     );
   } catch (error) {
     console.error("Error triggering realtime notification:", error);
+  }
+}
+
+export async function triggerMessageCreated({ receiverId, message }) {
+  const pusher = getPusherServer();
+
+  if (!pusher || !receiverId || !message) {
+    return;
+  }
+
+  try {
+    await pusher.trigger(
+      getNotificationChannelName(receiverId),
+      "message:new",
+      serializeMessage(message)
+    );
+  } catch (error) {
+    console.error("Error triggering realtime message:", error);
+  }
+}
+
+export async function triggerMessageTyping({ receiverId, conversationId, userId }) {
+  const pusher = getPusherServer();
+
+  if (!pusher || !receiverId || !conversationId || !userId) {
+    return;
+  }
+
+  try {
+    await pusher.trigger(getNotificationChannelName(receiverId), "message:typing", {
+      conversationId,
+      userId,
+    });
+  } catch (error) {
+    console.error("Error triggering typing event:", error);
   }
 }
 
