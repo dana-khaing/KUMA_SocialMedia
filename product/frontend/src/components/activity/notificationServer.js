@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import Notification from "./notification";
+import { ensureBirthdayNotificationsForUser } from "@/lib/action";
 import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
 import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
@@ -11,6 +12,8 @@ export const NotificationServer = async () => {
   if (!userId) return null;
 
   try {
+    await ensureBirthdayNotificationsForUser(userId);
+
     const notifications = await prisma.notification.findMany({
       where: { receiverId: userId },
       include: {

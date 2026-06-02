@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
 import { triggerNotificationCreated } from "./pusherServer";
+import { addDays, format, isToday, isWithinInterval } from "date-fns";
 
 // Follow action
 export const followAction = async (userId) => {
@@ -624,6 +625,7 @@ export async function createNotification({
   postId,
   commentId,
   storyId,
+  dedupeAfter,
 }) {
   try {
     if (senderId === receiverId) {
@@ -644,6 +646,7 @@ export async function createNotification({
         commentId,
         postId,
         storyId,
+        createdAt: dedupeAfter ? { gte: dedupeAfter } : undefined,
       },
     });
 
@@ -696,6 +699,39 @@ const notificationPreferenceTypeMap = {
   COMMENT_LIKED: "reactions",
   FOLLOW_REQUEST: "follows",
   FOLLOW_ACCEPTED: "follows",
+};
+
+const getBirthdayInNotificationWindow = (dob, today = new Date()) => {
+  const birthDate = new Date(dob);
+
+  if (Number.isNaN(birthDate.getTime())) {
+    return null;
+  }
+
+  const birthdayThisYear = new Date(
+    today.getFullYear(),
+    birthDate.getMonth(),
+    birthDate.getDate()
+  );
+  const birthdayNextYear = new Date(
+    today.getFullYear() + 1,
+    birthDate.getMonth(),
+    birthDate.getDate()
+  );
+  const windowEnd = addDays(today, 7);
+
+  if (
+    isToday(birthdayThisYear) ||
+    isWithinInterval(birthdayThisYear, { start: today, end: windowEnd })
+  ) {
+    return birthdayThisYear;
+  }
+
+  if (isWithinInterval(birthdayNextYear, { start: today, end: windowEnd })) {
+    return birthdayNextYear;
+  }
+
+  return null;
 };
 
 async function isNotificationEnabled(receiverId, type) {
@@ -868,6 +904,60 @@ export async function notifyStoryCreated(storyId) {
     });
   }
 }
+
+export async function ensureBirthdayNotificationsForUser(userId) {
+  if (!userId) {
+    return;
+  }
+
+  const followings = await prisma.follower.findMany({
+    where: {
+      followerId: userId,
+      following: {
+        dob: {
+          not: null,
+        },
+      },
+    },
+    select: {
+      following: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          surname: true,
+          dob: true,
+        },
+      },
+    },
+  });
+
+  for (const following of followings) {
+    const birthdayUser = following.following;
+    const birthdayDate = getBirthdayInNotificationWindow(birthdayUser.dob);
+
+    if (!birthdayDate) {
+      continue;
+    }
+
+    const displayName = getUserDisplayName(birthdayUser);
+    const message = isToday(birthdayDate)
+      ? `${displayName} has their birthday today. Let's celebrate Kuma!`
+      : `${displayName} has their birthday on ${format(
+          birthdayDate,
+          "MMMM d"
+        )}. Let's celebrate Kuma!`;
+
+    await createNotification({
+      type: "BIRTHDAY_CELEBRATION",
+      message,
+      senderId: birthdayUser.id,
+      receiverId: userId,
+      dedupeAfter: addDays(birthdayDate, -7),
+    });
+  }
+}
+
 export async function notifyCommentLikeCreated(likeId) {
   try {
     const like = await prisma.like.findUnique({
@@ -995,6 +1085,8 @@ export const getUnreadNotificationCount = async () => {
   const userId = await getAuthenticatedUserId();
 
   try {
+    await ensureBirthdayNotificationsForUser(userId);
+
     return await prisma.notification.count({
       where: {
         receiverId: userId,

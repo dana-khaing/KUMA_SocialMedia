@@ -19,6 +19,7 @@ export function getNotificationHref(notification) {
     case "USER_CREATED":
     case "FOLLOW_REQUEST":
     case "FOLLOW_ACCEPTED":
+    case "BIRTHDAY_CELEBRATION":
       return notification.senderId ? `/profile/${notification.senderId}` : null;
     case "POST_CREATED":
     case "LIKE":
