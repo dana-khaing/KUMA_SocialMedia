@@ -4,7 +4,6 @@ import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
-import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
 import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 export default async function Useravator() {
@@ -21,7 +20,7 @@ export default async function Useravator() {
     });
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
-      return <BetaDatabaseFallback variant="compact" />;
+      return null;
     }
 
     throw error;
