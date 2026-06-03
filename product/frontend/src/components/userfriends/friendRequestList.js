@@ -6,27 +6,30 @@ import { acceptFriendRequest, rejectFriendRequest } from "@/lib/action";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export const FriendRequestList = ({ request }) => {
+export const FriendRequestList = ({ request, onRequestHandled }) => {
   const [requestState, setRequestState] = useState(request);
 
-  //   accept request
+  const removeRequest = (requestId) => {
+    setRequestState((state) => state.filter((item) => item.id !== requestId));
+    onRequestHandled?.(requestId);
+  };
+
   const acceptRequest = async (requestId, userId) => {
     removeOptimisticRequest(requestId);
     try {
       await acceptFriendRequest(userId);
-      setRequestState((state) => state.filter((item) => item.id !== requestId));
+      removeRequest(requestId);
       toast("Friend request accepted!");
     } catch (error) {
       console.log(error);
     }
   };
 
-  //   remove request
   const declineRequest = async (requestId, userId) => {
     removeOptimisticRequest(requestId);
     try {
       await rejectFriendRequest(userId);
-      setRequestState((state) => state.filter((item) => item.id !== requestId));
+      removeRequest(requestId);
       toast("Friend request declined.");
     } catch (error) {
       console.log(error);
