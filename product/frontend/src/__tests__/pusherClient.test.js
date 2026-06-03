@@ -51,4 +51,25 @@ describe("pusher client notification subscriptions", () => {
     expect(mockUnbind).toHaveBeenCalledWith("notification:new", secondHandler);
     expect(mockUnsubscribe).toHaveBeenCalledWith("private-user-user-1");
   });
+
+  it("binds and unbinds message events on the shared private channel", async () => {
+    const { subscribeToMessageEvents } = await import("../lib/pusherClient");
+    const onMessageCreated = jest.fn();
+    const onTyping = jest.fn();
+
+    const unsubscribe = subscribeToMessageEvents("user-1", {
+      onMessageCreated,
+      onTyping,
+    });
+
+    expect(mockSubscribe).toHaveBeenCalledWith("private-user-user-1");
+    expect(mockBind).toHaveBeenCalledWith("message:new", onMessageCreated);
+    expect(mockBind).toHaveBeenCalledWith("message:typing", onTyping);
+
+    unsubscribe();
+
+    expect(mockUnbind).toHaveBeenCalledWith("message:new", onMessageCreated);
+    expect(mockUnbind).toHaveBeenCalledWith("message:typing", onTyping);
+    expect(mockUnsubscribe).toHaveBeenCalledWith("private-user-user-1");
+  });
 });

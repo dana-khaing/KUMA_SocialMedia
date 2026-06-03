@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
-import { faUser, faRss } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faCommentDots } from "@fortawesome/free-solid-svg-icons";
 
 import { SignedIn } from "@clerk/nextjs";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +10,7 @@ import { auth } from "@clerk/nextjs/server";
 
 import Link from "next/link";
 import NotificationBadge from "./notificationBadge";
+import MessageBadge from "./messageBadge";
 
 export const NavitemMobile = async () => {
   const { userId } = await auth();
@@ -55,14 +56,15 @@ export const NavitemMobile = async () => {
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />
-            <Link href="/studio">
-              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+            <Link href="/messages">
+              <DropdownMenu.Item className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
                 <FontAwesomeIcon
-                  icon={faRss}
+                  icon={faCommentDots}
                   size="md"
                   className="mr-2 text-[#FF4E02]"
                 />
-                Newfeed
+                <span>Messages</span>
+                <MessageBadge className="ml-auto" />
               </DropdownMenu.Item>
             </Link>
             <DropdownMenu.Separator className="my-1 border-t border-gray-200" />

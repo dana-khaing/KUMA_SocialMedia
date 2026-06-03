@@ -2,6 +2,7 @@ import {
   clearReadNotifications,
   createNotification,
   deleteNotification,
+  generateBirthdayNotificationsForUser,
   getNotificationPreferences,
   getUnreadNotificationCount,
   markAllNotificationsAsRead,
@@ -32,6 +33,9 @@ jest.mock("../lib/client", () => ({
     findUnique: jest.fn(),
     upsert: jest.fn(),
   },
+  follower: {
+    findMany: jest.fn(),
+  },
 }));
 
 describe("notification actions", () => {
@@ -42,6 +46,7 @@ describe("notification actions", () => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId });
     prisma.notificationPreference.findUnique.mockResolvedValue(null);
+    prisma.follower.findMany.mockResolvedValue([]);
   });
 
   it("counts unread notifications for the authenticated receiver", async () => {
@@ -245,5 +250,76 @@ describe("notification actions", () => {
 
     expect(prisma.notification.create).not.toHaveBeenCalled();
     expect(triggerNotificationCreated).not.toHaveBeenCalled();
+  });
+
+  it("creates birthday notifications for followed users today and upcoming 7 days", async () => {
+    prisma.follower.findMany.mockResolvedValue([
+      {
+        following: {
+          id: senderId,
+          username: "dana",
+          name: "Dana",
+          surname: "K",
+          avatar: null,
+          dob: new Date("1999-06-02T00:00:00.000Z"),
+        },
+      },
+      {
+        following: {
+          id: "user-3",
+          username: "alex",
+          dob: new Date("2000-06-20T00:00:00.000Z"),
+        },
+      },
+    ]);
+    prisma.notification.findFirst.mockResolvedValue(null);
+    prisma.notification.create.mockImplementation(({ data }) =>
+      Promise.resolve({
+        id: data.senderId === senderId ? 10 : 11,
+        ...data,
+        read: false,
+      })
+    );
+
+    await expect(
+      generateBirthdayNotificationsForUser(
+        userId,
+        new Date("2026-06-02T12:00:00.000Z")
+      )
+    ).resolves.toHaveLength(1);
+
+    expect(prisma.notification.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          type: "BIRTHDAY",
+          senderId,
+          receiverId: userId,
+          message: "Dana K has a birthday today.",
+        }),
+      })
+    );
+    expect(triggerNotificationCreated).toHaveBeenCalled();
+  });
+
+  it("does not duplicate birthday notifications inside the same window", async () => {
+    prisma.follower.findMany.mockResolvedValue([
+      {
+        following: {
+          id: senderId,
+          username: "dana",
+          dob: new Date("2000-06-02T00:00:00.000Z"),
+        },
+      },
+    ]);
+    prisma.notification.findFirst.mockResolvedValue({ id: 99 });
+
+    await expect(
+      generateBirthdayNotificationsForUser(
+        userId,
+        new Date("2026-06-02T10:00:00.000Z")
+      )
+    ).resolves.toEqual([]);
+
+    expect(prisma.notification.create).not.toHaveBeenCalled();
   });
 });

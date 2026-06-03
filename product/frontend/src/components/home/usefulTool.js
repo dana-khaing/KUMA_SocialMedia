@@ -1,7 +1,7 @@
 import { Separator } from "@radix-ui/react-separator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome } from "@fortawesome/free-solid-svg-icons";
-import { faRss } from "@fortawesome/free-solid-svg-icons";
+import { faCommentDots } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { faStreetView } from "@fortawesome/free-solid-svg-icons";
@@ -40,11 +40,11 @@ export const UsefulTool = () => {
         </Link>
 
         <Link
-          href={"/studio"}
+          href={"/messages"}
           className=" flex-grow  h-fit items-center bg-transparent text-base shadow-md w-full text-[#FF4E02]  hover:bg-[#FF4E02] hover:text-white py-4 px-8 rounded-xl justify-start"
         >
-          <FontAwesomeIcon icon={faRss} size="md" className="mr-2" />
-          New Feed
+          <FontAwesomeIcon icon={faCommentDots} size="md" className="mr-2" />
+          Messages
         </Link>
         <Link
           href={"/activity"}

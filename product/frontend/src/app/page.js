@@ -1,7 +1,6 @@
 import Stories from "@/components/home/stories";
 import HomeFeedClient from "@/components/home/homeFeedClient";
 import FriendRequest from "@/components/userfriends/friendRequest";
-import Birthday from "@/components/userfriends/birthday";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
 import Checkfriends from "@/components/userfriends/checkfriends";
@@ -166,7 +165,6 @@ export default async function Home() {
 
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <FriendRequest />
-        <Birthday />
         <Checkfriends />
       </div>
     </div>

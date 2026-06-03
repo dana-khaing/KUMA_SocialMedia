@@ -6,13 +6,14 @@ import {
   faHouse,
   faBell,
   faUser,
-  faRss,
+  faCommentDots,
   faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import NotificationBadge from "./notificationBadge";
+import MessageBadge from "./messageBadge";
 
 export default function NavItem() {
   const { user } = useUser();
@@ -24,7 +25,7 @@ export default function NavItem() {
   const routes = {
     home: "/",
     friendlist: "/friendlist",
-    studio: "/studio",
+    messages: "/messages",
     profile: userId ? `/profile/${userId}` : "/profile",
     activity: "/activity",
   };
@@ -61,16 +62,17 @@ export default function NavItem() {
         </Link>
         <Link
           onClick={() => router.refresh()}
-          href="/studio"
-          className={`flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
-            pathname === routes.studio ? "bg-[#FF4E02] text-white" : ""
+          href="/messages"
+          className={`relative flex w-28 h-12 items-center shadow justify-center mt-4 mb-4 text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white rounded-3xl ${
+            pathname === routes.messages ? "bg-[#FF4E02] text-white" : ""
           }`}
         >
           <FontAwesomeIcon
             className="w-[1.75rem] h-[1.75rem] text-sm"
-            icon={faRss}
+            icon={faCommentDots}
             size="lg"
           />
+          <MessageBadge className="absolute top-1 right-7" />
         </Link>
         <Link
           onClick={() => router.refresh()}
