@@ -13,6 +13,7 @@ import {
 import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import { use } from "react";
 import { useEffect } from "react";
+import ModalPortal from "../ui/modalPortal";
 
 const formatPostTimestamp = (createdAt) => {
   const postDate = new Date(createdAt);
@@ -88,8 +89,15 @@ const UserMedia = ({ user, postWithMedia = [] }) => {
 
       {/* Popup View */}
       {isPopupOpen && allImages.length > 0 && (
-        <div className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-md border-t-[2px] border-b-[2px] border-[#FF4E02] mx-auto flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%] relative">
+        <ModalPortal>
+        <div
+          onClick={handleClosePopup}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative mx-auto flex max-h-[90vh] w-[90%] flex-col gap-4 overflow-y-auto rounded-xl border-b-[2px] border-t-[2px] border-[#FF4E02] bg-white shadow-md sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[30%]"
+          >
             <div className="p-5 flex flex-col gap-4">
               {/* User Details */}
               <div className="flex">
@@ -149,6 +157,7 @@ const UserMedia = ({ user, postWithMedia = [] }) => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </>
   );

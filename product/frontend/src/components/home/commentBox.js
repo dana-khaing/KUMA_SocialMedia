@@ -8,6 +8,7 @@ import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
 import { createComment, switchCommentLike, deleteComment } from "@/lib/action";
 import { toast } from "sonner";
+import ModalPortal from "../ui/modalPortal";
 
 const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   const [newComment, setNewComment] = useState("");
@@ -191,7 +192,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
               <img
                 src={comment.user?.avatar || "/user-default.png"}
                 alt="profile"
-                className="w-8 h-8 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+                className="h-8 w-8 cursor-pointer rounded-full object-cover ring-1 ring-[#FF4E01] hover:ring-2"
               />
               <div className="flex-1 flex-col items-center justify-center gap-1">
                 <div className="flex flex-row flex-1 items-center gap-5 justify-start">
@@ -252,8 +253,15 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
 
       {/* Delete Confirmation Popup */}
       {deleteCommentId && (
-        <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-[1px]">
-          <div className="bg-white w-[70%] md:w-[60%] lg:w-[35%] xl:w-[25%] h-[20%] md:h-[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
+        <ModalPortal>
+        <div
+          onClick={closeDeletePopUp}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex min-h-36 w-[90%] flex-col items-center justify-center gap-3 rounded-lg bg-white p-5 md:w-[60%] lg:w-[35%] xl:w-[25%]"
+          >
             <p className="text-black">
               Are you sure to delete this comment, Kuma?
             </p>
@@ -275,6 +283,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
 
       <Separator

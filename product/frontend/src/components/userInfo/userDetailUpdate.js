@@ -12,6 +12,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { updateProfile } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import ModalPortal from "../ui/modalPortal";
 
 const UserDetailUpdate = ({ user }) => {
   const [open, setOpen] = useState(false);
@@ -40,8 +41,13 @@ const UserDetailUpdate = ({ user }) => {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>{" "}
       {open && (
-        <div className=" absolute w-screen h-[150vh] bg-black top-0 backdrop-blur-md left-0 bg-opacity-35 flex items-center justify-center z-40">
+        <ModalPortal>
+        <div
+          onClick={handleClose}
+          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-black/50 px-4 py-6 backdrop-blur-sm"
+        >
           <form
+            onClick={(e) => e.stopPropagation()}
             onSubmit={async (e) => {
               e.preventDefault();
               const data = new FormData(e.target);
@@ -53,7 +59,7 @@ const UserDetailUpdate = ({ user }) => {
               }
               handleClose();
             }}
-            className="p-5 bg-white md:bottom-[17rem] rounded-lg shadow-md flex flex-col gap-4 w-[70%] md:w-[45%] xl:w-[30%] relative"
+            className="relative flex max-h-[90vh] w-[90%] flex-col gap-4 overflow-y-auto rounded-lg bg-white p-5 shadow-md md:w-[45%] xl:w-[30%]"
           >
             <div className="flex justify-around items-center h-8">
               <span className="text-base text-[#FF4E01] flex flex-1 items-center justify-between px-4">
@@ -70,7 +76,7 @@ const UserDetailUpdate = ({ user }) => {
               <img
                 src={user?.avatar || "/user-default.png"}
                 alt="profile"
-                className="w-20 h-20 rounded-full ring-2 ring-[#FF4E01] transform bg-white"
+                className="h-20 w-20 rounded-full bg-white object-cover ring-2 ring-[#FF4E01]"
               />
             </div>
             <div className="flex text-[#FF4E01] justify-center items-center font-bold text-lg">
@@ -217,9 +223,9 @@ const UserDetailUpdate = ({ user }) => {
               />
             </div>
 
-            <div className="flex h-8 justify-center items-center">
+            <div className="mt-3 flex justify-center pb-2">
               <Button
-                className="flex items-center w-32 absolute rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
+                className="flex h-fit w-32 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#FF4E01] text-center text-white hover:bg-white hover:text-[#FF4E01] hover:drop-shadow-lg"
                 type="submit"
               >
                 Update Info
@@ -227,6 +233,7 @@ const UserDetailUpdate = ({ user }) => {
             </div>
           </form>
         </div>
+        </ModalPortal>
       )}
     </div>
   );
