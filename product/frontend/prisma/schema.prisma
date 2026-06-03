@@ -30,6 +30,8 @@ model User {
   followRequestsSent       FollowRequest[]           @relation("FollowRequestsSent")
   followings               Follower[]                @relation("UserFollowers")
   followers                Follower[]                @relation("UserFollowings")
+  friendsAsUser            Friend[]                  @relation("UserFriends")
+  friendsAsFriend          Friend[]                  @relation("FriendOf")
   likes                    Like[]
   loves                    Love[]
   sentMessages             Message[]                 @relation("MessageSender")
@@ -142,6 +144,19 @@ model FollowRequest {
 
   @@index([receiverId], map: "FollowRequest_receiverId_fkey")
   @@index([senderId], map: "FollowRequest_senderId_fkey")
+}
+
+model Friend {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userId    String
+  friendId  String
+  user      User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend    User     @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([userId], map: "Friend_userId_fkey")
+  @@index([friendId], map: "Friend_friendId_fkey")
 }
 
 model Block {

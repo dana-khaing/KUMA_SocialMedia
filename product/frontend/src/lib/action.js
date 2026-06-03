@@ -9,54 +9,51 @@ import {
 } from "./pusherServer";
 import { isDatabaseUnavailableError } from "./databaseStatus";
 
-// Follow action
+// Follow action (kept for backward compat)
 export const followAction = async (userId) => {
-  const { userId: currentUserId } = await auth();
-  if (!currentUserId) {
-    throw new Error("User not authenticated");
-  }
-  try {
-    const existingFollow = await prisma.follower.findFirst({
-      where: {
-        followerId: currentUserId,
-        followingId: userId,
-      },
-    });
-    if (existingFollow) {
-      await prisma.follower.delete({
-        where: {
-          id: existingFollow.id,
-        },
-      });
-    } else {
-      const existingFollowRequest = await prisma.followRequest.findFirst({
-        where: {
-          senderId: currentUserId,
-          receiverId: userId,
-        },
-      });
+  return sendFriendRequest(userId);
+};
 
-      if (existingFollowRequest) {
-        await prisma.followRequest.delete({
-          where: {
-            id: existingFollowRequest.id,
-          },
-        });
-      } else {
-        const followRequest = await prisma.followRequest.create({
-          data: {
-            senderId: currentUserId,
-            receiverId: userId,
-          },
-        });
-        await notifyFollowRequestCreated(
-          followRequest.senderId,
-          followRequest.receiverId
-        );
-      }
+// Send friend request
+export const sendFriendRequest = async (userId) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) throw new Error("User not authenticated");
+  try {
+    const existingFriend = await prisma.friend.findFirst({
+      where: { userId: currentUserId, friendId: userId },
+    });
+    if (existingFriend) return;
+
+    const existingRequest = await prisma.followRequest.findFirst({
+      where: { senderId: currentUserId, receiverId: userId },
+    });
+    if (existingRequest) {
+      await prisma.followRequest.delete({ where: { id: existingRequest.id } });
+    } else {
+      await prisma.followRequest.create({
+        data: { senderId: currentUserId, receiverId: userId },
+      });
+      await notifyFriendRequestSent(currentUserId, userId);
     }
   } catch (error) {
-    // console.log(error);
+    throw new Error("Something went wrong, Kuma");
+  }
+};
+
+// Unfriend
+export const unfriendAction = async (userId) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) throw new Error("User not authenticated");
+  try {
+    await prisma.friend.deleteMany({
+      where: {
+        OR: [
+          { userId: currentUserId, friendId: userId },
+          { userId: userId, friendId: currentUserId },
+        ],
+      },
+    });
+  } catch (error) {
     throw new Error("Something went wrong, Kuma");
   }
 };
@@ -81,38 +78,27 @@ export const blockAction = async (userId) => {
         },
       });
     } else {
-      // if current user is following the user, unfollow the user and block
-      const existingFollow = await prisma.follower.findFirst({
+      await prisma.friend.deleteMany({
         where: {
-          followerId: currentUserId,
-          followingId: userId,
+          OR: [
+            { userId: currentUserId, friendId: userId },
+            { userId: userId, friendId: currentUserId },
+          ],
         },
       });
-      if (existingFollow) {
-        await prisma.follower.delete({
-          where: {
-            id: existingFollow.id,
-          },
-        });
-      }
       const existingFollowRequest = await prisma.followRequest.findFirst({
         where: {
-          senderId: currentUserId,
-          receiverId: userId,
+          OR: [
+            { senderId: currentUserId, receiverId: userId },
+            { senderId: userId, receiverId: currentUserId },
+          ],
         },
       });
       if (existingFollowRequest) {
-        await prisma.followRequest.delete({
-          where: {
-            id: existingFollowRequest.id,
-          },
-        });
+        await prisma.followRequest.delete({ where: { id: existingFollowRequest.id } });
       }
       await prisma.block.create({
-        data: {
-          blockerId: currentUserId,
-          blockedId: userId,
-        },
+        data: { blockerId: currentUserId, blockedId: userId },
       });
     }
   } catch (error) {
@@ -121,61 +107,50 @@ export const blockAction = async (userId) => {
   }
 };
 
-// Accept follow request action
+// Accept friend request
 export const acceptFollowRequest = async (userId) => {
+  return acceptFriendRequest(userId);
+};
+
+export const acceptFriendRequest = async (userId) => {
   const { userId: currentUserId } = await auth();
-  if (!currentUserId) {
-    throw new Error("User not authenticated");
-  }
+  if (!currentUserId) throw new Error("User not authenticated");
   try {
-    const existingFollowRequest = await prisma.followRequest.findFirst({
-      where: {
-        senderId: userId,
-        receiverId: currentUserId,
-      },
+    const request = await prisma.followRequest.findFirst({
+      where: { senderId: userId, receiverId: currentUserId },
     });
-    if (existingFollowRequest) {
-      await prisma.followRequest.delete({
-        where: {
-          id: existingFollowRequest.id,
-        },
+    if (request) {
+      await prisma.followRequest.delete({ where: { id: request.id } });
+      await prisma.friend.createMany({
+        data: [
+          { userId: currentUserId, friendId: userId },
+          { userId: userId, friendId: currentUserId },
+        ],
+        skipDuplicates: true,
       });
-      await prisma.follower.create({
-        data: {
-          followerId: userId,
-          followingId: currentUserId,
-        },
-      });
-      await notifyFollowAccepted(userId, currentUserId);
+      await notifyFriendRequestAccepted(userId, currentUserId);
     }
   } catch (error) {
-    // console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
 
-// Reject follow request action
+// Reject friend request
 export const rejectFollowRequest = async (userId) => {
+  return rejectFriendRequest(userId);
+};
+
+export const rejectFriendRequest = async (userId) => {
   const { userId: currentUserId } = await auth();
-  if (!currentUserId) {
-    throw new Error("User not authenticated");
-  }
+  if (!currentUserId) throw new Error("User not authenticated");
   try {
-    const existingFollowRequest = await prisma.followRequest.findFirst({
-      where: {
-        senderId: userId,
-        receiverId: currentUserId,
-      },
+    const request = await prisma.followRequest.findFirst({
+      where: { senderId: userId, receiverId: currentUserId },
     });
-    if (existingFollowRequest) {
-      await prisma.followRequest.delete({
-        where: {
-          id: existingFollowRequest.id,
-        },
-      });
+    if (request) {
+      await prisma.followRequest.delete({ where: { id: request.id } });
     }
   } catch (error) {
-    // console.log(error);
     throw new Error("Something went wrong, Kuma");
   }
 };
@@ -1079,40 +1054,32 @@ export async function notifyCommentLikeCreated(likeId) {
 }
 
 async function notifyFollowRequestCreated(senderId, receiverId) {
-  const sender = await prisma.user.findUnique({
-    where: {
-      id: senderId,
-    },
-  });
+  return notifyFriendRequestSent(senderId, receiverId);
+}
 
-  if (!sender) {
-    return;
-  }
-
+async function notifyFriendRequestSent(senderId, receiverId) {
+  const sender = await prisma.user.findUnique({ where: { id: senderId } });
+  if (!sender) return;
   await createNotification({
     type: "FOLLOW_REQUEST",
-    message: `${getUserDisplayName(sender)} sent you a follow request.`,
+    message: `${getUserDisplayName(sender)} sent you a friend request.`,
     senderId,
     receiverId,
   });
 }
 
 async function notifyFollowAccepted(followerId, followingId) {
-  const following = await prisma.user.findUnique({
-    where: {
-      id: followingId,
-    },
-  });
+  return notifyFriendRequestAccepted(followerId, followingId);
+}
 
-  if (!following) {
-    return;
-  }
-
+async function notifyFriendRequestAccepted(requesterId, accepterId) {
+  const accepter = await prisma.user.findUnique({ where: { id: accepterId } });
+  if (!accepter) return;
   await createNotification({
     type: "FOLLOW_ACCEPTED",
-    message: `${getUserDisplayName(following)} accepted your follow request.`,
-    senderId: followingId,
-    receiverId: followerId,
+    message: `${getUserDisplayName(accepter)} accepted your friend request.`,
+    senderId: accepterId,
+    receiverId: requesterId,
   });
 }
 

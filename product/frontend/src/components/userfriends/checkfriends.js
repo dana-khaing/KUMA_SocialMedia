@@ -9,58 +9,30 @@ export const Checkfriends = async () => {
     return null;
   }
 
-  // Fetch the current user's following list
-  const friendlist = await prisma.follower.findMany({
-    where: {
-      followerId: userId, // Users the current user follows
-    },
-    include: {
-      following: true, // Include the friend's details
-    },
+  const friendlist = await prisma.friend.findMany({
+    where: { userId },
+    include: { friend: true },
   });
 
-  // Fetch the current user's followers (to compare for mutuals)
-  const myFollowers = await prisma.follower.findMany({
-    where: {
-      followingId: userId, // Users who follow the current user
-    },
-    select: {
-      followerId: true, // Only need the follower IDs
-    },
-  });
-  const myFollowerIds = new Set(myFollowers.map((f) => f.followerId));
+  const myFriendIds = new Set(friendlist.map((f) => f.friendId));
 
-  // Calculate mutual friends for each friend
   const friendlistWithMutuals = await Promise.all(
-    friendlist.map(async (friend) => {
-      const friendFollowers = await prisma.follower.findMany({
-        where: {
-          followingId: friend.followingId, // Users who follow this friend
-        },
-        select: {
-          followerId: true,
-        },
+    friendlist.map(async (f) => {
+      const theirFriends = await prisma.friend.findMany({
+        where: { userId: f.friendId },
+        select: { friendId: true },
       });
-      const friendFollowerIds = new Set(
-        friendFollowers.map((f) => f.followerId),
-      );
-
-      // Mutual friends are those in both myFollowerIds and friendFollowerIds
-      const mutualFriendsCount = [...friendFollowerIds].filter((id) =>
-        myFollowerIds.has(id),
+      const mutualFriendsCount = theirFriends.filter((tf) =>
+        myFriendIds.has(tf.friendId)
       ).length;
-
-      return {
-        ...friend,
-        mutualFriendsCount,
-      };
+      return { ...f, following: f.friend, mutualFriendsCount };
     }),
   );
 
   return (
     <div className="w-full bg-slate-50 h-[28rem] rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col pt-4 cursor-default">
       <div className="flex items-center justify-between px-4">
-        <span className="text-[#FF4E01]">All Following</span>
+        <span className="text-[#FF4E01]">All Friends</span>
       </div>
       <Separator
         orientation="horizontal"
