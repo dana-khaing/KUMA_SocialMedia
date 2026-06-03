@@ -25,7 +25,7 @@ export const Checkfriends = async () => {
       const mutualFriendsCount = theirFriends.filter((tf) =>
         myFriendIds.has(tf.friendId)
       ).length;
-      return { ...f, following: f.friend, mutualFriendsCount };
+      return { ...f, followingId: f.friendId, following: f.friend, mutualFriendsCount };
     }),
   );
 
