@@ -17,6 +17,7 @@ import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import PostPopup from "./postPopup";
 import { useRouter } from "next/navigation";
 import { subscribeToPostEvents } from "@/lib/pusherClient";
+import ModalPortal from "../ui/modalPortal";
 
 function normalizePost(post) {
   return {
@@ -260,7 +261,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                   <img
                     src={post.user?.avatar || "/user-default.png"}
                     alt="profile"
-                    className="w-10 h-10 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+                    className="h-10 w-10 cursor-pointer rounded-full object-cover ring-1 ring-[#FF4E01] hover:ring-2"
                   />
                 </Link>
                 <div className="flex-1 flex-col items-center justify-center">
@@ -373,8 +374,15 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
               )}
 
               {deletePostId === post.id && (
-                <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-sm">
-                  <div className="bg-white border-t-[2px] border-b-[2px] border-[#FF4E02] w-[70%] md:w-[60%] lg:w-[35%] xl:w-[25%] h-[20%] md:h-[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
+                <ModalPortal>
+                <div
+                  onClick={closeDeletePopUp}
+                  className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex min-h-36 w-[90%] flex-col items-center justify-center gap-3 rounded-lg border-b-[2px] border-t-[2px] border-[#FF4E02] bg-white p-5 md:w-[60%] lg:w-[35%] xl:w-[25%]"
+                  >
                     <p className="text-black">
                       Are you sure to delete this post, Kuma?
                     </p>
@@ -396,6 +404,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                     </div>
                   </div>
                 </div>
+                </ModalPortal>
               )}
             </div>
           );

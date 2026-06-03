@@ -17,6 +17,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { createStory, deleteStory } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import ModalPortal from "../ui/modalPortal";
 
 const Stories = ({ user, stories }) => {
   const [selectedUserStories, setSelectedUserStories] = useState(null);
@@ -250,13 +251,14 @@ const Stories = ({ user, stories }) => {
 
       {/* Create Story Modal */}
       {showCreateModal && (
+        <ModalPortal>
         <div
           onClick={handleCloseCreateModal}
-          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%] p-4 relative"
+            className="relative w-[90%] rounded-lg p-4 shadow-md sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]"
           >
             <div className="relative flex flex-col items-center gap-4">
               <h3 className="absolute top-4 text-lg text-white">
@@ -285,13 +287,15 @@ const Stories = ({ user, stories }) => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
 
       {/* Story Viewing Modal */}
       {selectedUserStories && (
+        <ModalPortal>
         <div
           onClick={handleCloseModal}
-          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -344,7 +348,7 @@ const Stories = ({ user, stories }) => {
                                   "/user-default.png"
                                 }
                                 alt="profile"
-                                className="w-10 h-10 rounded-full ring-1 hover:ring-2 ring-[#FF4E01]"
+                                className="h-10 w-10 rounded-full object-cover ring-1 ring-[#FF4E01] hover:ring-2"
                               />
                             </Link>
                             <div className="flex flex-col">
@@ -388,6 +392,7 @@ const Stories = ({ user, stories }) => {
             </Carousel>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );

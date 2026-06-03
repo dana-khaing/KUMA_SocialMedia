@@ -15,6 +15,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { createPost } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import ModalPortal from "../ui/modalPortal";
 
 const createOptimisticPost = ({ desc, imageUrls, user }) => {
   const timestamp = Date.now();
@@ -261,13 +262,14 @@ const Addpost = ({
 
       {/* Post Confirmation Modal */}
       {showPostModal && (
+        <ModalPortal>
         <div
           onClick={handleClosePostModal}
-          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[25%] p-4 relative bg-white"
+            className="relative max-h-[90vh] w-[90%] overflow-y-auto rounded-lg bg-white p-4 shadow-md sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[25%]"
           >
             <div className="flex flex-col gap-4">
               {/* User Info and Description */}
@@ -333,6 +335,7 @@ const Addpost = ({
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );

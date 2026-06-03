@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { searchAction } from "@/lib/action";
 import Link from "next/link";
+import ModalPortal from "../ui/modalPortal";
 
 export const SearchUser = () => {
   const [open, setOpen] = useState(false);
@@ -42,13 +43,14 @@ export const SearchUser = () => {
         <span className="hidden lg:inline hover:text-white">Search</span>
       </div>
       {open && (
+        <ModalPortal>
         <div
           onClick={handleClose}
-          className="fixed w-screen h-screen bg-black top-0 bg-opacity-50 left-0 flex items-center justify-center z-50 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="p-5 border-t-[2px] border-b-[2px] border-[#FF4E02] bg-white rounded-lg shadow-md flex flex-col gap-4 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[30%] relative"
+            className="relative flex max-h-[90vh] w-[90%] flex-col gap-4 overflow-y-auto rounded-lg border-b-[2px] border-t-[2px] border-[#FF4E02] bg-white p-5 shadow-md sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[30%]"
           >
             <div className="flex justify-between text-base text-[#FF4E01] items-center h-6">
               <span className="flex flex-1 px-2 lg:px-5">Search</span>
@@ -95,7 +97,7 @@ export const SearchUser = () => {
                         <img
                           src={user.avatar || "/user-default.png"}
                           alt="profile"
-                          className="w-12 h-12 rounded-full ring-1 ring-[#FF4E01]"
+                          className="h-12 w-12 rounded-full object-cover ring-1 ring-[#FF4E01]"
                         />
                       </div>
                       <div className="flex flex-row gap-2 cursor-pointer items-center justify-center">
@@ -117,6 +119,7 @@ export const SearchUser = () => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );
