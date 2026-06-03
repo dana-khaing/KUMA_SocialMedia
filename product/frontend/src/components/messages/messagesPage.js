@@ -134,6 +134,11 @@ export default function MessagesPage({
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [typingConversationId, setTypingConversationId] = useState(null);
   const textareaRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const previousScrollStateRef = useRef({
+    conversationId: activeConversationId,
+    messageCount: 0,
+  });
   const imageInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordingChunksRef = useRef([]);
@@ -157,6 +162,15 @@ export default function MessagesPage({
       Boolean(selectedImage) ||
       Boolean(recordedAudio)) &&
     !isSendingMedia;
+
+  const scrollToLatestMessage = (behavior = "smooth") => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior,
+        block: "end",
+      });
+    });
+  };
 
   const updateConversationWithMessage = (message) => {
     setMessages((current) =>
@@ -238,6 +252,25 @@ export default function MessagesPage({
       active = false;
     };
   }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!activeConversationId || isLoadingMessages) {
+      return;
+    }
+
+    const previous = previousScrollStateRef.current;
+    const conversationChanged = previous.conversationId !== activeConversationId;
+    const messageAdded = messages.length > previous.messageCount;
+
+    if (conversationChanged || messageAdded) {
+      scrollToLatestMessage(conversationChanged ? "auto" : "smooth");
+    }
+
+    previousScrollStateRef.current = {
+      conversationId: activeConversationId,
+      messageCount: messages.length,
+    };
+  }, [activeConversationId, isLoadingMessages, messages.length]);
 
   useEffect(() => {
     return subscribeToMessageEvents(userId, {
@@ -673,6 +706,7 @@ export default function MessagesPage({
                                 <img
                                   src={message.imageUrl}
                                   alt={message.body || "Message image"}
+                                  onLoad={() => scrollToLatestMessage("smooth")}
                                   className="max-h-80 rounded-xl border border-orange-100 object-cover"
                                 />
                                 {message.body ? (
@@ -708,6 +742,7 @@ export default function MessagesPage({
                 {typingConversationId === activeConversation.id && (
                   <p className="mt-3 text-xs text-slate-500">Typing...</p>
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               <form
