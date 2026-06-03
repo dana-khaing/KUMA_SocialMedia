@@ -68,3 +68,55 @@ export function subscribeToNotificationEvents(userId, onNotificationCreated) {
     }
   };
 }
+
+export function subscribeToMessageEvents(userId, { onMessageCreated, onTyping }) {
+  const pusher = getPusherClient();
+
+  if (!pusher || !userId) {
+    return () => {};
+  }
+
+  const channelName = getNotificationChannelName(userId);
+  let subscription = channelSubscriptions.get(channelName);
+
+  if (!subscription) {
+    subscription = {
+      channel: pusher.subscribe(channelName),
+      count: 0,
+    };
+    channelSubscriptions.set(channelName, subscription);
+  }
+
+  subscription.count += 1;
+
+  if (onMessageCreated) {
+    subscription.channel.bind("message:new", onMessageCreated);
+  }
+
+  if (onTyping) {
+    subscription.channel.bind("message:typing", onTyping);
+  }
+
+  return () => {
+    const currentSubscription = channelSubscriptions.get(channelName);
+
+    if (!currentSubscription) {
+      return;
+    }
+
+    if (onMessageCreated) {
+      currentSubscription.channel.unbind("message:new", onMessageCreated);
+    }
+
+    if (onTyping) {
+      currentSubscription.channel.unbind("message:typing", onTyping);
+    }
+
+    currentSubscription.count -= 1;
+
+    if (currentSubscription.count < 1) {
+      pusher.unsubscribe(channelName);
+      channelSubscriptions.delete(channelName);
+    }
+  };
+}

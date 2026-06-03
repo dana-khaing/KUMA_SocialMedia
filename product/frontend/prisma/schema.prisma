@@ -9,47 +9,49 @@ datasource db {
 }
 
 model User {
-  id                     String          @id
-  username               String          @unique
-  avatar                 String?
-  cover                  String?
-  name                   String?
-  surname                String?
-  dob                    DateTime?
-  city                   String?
-  bio                    String?
-  school                 String?
-  work                   String?
-  website                String?
-  createdAt              DateTime        @default(now())
-  blocksReceived         Block[]         @relation("BlockerReceived")
-  blocksSent             Block[]         @relation("BlockersSent")
-  comments               Comment[]
-  followRequestsReceived FollowRequest[] @relation("FollowRequestsReceived")
-  followRequestsSent     FollowRequest[] @relation("FollowRequestsSent")
-  followings             Follower[]      @relation("UserFollowers")
-  followers              Follower[]      @relation("UserFollowings")
-  likes                  Like[]
-  loves                  Love[]
-  posts                  Post[]
-  stories                Story[]
-  sentNotifications      Notification[] @relation("NotificationSender")
-  receivedNotifications  Notification[] @relation("NotificationReceiver")
-  notificationPreference NotificationPreference?
+  id                       String                    @id
+  username                 String                    @unique
+  avatar                   String?
+  cover                    String?
+  name                     String?
+  surname                  String?
+  dob                      DateTime?
+  city                     String?
+  bio                      String?
+  school                   String?
+  work                     String?
+  website                  String?
+  createdAt                DateTime                  @default(now())
+  blocksReceived           Block[]                   @relation("BlockerReceived")
+  blocksSent               Block[]                   @relation("BlockersSent")
+  comments                 Comment[]
+  conversationParticipants ConversationParticipant[]
+  followRequestsReceived   FollowRequest[]           @relation("FollowRequestsReceived")
+  followRequestsSent       FollowRequest[]           @relation("FollowRequestsSent")
+  followings               Follower[]                @relation("UserFollowers")
+  followers                Follower[]                @relation("UserFollowings")
+  likes                    Like[]
+  loves                    Love[]
+  sentMessages             Message[]                 @relation("MessageSender")
+  receivedNotifications    Notification[]            @relation("NotificationReceiver")
+  sentNotifications        Notification[]            @relation("NotificationSender")
+  notificationPreference   NotificationPreference?
+  posts                    Post[]
+  stories                  Story[]
 }
 
 model Post {
-  id        Int         @id @default(autoincrement())
-  desc      String?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  userId    String
-  comments  Comment[]
-  likes     Like[]
-  loves     Love[]
-  user      User        @relation(fields: [userId], references: [id])
-  images    PostImage[] 
-  notifications Notification[] 
+  id            Int            @id @default(autoincrement())
+  desc          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+  comments      Comment[]
+  likes         Like[]
+  loves         Love[]
+  notifications Notification[]
+  user          User           @relation(fields: [userId], references: [id])
+  images        PostImage[]
 
   @@index([userId], map: "Post_userId_fkey")
 }
@@ -58,8 +60,8 @@ model PostImage {
   id        Int      @id @default(autoincrement())
   url       String
   postId    Int
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId], map: "PostImage_postId_fkey")
 }
@@ -92,14 +94,14 @@ model Love {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  desc      String
-  createdAt DateTime @default(now())
-  userId    String
-  postId    Int
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  likes     Like[]
+  id            Int            @id @default(autoincrement())
+  desc          String
+  createdAt     DateTime       @default(now())
+  userId        String
+  postId        Int
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes         Like[]
   notifications Notification[]
 
   @@index([postId], map: "Comment_postId_fkey")
@@ -107,13 +109,13 @@ model Comment {
 }
 
 model Story {
-  id        Int      @id @default(autoincrement())
-  image     String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-  userId    String
+  id            Int            @id @default(autoincrement())
+  image         String
+  createdAt     DateTime       @default(now())
+  expiresAt     DateTime
+  userId        String
   notifications Notification[]
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "Story_userId_fkey")
 }
@@ -153,22 +155,23 @@ model Block {
   @@index([blockedId], map: "Block_blockedId_fkey")
   @@index([blockerId], map: "Block_blockerId_fkey")
 }
+
 model Notification {
-  id          Int      @id @default(autoincrement())
-  type        String   // e.g., "USER_CREATED", "POST_CREATED", "COMMENT", "LIKE", "LOVE", "STORY_CREATED"
-  message     String   // Notification message
-  createdAt   DateTime @default(now())
-  read        Boolean  @default(false)
-  senderId    String   // User who triggered the notification
-  receiverId  String   // User who receives the notification
-  postId      Int?     // Optional: Related post
-  commentId   Int?     // Optional: Related comment
-  storyId     Int?     // Optional: Related story
-  sender      User     @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver    User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment     Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  story       Story?   @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  type       String
+  message    String
+  createdAt  DateTime @default(now())
+  read       Boolean  @default(false)
+  senderId   String
+  receiverId String
+  postId     Int?
+  commentId  Int?
+  storyId    Int?
+  comment    Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  post       Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  story      Story?   @relation(fields: [storyId], references: [id], onDelete: Cascade)
 
   @@index([senderId], map: "Notification_senderId_fkey")
   @@index([receiverId], map: "Notification_receiverId_fkey")
@@ -180,15 +183,64 @@ model Notification {
 }
 
 model NotificationPreference {
-  id              Int      @id @default(autoincrement())
-  userId          String   @unique
-  posts           Boolean  @default(true)
-  stories         Boolean  @default(true)
-  comments        Boolean  @default(true)
-  reactions       Boolean  @default(true)
-  follows         Boolean  @default(true)
-  newUsers        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique
+  posts     Boolean  @default(true)
+  stories   Boolean  @default(true)
+  comments  Boolean  @default(true)
+  reactions Boolean  @default(true)
+  follows   Boolean  @default(true)
+  newUsers  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id           Int                       @id @default(autoincrement())
+  directKey    String                    @unique
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             Int          @id @default(autoincrement())
+  conversationId Int
+  userId         String
+  lastReadAt     DateTime?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId], map: "ConversationParticipant_conversation_user_key")
+  @@index([userId])
+  @@index([conversationId])
+}
+
+model Message {
+  id             Int          @id @default(autoincrement())
+  conversationId Int
+  senderId       String
+  kind           MessageKind  @default(TEXT)
+  body           String       @db.Text
+  audioUrl       String?
+  audioDurationMs Int?
+  imageUrl       String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt], map: "Message_conversation_createdAt_idx")
+  @@index([senderId])
+}
+
+enum MessageKind {
+  TEXT
+  AUDIO
+  IMAGE
 }

@@ -1,6 +1,5 @@
 "use server";
 import FriendRequest from "@/components/userfriends/friendRequest";
-import Birthday from "@/components/userfriends/birthday";
 import Checkfriends from "@/components/userfriends/checkfriends";
 import ProfileSmallCard from "@/components/userInfo/profileSmallCard";
 import UsefulTool from "@/components/home/usefulTool";
@@ -16,7 +15,6 @@ export const Activity = async () => {
       </div>
       {/* center */}
       <div className="flex w-full px-2 flex-col shrink-0 lg:w-[50%] gap-5">
-        <Birthday />
         <NotificationServer />
       </div>
       {/* right */}
