@@ -59,6 +59,15 @@ describe("notification actions", () => {
     });
   });
 
+  it("returns zero unread notifications when the database is unavailable", async () => {
+    prisma.notification.count.mockRejectedValue({
+      code: "P1001",
+      message: "Can't reach database server",
+    });
+
+    await expect(getUnreadNotificationCount()).resolves.toBe(0);
+  });
+
   it("marks one notification as read for the authenticated receiver only", async () => {
     prisma.notification.updateMany.mockResolvedValue({ count: 1 });
 
