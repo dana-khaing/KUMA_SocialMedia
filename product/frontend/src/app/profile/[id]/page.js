@@ -207,11 +207,13 @@ const ProfilePage = async ({ params }) => {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden">
+    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden lg:px-4">
       {/* Left */}
-      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
-        {!isOwner ? <ProfileSmallCard user={user} /> : <FriendRequest />}
-        <UsefulTool />
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
+        <div className="shrink-0">
+          {!isOwner ? <ProfileSmallCard user={user} /> : <FriendRequest />}
+        </div>
+        <div className="shrink-0"><UsefulTool /></div>
       </div>
       {/* Center */}
       <div className="flex w-screen min-h-0 shrink-0 flex-col gap-5 px-2 lg:h-full lg:w-[50%] lg:overflow-y-auto lg:scrollbar-hide">
@@ -235,15 +237,19 @@ const ProfilePage = async ({ params }) => {
         </div>
       </div>
       {/* Right */}
-      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
-        <Suspense fallback={<div>Loading...</div>}>
-          <UserDetail user={user} owner={isOwner} />
-        </Suspense>
-        {!isOwner && <ProfileSendMessageBox user={user} />}
-        <Suspense fallback={<div>Loading...</div>}>
-          <UserMedia user={user} postWithMedia={postWithMedia} />
-        </Suspense>
-        <Checkfriends />
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
+        <div className="shrink-0">
+          <Suspense fallback={<div>Loading...</div>}>
+            <UserDetail user={user} owner={isOwner} />
+          </Suspense>
+        </div>
+        {!isOwner && <div className="shrink-0"><ProfileSendMessageBox user={user} /></div>}
+        <div className="shrink-0">
+          <Suspense fallback={<div>Loading...</div>}>
+            <UserMedia user={user} postWithMedia={postWithMedia} />
+          </Suspense>
+        </div>
+        <div className="shrink-0"><Checkfriends /></div>
       </div>
     </div>
   );
