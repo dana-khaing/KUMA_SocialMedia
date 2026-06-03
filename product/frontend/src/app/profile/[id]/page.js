@@ -207,14 +207,14 @@ const ProfilePage = async ({ params }) => {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4">
+    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden">
       {/* Left */}
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
         {!isOwner ? <ProfileSmallCard user={user} /> : <FriendRequest />}
         <UsefulTool />
       </div>
       {/* Center */}
-      <div className="flex w-screen shrink-0 flex-col gap-5 px-2 lg:w-[50%]">
+      <div className="flex w-screen min-h-0 shrink-0 flex-col gap-5 px-2 lg:h-full lg:w-[50%] lg:overflow-y-auto lg:scrollbar-hide">
         <div className="h-fit">
           <ProfileBigCard user={user} owner={isOwner} />
         </div>
@@ -235,7 +235,7 @@ const ProfilePage = async ({ params }) => {
         </div>
       </div>
       {/* Right */}
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
         <Suspense fallback={<div>Loading...</div>}>
           <UserDetail user={user} owner={isOwner} />
         </Suspense>
