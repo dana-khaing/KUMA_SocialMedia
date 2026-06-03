@@ -10,6 +10,12 @@
 - show single database fallback message and handle database outages in unread badges
 - add media support to direct messages and polish chat composer UI
 - refine profile message card placement
+- redesign story viewer to match Facebook mobile stories: full-screen black backdrop, blurred background fill, tap-left/tap-right zone navigation, and hold-to-pause
+- fix story photo being too small by replacing the constrained carousel modal with a full-screen portrait layout
+- add StoryView model to the Prisma schema to track who has viewed each story
+- add recordStoryView and getStoryViewers server actions
+- story owners can tap an eye icon to open a bottom-sheet panel showing who viewed their story with avatar and name
+- fix viewer panel closing instantly: pause story progress while panel is open and block tap-zone pointer event bleed into the bottom overlay
 
 #### 2 June
 

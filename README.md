@@ -47,7 +47,7 @@ This repository contains the final year project source code, supporting document
 
 - **Student-first profiles:** avatar, cover image, bio, education, work, city, birthday, and website fields.
 - **Social posting:** text posts, image uploads, comments, likes, loves, and single-post routing.
-- **Stories:** short-lived story posts with grouped story display.
+- **Stories:** short-lived story posts with a Facebook-style full-screen viewer (tap navigation, hold-to-pause, blurred background fill) and a who-viewed panel for story owners.
 - **Network graph:** follow, unfollow, follow request, accept, reject, and block workflows.
 - **Notification center:** activity feed, unread states, preferences, and realtime delivery with Pusher.
 - **Production stack:** Clerk auth, Prisma/MySQL persistence, Cloudinary media storage, and Netlify deployment.
@@ -58,7 +58,9 @@ This repository contains the final year project source code, supporting document
 - User profiles with avatar, cover image, bio, education, work, city, birthday, and website fields
 - Social feed showing posts from followed users
 - Text and image posts with Cloudinary upload support
-- Stories with expiry times and grouped story display
+- Stories with expiry times, grouped story display, and a Facebook-style full-screen viewer
+- Tap-left / tap-right story navigation, hold-to-pause, and blurred background fill
+- Story view tracking: owners see a who-viewed bottom-sheet panel with viewer avatars and names
 - Likes, loves, and comments on posts
 - Likes on comments
 - Follow, unfollow, follow request, accept, reject, and block flows
