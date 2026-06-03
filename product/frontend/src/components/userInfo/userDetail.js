@@ -11,34 +11,31 @@ import prisma from "@/lib/client";
 
 export const UserDetail = async ({ user, owner }) => {
   let isUserBlocked = false;
-  let isUserFollowing = false;
-  let isUserFollowingSent = false;
+  let isUserFriend = false;
+  let isRequestSent = false;
+  let isRequestReceived = false;
 
   const { userId } = await auth();
   if (userId) {
     const blockRes = await prisma.block.findFirst({
-      where: {
-        blockerId: userId,
-        blockedId: user?.id,
-      },
+      where: { blockerId: userId, blockedId: user?.id },
     });
-    blockRes ? (isUserBlocked = true) : (isUserBlocked = false);
-    const followRes = await prisma.follower.findFirst({
-      where: {
-        followerId: userId,
-        followingId: user?.id,
-      },
+    isUserBlocked = !!blockRes;
+
+    const friendRes = await prisma.friend.findFirst({
+      where: { userId: userId, friendId: user?.id },
     });
-    followRes ? (isUserFollowing = true) : (isUserFollowing = false);
-    const FollowRequestRes = await prisma.followRequest.findFirst({
-      where: {
-        senderId: userId,
-        receiverId: user?.id,
-      },
+    isUserFriend = !!friendRes;
+
+    const sentReqRes = await prisma.followRequest.findFirst({
+      where: { senderId: userId, receiverId: user?.id },
     });
-    FollowRequestRes
-      ? (isUserFollowingSent = true)
-      : (isUserFollowingSent = false);
+    isRequestSent = !!sentReqRes;
+
+    const receivedReqRes = await prisma.followRequest.findFirst({
+      where: { senderId: user?.id, receiverId: userId },
+    });
+    isRequestReceived = !!receivedReqRes;
   }
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
@@ -168,8 +165,9 @@ export const UserDetail = async ({ user, owner }) => {
           owner={owner}
           currentUserId={userId}
           isUserBlocked={isUserBlocked}
-          isUserFollowing={isUserFollowing}
-          isUserFollowingSent={isUserFollowingSent}
+          isUserFriend={isUserFriend}
+          isRequestSent={isRequestSent}
+          isRequestReceived={isRequestReceived}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { useState, useOptimistic } from "react";
-import { acceptFollowRequest, rejectFollowRequest } from "@/lib/action";
+import { acceptFriendRequest, rejectFriendRequest } from "@/lib/action";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -13,9 +13,9 @@ export const FriendRequestList = ({ request }) => {
   const acceptRequest = async (requestId, userId) => {
     removeOptimisticRequest(requestId);
     try {
-      await acceptFollowRequest(userId);
+      await acceptFriendRequest(userId);
       setRequestState((state) => state.filter((item) => item.id !== requestId));
-      toast("Follow request accepted!");
+      toast("Friend request accepted!");
     } catch (error) {
       console.log(error);
     }
@@ -25,9 +25,9 @@ export const FriendRequestList = ({ request }) => {
   const declineRequest = async (requestId, userId) => {
     removeOptimisticRequest(requestId);
     try {
-      await rejectFollowRequest(userId);
+      await rejectFriendRequest(userId);
       setRequestState((state) => state.filter((item) => item.id !== requestId));
-      toast("Follow request rejected!");
+      toast("Friend request declined.");
     } catch (error) {
       console.log(error);
     }

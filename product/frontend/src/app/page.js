@@ -37,12 +37,12 @@ export default async function Home() {
       });
     }
 
-    const followings = await prisma.follower.findMany({
-      where: { followerId: userId },
-      select: { followingId: true },
+    const friends = await prisma.friend.findMany({
+      where: { userId },
+      select: { friendId: true },
     });
 
-    const followingIds = followings.map((following) => following.followingId);
+    const followingIds = friends.map((f) => f.friendId);
 
     posts =
       (await prisma.post.findMany({
