@@ -117,6 +117,57 @@ describe("pusher server helpers", () => {
     );
   });
 
+  it("triggers public post reaction and comment events when configured", async () => {
+    process.env.PUSHER_APP_ID = "app";
+    process.env.PUSHER_KEY = "key";
+    process.env.PUSHER_SECRET = "secret";
+    process.env.PUSHER_CLUSTER = "eu";
+    const { triggerPostReactionUpdated, triggerPostCommentCreated } =
+      await import("../lib/pusherServer");
+
+    await triggerPostReactionUpdated({
+      postId: 10,
+      userId: "user-2",
+      reactionType: "like",
+      action: "added",
+      counts: { likes: 3, loves: 1 },
+    });
+    await triggerPostCommentCreated({
+      commentCount: 4,
+      comment: {
+        id: 5,
+        postId: 10,
+        userId: "user-2",
+        desc: "Hello",
+        createdAt: new Date("2026-06-03T10:00:00.000Z"),
+        user: { id: "user-2", username: "dana" },
+        likes: [],
+      },
+    });
+
+    expect(mockTrigger).toHaveBeenCalledWith(
+      "public-posts",
+      "post:reaction",
+      expect.objectContaining({
+        postId: 10,
+        reactionType: "like",
+        counts: { likes: 3, loves: 1 },
+      })
+    );
+    expect(mockTrigger).toHaveBeenCalledWith(
+      "public-posts",
+      "post:comment",
+      expect.objectContaining({
+        postId: 10,
+        commentCount: 4,
+        comment: expect.objectContaining({
+          id: 5,
+          createdAt: "2026-06-03T10:00:00.000Z",
+        }),
+      })
+    );
+  });
+
   it("swallows trigger failures so DB writes can still succeed", async () => {
     process.env.PUSHER_APP_ID = "app";
     process.env.PUSHER_KEY = "key";
