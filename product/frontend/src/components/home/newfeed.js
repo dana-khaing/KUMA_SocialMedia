@@ -17,6 +17,7 @@ import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import PostPopup from "./postPopup";
 import { useRouter } from "next/navigation";
 import { subscribeToPostEvents } from "@/lib/pusherClient";
+import ModalPortal from "../ui/modalPortal";
 
 function normalizePost(post) {
   return {
@@ -373,9 +374,10 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
               )}
 
               {deletePostId === post.id && (
+                <ModalPortal>
                 <div
                   onClick={closeDeletePopUp}
-                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+                  className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
                 >
                   <div
                     onClick={(e) => e.stopPropagation()}
@@ -402,6 +404,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                     </div>
                   </div>
                 </div>
+                </ModalPortal>
               )}
             </div>
           );

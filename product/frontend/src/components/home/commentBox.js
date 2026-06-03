@@ -8,6 +8,7 @@ import { Separator } from "../ui/separator.jsx";
 import { formatDistanceToNow } from "date-fns";
 import { createComment, switchCommentLike, deleteComment } from "@/lib/action";
 import { toast } from "sonner";
+import ModalPortal from "../ui/modalPortal";
 
 const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
   const [newComment, setNewComment] = useState("");
@@ -252,9 +253,10 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
 
       {/* Delete Confirmation Popup */}
       {deleteCommentId && (
+        <ModalPortal>
         <div
           onClick={closeDeletePopUp}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -281,6 +283,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
 
       <Separator

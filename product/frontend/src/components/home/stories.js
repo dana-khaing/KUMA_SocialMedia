@@ -17,6 +17,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { createStory, deleteStory } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import ModalPortal from "../ui/modalPortal";
 
 const Stories = ({ user, stories }) => {
   const [selectedUserStories, setSelectedUserStories] = useState(null);
@@ -250,9 +251,10 @@ const Stories = ({ user, stories }) => {
 
       {/* Create Story Modal */}
       {showCreateModal && (
+        <ModalPortal>
         <div
           onClick={handleCloseCreateModal}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -285,13 +287,15 @@ const Stories = ({ user, stories }) => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
 
       {/* Story Viewing Modal */}
       {selectedUserStories && (
+        <ModalPortal>
         <div
           onClick={handleCloseModal}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -388,6 +392,7 @@ const Stories = ({ user, stories }) => {
             </Carousel>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );
