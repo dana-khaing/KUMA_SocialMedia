@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { authorizeNotificationChannel } from "@/lib/pusherServer";
+import { authorizePusherChannel } from "@/lib/pusherServer";
 
 export async function POST(request) {
   const { userId } = await auth();
@@ -17,7 +17,7 @@ export async function POST(request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const authorization = authorizeNotificationChannel({
+  const authorization = authorizePusherChannel({
     socketId,
     channelName,
     userId,
