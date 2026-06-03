@@ -16,6 +16,71 @@ import Link from "next/link";
 import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import PostPopup from "./postPopup";
 import { useRouter } from "next/navigation";
+import { subscribeToPostEvents } from "@/lib/pusherClient";
+
+function normalizePost(post) {
+  return {
+    ...post,
+    likes: Array.isArray(post?.likes) ? post.likes : [],
+    loves: Array.isArray(post?.loves) ? post.loves : [],
+    comments: Array.isArray(post?.comments) ? post.comments : [],
+    images: Array.isArray(post?.images) ? post.images : [],
+    _count: {
+      likes: post?._count?.likes ?? 0,
+      loves: post?._count?.loves ?? 0,
+      comments: post?._count?.comments ?? 0,
+      ...post?._count,
+    },
+  };
+}
+
+function applyReactionEvent(post, event) {
+  if (post.id !== event.postId) {
+    return post;
+  }
+
+  const likes = Array.isArray(post.likes) ? post.likes : [];
+  const loves = Array.isArray(post.loves) ? post.loves : [];
+  const withoutUserLike = likes.filter((like) => like.userId !== event.userId);
+  const withoutUserLove = loves.filter((love) => love.userId !== event.userId);
+
+  return {
+    ...post,
+    likes:
+      event.reactionType === "like" && event.action === "added"
+        ? [...withoutUserLike, { userId: event.userId }]
+        : withoutUserLike,
+    loves:
+      event.reactionType === "love" && event.action === "added"
+        ? [...withoutUserLove, { userId: event.userId }]
+        : withoutUserLove,
+    _count: {
+      ...post._count,
+      likes: event.counts?.likes ?? post._count?.likes ?? 0,
+      loves: event.counts?.loves ?? post._count?.loves ?? 0,
+    },
+  };
+}
+
+function applyCommentEvent(post, event) {
+  if (post.id !== event.postId || !event.comment) {
+    return post;
+  }
+
+  const comments = Array.isArray(post.comments) ? post.comments : [];
+  const nextComments = comments.some((comment) => comment.id === event.comment.id)
+    ? comments
+    : [...comments, event.comment];
+
+  return {
+    ...post,
+    comments: nextComments,
+    _count: {
+      ...post._count,
+      comments: event.commentCount ?? nextComments.length,
+    },
+  };
+}
 
 const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
   const [expanded, setExpanded] = useState({});
@@ -27,8 +92,33 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
   const router = useRouter();
 
   useEffect(() => {
-    setPostList(posts);
+    setPostList((posts || []).map(normalizePost));
   }, [posts]);
+
+  useEffect(() => {
+    return subscribeToPostEvents({
+      onReactionUpdated: (event) => {
+        setPostList((currentPosts) =>
+          currentPosts.map((post) => normalizePost(applyReactionEvent(post, event)))
+        );
+        setSelectedPost((currentPost) =>
+          currentPost
+            ? normalizePost(applyReactionEvent(currentPost, event))
+            : currentPost
+        );
+      },
+      onCommentCreated: (event) => {
+        setPostList((currentPosts) =>
+          currentPosts.map((post) => normalizePost(applyCommentEvent(post, event)))
+        );
+        setSelectedPost((currentPost) =>
+          currentPost
+            ? normalizePost(applyCommentEvent(currentPost, event))
+            : currentPost
+        );
+      },
+    });
+  }, []);
 
   useEffect(() => {
     if (autoOpenCommentId != null) {
@@ -122,23 +212,30 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
   };
 
   const handleReactionUpdate = (updatedPost) => {
+    const normalizedUpdatedPost = normalizePost(updatedPost);
+
     setPostList((prev) =>
       prev.map((post) =>
-        post.id === updatedPost.id
+        post.id === normalizedUpdatedPost.id
           ? {
               ...post,
-              likes: updatedPost.likes || post.likes,
-              loves: updatedPost.loves || post.loves,
-              comments: updatedPost.comments || post.comments,
+              likes: normalizedUpdatedPost.likes,
+              loves: normalizedUpdatedPost.loves,
+              comments: normalizedUpdatedPost.comments,
               _count: {
                 ...post._count,
-                likes: updatedPost._count?.likes ?? post._count.likes,
-                loves: updatedPost._count?.loves ?? post._count.loves,
-                comments: updatedPost._count?.comments ?? post._count.comments,
+                likes: normalizedUpdatedPost._count.likes,
+                loves: normalizedUpdatedPost._count.loves,
+                comments: normalizedUpdatedPost._count.comments,
               },
             }
           : post
       )
+    );
+    setSelectedPost((currentPost) =>
+      currentPost?.id === normalizedUpdatedPost.id
+        ? normalizePost({ ...currentPost, ...normalizedUpdatedPost })
+        : currentPost
     );
   };
 
@@ -146,7 +243,10 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
     <div className="w-full h-fit">
       <div className="flex flex-col justify-center items-center gap-5">
         {postList.length > 0 ? (
-          postList.map((post) => (
+          postList.map((rawPost) => {
+            const post = normalizePost(rawPost);
+
+            return (
             <div
               key={`${post.id}-${post._count.likes}-${post._count.loves}-${post._count.comments}`}
               onMouseEnter={() => prefetchPost(post)}
@@ -298,7 +398,8 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                 </div>
               )}
             </div>
-          ))
+          );
+          })
         ) : (
           <p className="text-[#FF4E01] font-bold p-20 h-20">
             No posts to show, KUMA!!
