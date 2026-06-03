@@ -348,7 +348,7 @@ const Stories = ({ user, stories }) => {
                                   "/user-default.png"
                                 }
                                 alt="profile"
-                                className="w-10 h-10 rounded-full ring-1 hover:ring-2 ring-[#FF4E01]"
+                                className="h-10 w-10 rounded-full object-cover ring-1 ring-[#FF4E01] hover:ring-2"
                               />
                             </Link>
                             <div className="flex flex-col">

@@ -261,7 +261,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                   <img
                     src={post.user?.avatar || "/user-default.png"}
                     alt="profile"
-                    className="w-10 h-10 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+                    className="h-10 w-10 cursor-pointer rounded-full object-cover ring-1 ring-[#FF4E01] hover:ring-2"
                   />
                 </Link>
                 <div className="flex-1 flex-col items-center justify-center">

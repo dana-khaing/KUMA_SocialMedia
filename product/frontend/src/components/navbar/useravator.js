@@ -36,7 +36,7 @@ export default async function Useravator() {
             appearance={{
               elements: {
                 avatarBox:
-                  "w-[2.225rem] h-[2.225rem] border-solid border-[1px] border-[#FF4E01] hover:border-white  ",
+                  "h-[2.225rem] w-[2.225rem] overflow-hidden rounded-full border-solid border-[1px] border-[#FF4E01] hover:border-white [&>img]:h-full [&>img]:w-full [&>img]:object-cover",
               },
             }}
           />

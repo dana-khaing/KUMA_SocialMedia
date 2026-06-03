@@ -97,7 +97,7 @@ export const SearchUser = () => {
                         <img
                           src={user.avatar || "/user-default.png"}
                           alt="profile"
-                          className="w-12 h-12 rounded-full ring-1 ring-[#FF4E01]"
+                          className="h-12 w-12 rounded-full object-cover ring-1 ring-[#FF4E01]"
                         />
                       </div>
                       <div className="flex flex-row gap-2 cursor-pointer items-center justify-center">

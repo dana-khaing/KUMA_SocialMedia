@@ -192,7 +192,7 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
               <img
                 src={comment.user?.avatar || "/user-default.png"}
                 alt="profile"
-                className="w-8 h-8 rounded-full cursor-pointer ring-1 hover:ring-2 ring-[#FF4E01]"
+                className="h-8 w-8 cursor-pointer rounded-full object-cover ring-1 ring-[#FF4E01] hover:ring-2"
               />
               <div className="flex-1 flex-col items-center justify-center gap-1">
                 <div className="flex flex-row flex-1 items-center gap-5 justify-start">
