@@ -1,3 +1,30 @@
+#### 3 June
+
+- improve feed photo layout and scrolling
+- keep feed sidebars fixed on desktop
+- fix popup overlay behavior and render popups above app chrome
+- fix profile edit avatar cropping and improve profile edit button spacing
+- prevent avatar image stretching
+- add message active status and scroll messages to latest item
+- update feed reactions in realtime and publish realtime post reaction events
+- show single database fallback message and handle database outages in unread badges
+- add media support to direct messages and polish chat composer UI
+- refine profile message card placement
+
+#### 2 June
+
+- build messages page UI and replace studio navigation with messages
+- add messaging actions, realtime events, and messaging data model
+- add media support to direct messages
+- add followed user birthday notifications and test birthday notification behaviour
+- remove birthday card from activity page and remove notification preference controls
+- simplify notifications and add birthday alerts
+- add database availability detection, beta database fallback UI, and database downtime error boundary
+- guard database dependent surfaces
+- fix Clerk middleware coverage for missing assets
+- regenerate Prisma client before dev server and use separate Next dev output directory
+- test messaging actions and realtime helpers
+
 #### 31 May
 
 - add optimistic post creation so new posts appear in the feed immediately while the server saves them
