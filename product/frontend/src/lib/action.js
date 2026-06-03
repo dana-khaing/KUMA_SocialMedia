@@ -6,6 +6,7 @@ import {
   triggerNotificationCreated,
   triggerPostCommentCreated,
   triggerPostReactionUpdated,
+  triggerFriendRequestSent,
 } from "./pusherServer";
 import { isDatabaseUnavailableError } from "./databaseStatus";
 
@@ -33,14 +34,16 @@ export const sendFriendRequest = async (userId) => {
       await prisma.followRequest.create({
         data: { senderId: currentUserId, receiverId: userId },
       });
+      const sender = await prisma.user.findUnique({ where: { id: currentUserId } });
       await notifyFriendRequestSent(currentUserId, userId);
+      await triggerFriendRequestSent({ senderId: currentUserId, receiverId: userId, sender });
     }
   } catch (error) {
     throw new Error("Something went wrong, Kuma");
   }
 };
 
-// Unfriend
+// Unfriend — removes friendship and both follow directions
 export const unfriendAction = async (userId) => {
   const { userId: currentUserId } = await auth();
   if (!currentUserId) throw new Error("User not authenticated");
@@ -52,6 +55,44 @@ export const unfriendAction = async (userId) => {
           { userId: userId, friendId: currentUserId },
         ],
       },
+    });
+    await prisma.follower.deleteMany({
+      where: {
+        OR: [
+          { followerId: currentUserId, followingId: userId },
+          { followerId: userId, followingId: currentUserId },
+        ],
+      },
+    });
+  } catch (error) {
+    throw new Error("Something went wrong, Kuma");
+  }
+};
+
+// Unfollow — stays friends but A stops seeing B's posts
+export const unfollowAction = async (userId) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) throw new Error("User not authenticated");
+  try {
+    await prisma.follower.deleteMany({
+      where: { followerId: currentUserId, followingId: userId },
+    });
+  } catch (error) {
+    throw new Error("Something went wrong, Kuma");
+  }
+};
+
+// Follow a friend — re-follow after unfollowing (must already be friends)
+export const followFriendAction = async (userId) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) throw new Error("User not authenticated");
+  try {
+    const existingFriend = await prisma.friend.findFirst({
+      where: { userId: currentUserId, friendId: userId },
+    });
+    if (!existingFriend) return;
+    await prisma.follower.create({
+      data: { followerId: currentUserId, followingId: userId },
     });
   } catch (error) {
     throw new Error("Something went wrong, Kuma");
@@ -83,6 +124,14 @@ export const blockAction = async (userId) => {
           OR: [
             { userId: currentUserId, friendId: userId },
             { userId: userId, friendId: currentUserId },
+          ],
+        },
+      });
+      await prisma.follower.deleteMany({
+        where: {
+          OR: [
+            { followerId: currentUserId, followingId: userId },
+            { followerId: userId, followingId: currentUserId },
           ],
         },
       });
@@ -125,6 +174,14 @@ export const acceptFriendRequest = async (userId) => {
         data: [
           { userId: currentUserId, friendId: userId },
           { userId: userId, friendId: currentUserId },
+        ],
+        skipDuplicates: true,
+      });
+      // Auto-follow each other when becoming friends
+      await prisma.follower.createMany({
+        data: [
+          { followerId: currentUserId, followingId: userId },
+          { followerId: userId, followingId: currentUserId },
         ],
         skipDuplicates: true,
       });
