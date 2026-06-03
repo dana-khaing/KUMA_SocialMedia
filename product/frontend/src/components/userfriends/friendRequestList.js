@@ -54,7 +54,7 @@ export const FriendRequestList = ({ request }) => {
               <img
                 src={request.sender.avatar || "/user-default.png"}
                 alt="profile"
-                className="w-9 h-9 rounded-full ring-1 ring-[#FF4E01]"
+                className="h-9 w-9 rounded-full object-cover ring-1 ring-[#FF4E01]"
               />
             </div>
             <div className="flex flex-col flex-grow cursor-pointer">
