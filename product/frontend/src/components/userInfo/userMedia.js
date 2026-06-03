@@ -13,6 +13,7 @@ import {
 import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import { use } from "react";
 import { useEffect } from "react";
+import ModalPortal from "../ui/modalPortal";
 
 const formatPostTimestamp = (createdAt) => {
   const postDate = new Date(createdAt);
@@ -88,9 +89,10 @@ const UserMedia = ({ user, postWithMedia = [] }) => {
 
       {/* Popup View */}
       {isPopupOpen && allImages.length > 0 && (
+        <ModalPortal>
         <div
           onClick={handleClosePopup}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -155,6 +157,7 @@ const UserMedia = ({ user, postWithMedia = [] }) => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </>
   );

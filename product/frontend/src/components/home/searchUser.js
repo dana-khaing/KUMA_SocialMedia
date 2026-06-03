@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { searchAction } from "@/lib/action";
 import Link from "next/link";
+import ModalPortal from "../ui/modalPortal";
 
 export const SearchUser = () => {
   const [open, setOpen] = useState(false);
@@ -42,9 +43,10 @@ export const SearchUser = () => {
         <span className="hidden lg:inline hover:text-white">Search</span>
       </div>
       {open && (
+        <ModalPortal>
         <div
           onClick={handleClose}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -117,6 +119,7 @@ export const SearchUser = () => {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );
