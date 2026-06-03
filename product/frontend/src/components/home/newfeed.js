@@ -4,11 +4,6 @@ import { useState, useTransition, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button.jsx";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import ReactionBar from "./reactionBar";
 import { deletePost } from "@/lib/action";
 import { toast } from "sonner";
@@ -81,6 +76,42 @@ function applyCommentEvent(post, event) {
       comments: event.commentCount ?? nextComments.length,
     },
   };
+}
+
+function PostImagePreview({ images, onOpen }) {
+  const visibleImages = images.slice(0, 4);
+  const hasMoreImages = images.length > visibleImages.length;
+  const singleImage = images.length === 1;
+
+  return (
+    <div
+      className={`grid gap-3 ${
+        singleImage ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
+      }`}
+    >
+      {visibleImages.map((image, index) => (
+        <button
+          key={image.id || index}
+          type="button"
+          onClick={onOpen}
+          className="relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-slate-100"
+        >
+          <img
+            src={image.url}
+            alt={`post-${index}`}
+            className={`w-full object-contain ${
+              singleImage ? "max-h-[36rem]" : "max-h-[24rem]"
+            }`}
+          />
+          {hasMoreImages && index === visibleImages.length - 1 && (
+            <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 text-xl font-semibold text-white">
+              +{images.length - visibleImages.length}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
@@ -324,35 +355,10 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                   </button>
                 )}
                 {post.images && post.images.length > 0 && (
-                  <ResizablePanelGroup
-                    direction="horizontal"
-                    className="w-full"
-                  >
-                    {post.images.slice(0, 3).map((image, index) => (
-                      <ResizablePanel
-                        key={index}
-                        minSize={20}
-                        defaultSize={100 / Math.min(post.images.length, 3)}
-                      >
-                        <div className="relative p-1">
-                          <img
-                            src={image.url}
-                            alt={`post-${index}`}
-                            className="w-full h-64 object-cover rounded-xl"
-                            onClick={() => openPostPopup(post)}
-                          />
-                          {index === 2 && post.images.length > 3 && (
-                            <div
-                              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-xl rounded-xl cursor-pointer"
-                              onClick={() => openPostPopup(post)}
-                            >
-                              +{post.images.length - 3}
-                            </div>
-                          )}
-                        </div>
-                      </ResizablePanel>
-                    ))}
-                  </ResizablePanelGroup>
+                  <PostImagePreview
+                    images={post.images}
+                    onOpen={() => openPostPopup(post)}
+                  />
                 )}
               </div>
               {post.isOptimistic ? (
