@@ -5,9 +5,22 @@ import Pusher from "pusher-js";
 let pusherClient;
 const channelSubscriptions = new Map();
 const POST_EVENTS_CHANNEL = "public-posts";
+const MESSAGE_PRESENCE_CHANNEL = "presence-messages";
 
 export function getNotificationChannelName(userId) {
   return `private-user-${userId}`;
+}
+
+function getPresenceUserIds(channel) {
+  const userIds = [];
+
+  channel.members?.each((member) => {
+    if (member?.id) {
+      userIds.push(member.id);
+    }
+  });
+
+  return userIds;
 }
 
 export function getPusherClient() {
@@ -118,6 +131,62 @@ export function subscribeToMessageEvents(userId, { onMessageCreated, onTyping })
     if (currentSubscription.count < 1) {
       pusher.unsubscribe(channelName);
       channelSubscriptions.delete(channelName);
+    }
+  };
+}
+
+export function subscribeToMessagePresence(userId, onMembersChanged) {
+  const pusher = getPusherClient();
+
+  if (!pusher || !userId || !onMembersChanged) {
+    return () => {};
+  }
+
+  let subscription = channelSubscriptions.get(MESSAGE_PRESENCE_CHANNEL);
+
+  if (!subscription) {
+    subscription = {
+      channel: pusher.subscribe(MESSAGE_PRESENCE_CHANNEL),
+      count: 0,
+    };
+    channelSubscriptions.set(MESSAGE_PRESENCE_CHANNEL, subscription);
+  }
+
+  subscription.count += 1;
+
+  const handleMembersChanged = () => {
+    onMembersChanged(getPresenceUserIds(subscription.channel));
+  };
+
+  subscription.channel.bind(
+    "pusher:subscription_succeeded",
+    handleMembersChanged
+  );
+  subscription.channel.bind("pusher:member_added", handleMembersChanged);
+  subscription.channel.bind("pusher:member_removed", handleMembersChanged);
+  handleMembersChanged();
+
+  return () => {
+    const currentSubscription = channelSubscriptions.get(MESSAGE_PRESENCE_CHANNEL);
+
+    if (!currentSubscription) {
+      return;
+    }
+
+    currentSubscription.channel.unbind(
+      "pusher:subscription_succeeded",
+      handleMembersChanged
+    );
+    currentSubscription.channel.unbind("pusher:member_added", handleMembersChanged);
+    currentSubscription.channel.unbind(
+      "pusher:member_removed",
+      handleMembersChanged
+    );
+    currentSubscription.count -= 1;
+
+    if (currentSubscription.count < 1) {
+      pusher.unsubscribe(MESSAGE_PRESENCE_CHANNEL);
+      channelSubscriptions.delete(MESSAGE_PRESENCE_CHANNEL);
     }
   };
 }
