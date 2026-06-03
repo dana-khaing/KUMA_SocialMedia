@@ -76,7 +76,7 @@ const UserDetailUpdate = ({ user }) => {
               <img
                 src={user?.avatar || "/user-default.png"}
                 alt="profile"
-                className="w-20 h-20 rounded-full ring-2 ring-[#FF4E01] transform bg-white"
+                className="h-20 w-20 rounded-full bg-white object-cover ring-2 ring-[#FF4E01]"
               />
             </div>
             <div className="flex text-[#FF4E01] justify-center items-center font-bold text-lg">
