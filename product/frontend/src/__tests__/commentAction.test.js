@@ -17,6 +17,7 @@ jest.mock("../lib/client", () => ({
   comment: {
     findMany: jest.fn(),
     create: jest.fn(),
+    count: jest.fn(),
     findUnique: jest.fn(),
     delete: jest.fn(),
   },
@@ -37,6 +38,7 @@ jest.mock("../lib/client", () => ({
 
 jest.mock("../lib/pusherServer", () => ({
   triggerNotificationCreated: jest.fn(),
+  triggerPostCommentCreated: jest.fn(),
 }));
 
 describe("Server Actions", () => {
@@ -49,6 +51,7 @@ describe("Server Actions", () => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId });
     prisma.like.findUnique.mockResolvedValue(null);
+    prisma.comment.count.mockResolvedValue(1);
   });
 
   // loadComments Tests

@@ -11,15 +11,22 @@ jest.mock("@clerk/nextjs/server", () => ({
 jest.mock("../lib/client", () => ({
   like: {
     findFirst: jest.fn(),
+    count: jest.fn(),
     create: jest.fn(),
     delete: jest.fn(),
   },
   love: {
     findFirst: jest.fn(),
+    count: jest.fn(),
     create: jest.fn(),
     delete: jest.fn(),
   },
   $transaction: jest.fn(),
+}));
+
+jest.mock("../lib/pusherServer", () => ({
+  triggerNotificationCreated: jest.fn(),
+  triggerPostReactionUpdated: jest.fn(),
 }));
 
 describe("Server Actions", () => {
@@ -30,6 +37,8 @@ describe("Server Actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     auth.mockResolvedValue({ userId: currentUserId });
+    prisma.like.count.mockResolvedValue(1);
+    prisma.love.count.mockResolvedValue(0);
   });
 
   // switchLike Tests
@@ -150,7 +159,9 @@ describe("Server Actions", () => {
       expect(mockTx.like.delete).not.toHaveBeenCalled();
       expect(mockTx.love.create).not.toHaveBeenCalled();
       expect(mockTx.love.delete).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: true, reactionType: "like" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: true, reactionType: "like" })
+      );
     });
 
     it("toggles like off when like exists", async () => {
@@ -185,7 +196,9 @@ describe("Server Actions", () => {
       expect(mockTx.like.create).not.toHaveBeenCalled();
       expect(mockTx.love.create).not.toHaveBeenCalled();
       expect(mockTx.love.delete).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: true, reactionType: "like" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: true, reactionType: "like" })
+      );
     });
 
     it("switches from love to like", async () => {
@@ -222,7 +235,9 @@ describe("Server Actions", () => {
       });
       expect(mockTx.like.delete).not.toHaveBeenCalled();
       expect(mockTx.love.create).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: true, reactionType: "like" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: true, reactionType: "like" })
+      );
     });
 
     it("toggles love on when no reactions exist", async () => {
@@ -257,7 +272,9 @@ describe("Server Actions", () => {
       expect(mockTx.love.delete).not.toHaveBeenCalled();
       expect(mockTx.like.create).not.toHaveBeenCalled();
       expect(mockTx.like.delete).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: true, reactionType: "love" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: true, reactionType: "love" })
+      );
     });
 
     it("switches from like to love", async () => {
@@ -294,7 +311,9 @@ describe("Server Actions", () => {
       });
       expect(mockTx.love.delete).not.toHaveBeenCalled();
       expect(mockTx.like.create).not.toHaveBeenCalled();
-      expect(result).toEqual({ success: true, reactionType: "love" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: true, reactionType: "love" })
+      );
     });
 
     it("throws error on database failure in transaction", async () => {

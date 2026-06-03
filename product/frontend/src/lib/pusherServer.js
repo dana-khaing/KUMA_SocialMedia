@@ -1,6 +1,7 @@
 import Pusher from "pusher";
 
 let pusherServer;
+const POST_EVENTS_CHANNEL = "public-posts";
 
 export function getNotificationChannelName(userId) {
   return `private-user-${userId}`;
@@ -87,6 +88,21 @@ function serializeMessage(message) {
   };
 }
 
+function serializeComment(comment) {
+  return {
+    id: comment.id,
+    postId: comment.postId,
+    userId: comment.userId,
+    desc: comment.desc,
+    createdAt:
+      comment.createdAt instanceof Date
+        ? comment.createdAt.toISOString()
+        : comment.createdAt,
+    user: serializeUser(comment.user),
+    likes: Array.isArray(comment.likes) ? comment.likes : [],
+  };
+}
+
 export async function triggerNotificationCreated(notification) {
   const pusher = getPusherServer();
 
@@ -137,6 +153,38 @@ export async function triggerMessageTyping({ receiverId, conversationId, userId 
     });
   } catch (error) {
     console.error("Error triggering typing event:", error);
+  }
+}
+
+export async function triggerPostReactionUpdated(payload) {
+  const pusher = getPusherServer();
+
+  if (!pusher || !payload?.postId) {
+    return;
+  }
+
+  try {
+    await pusher.trigger(POST_EVENTS_CHANNEL, "post:reaction", payload);
+  } catch (error) {
+    console.error("Error triggering realtime post reaction:", error);
+  }
+}
+
+export async function triggerPostCommentCreated({ comment, commentCount }) {
+  const pusher = getPusherServer();
+
+  if (!pusher || !comment?.postId) {
+    return;
+  }
+
+  try {
+    await pusher.trigger(POST_EVENTS_CHANNEL, "post:comment", {
+      postId: comment.postId,
+      comment: serializeComment(comment),
+      commentCount,
+    });
+  } catch (error) {
+    console.error("Error triggering realtime post comment:", error);
   }
 }
 

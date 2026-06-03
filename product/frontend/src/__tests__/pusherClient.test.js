@@ -72,4 +72,25 @@ describe("pusher client notification subscriptions", () => {
     expect(mockUnbind).toHaveBeenCalledWith("message:typing", onTyping);
     expect(mockUnsubscribe).toHaveBeenCalledWith("private-user-user-1");
   });
+
+  it("binds and unbinds public post events", async () => {
+    const { subscribeToPostEvents } = await import("../lib/pusherClient");
+    const onReactionUpdated = jest.fn();
+    const onCommentCreated = jest.fn();
+
+    const unsubscribe = subscribeToPostEvents({
+      onReactionUpdated,
+      onCommentCreated,
+    });
+
+    expect(mockSubscribe).toHaveBeenCalledWith("public-posts");
+    expect(mockBind).toHaveBeenCalledWith("post:reaction", onReactionUpdated);
+    expect(mockBind).toHaveBeenCalledWith("post:comment", onCommentCreated);
+
+    unsubscribe();
+
+    expect(mockUnbind).toHaveBeenCalledWith("post:reaction", onReactionUpdated);
+    expect(mockUnbind).toHaveBeenCalledWith("post:comment", onCommentCreated);
+    expect(mockUnsubscribe).toHaveBeenCalledWith("public-posts");
+  });
 });
