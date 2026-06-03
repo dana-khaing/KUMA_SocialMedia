@@ -25,7 +25,10 @@ import {
   sendMessage,
   sendTypingEvent,
 } from "@/lib/messageAction";
-import { subscribeToMessageEvents } from "@/lib/pusherClient";
+import {
+  subscribeToMessageEvents,
+  subscribeToMessagePresence,
+} from "@/lib/pusherClient";
 import { MESSAGE_CHANGED_EVENT } from "@/components/navbar/messageBadge";
 
 function getDisplayName(user) {
@@ -96,15 +99,26 @@ async function uploadToCloudinary(file, resourceType) {
   return data.secure_url;
 }
 
-function Avatar({ user, size = "md" }) {
+function Avatar({ user, size = "md", showStatus = false, isActive = false }) {
   const sizeClass = size === "lg" ? "h-12 w-12" : "h-10 w-10";
 
   return (
-    <img
-      src={user?.avatar || "/user-default.png"}
-      alt={getDisplayName(user)}
-      className={`${sizeClass} rounded-full border border-[#FF4E01]/30 bg-white object-cover`}
-    />
+    <span className={`relative inline-flex ${sizeClass} flex-shrink-0`}>
+      <img
+        src={user?.avatar || "/user-default.png"}
+        alt={getDisplayName(user)}
+        className="h-full w-full rounded-full border border-[#FF4E01]/30 bg-white object-cover"
+      />
+      {showStatus && (
+        <span
+          className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
+            isActive ? "bg-emerald-500" : "bg-slate-300"
+          }`}
+          aria-label={isActive ? "Active now" : "Offline"}
+          title={isActive ? "Active now" : "Offline"}
+        />
+      )}
+    </span>
   );
 }
 
@@ -133,7 +147,13 @@ export default function MessagesPage({
   const [recordedAudio, setRecordedAudio] = useState(null);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [typingConversationId, setTypingConversationId] = useState(null);
+  const [onlineUserIds, setOnlineUserIds] = useState(() => new Set());
   const textareaRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const previousScrollStateRef = useRef({
+    conversationId: activeConversationId,
+    messageCount: 0,
+  });
   const imageInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordingChunksRef = useRef([]);
@@ -157,6 +177,18 @@ export default function MessagesPage({
       Boolean(selectedImage) ||
       Boolean(recordedAudio)) &&
     !isSendingMedia;
+
+  const isUserActive = (user) =>
+    Boolean(user?.id && user.id !== userId && onlineUserIds.has(user.id));
+
+  const scrollToLatestMessage = (behavior = "smooth") => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior,
+        block: "end",
+      });
+    });
+  };
 
   const updateConversationWithMessage = (message) => {
     setMessages((current) =>
@@ -240,6 +272,25 @@ export default function MessagesPage({
   }, [activeConversationId]);
 
   useEffect(() => {
+    if (!activeConversationId || isLoadingMessages) {
+      return;
+    }
+
+    const previous = previousScrollStateRef.current;
+    const conversationChanged = previous.conversationId !== activeConversationId;
+    const messageAdded = messages.length > previous.messageCount;
+
+    if (conversationChanged || messageAdded) {
+      scrollToLatestMessage(conversationChanged ? "auto" : "smooth");
+    }
+
+    previousScrollStateRef.current = {
+      conversationId: activeConversationId,
+      messageCount: messages.length,
+    };
+  }, [activeConversationId, isLoadingMessages, messages.length]);
+
+  useEffect(() => {
     return subscribeToMessageEvents(userId, {
       onMessageCreated: (message) => {
         setConversations((current) =>
@@ -286,6 +337,12 @@ export default function MessagesPage({
       },
     });
   }, [activeConversationId, userId]);
+
+  useEffect(() => {
+    return subscribeToMessagePresence(userId, (memberIds) => {
+      setOnlineUserIds(new Set(memberIds.filter((memberId) => memberId !== userId)));
+    });
+  }, [userId]);
 
   useEffect(() => {
     return () => {
@@ -547,13 +604,17 @@ export default function MessagesPage({
                   onClick={() => handleStartConversation(user)}
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-orange-50"
                 >
-                  <Avatar user={user} />
+                  <Avatar
+                    user={user}
+                    showStatus
+                    isActive={isUserActive(user)}
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-950">
                       {getDisplayName(user)}
                     </p>
                     <p className="truncate text-xs text-slate-500">
-                      @{user.username}
+                      {isUserActive(user) ? "Active now" : `@${user.username}`}
                     </p>
                   </div>
                 </button>
@@ -579,7 +640,11 @@ export default function MessagesPage({
                       : "hover:bg-slate-100"
                   }`}
                 >
-                  <Avatar user={conversation.participant} />
+                  <Avatar
+                    user={conversation.participant}
+                    showStatus
+                    isActive={isUserActive(conversation.participant)}
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-semibold text-slate-950">
@@ -590,7 +655,9 @@ export default function MessagesPage({
                       </span>
                     </div>
                     <p className="truncate text-xs text-slate-500">
-                      {getMessagePreview(conversation.latestMessage)}
+                      {isUserActive(conversation.participant)
+                        ? "Active now"
+                        : getMessagePreview(conversation.latestMessage)}
                     </p>
                   </div>
                   {conversation.unreadCount > 0 && (
@@ -626,17 +693,36 @@ export default function MessagesPage({
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
-                <Avatar user={activeConversation.participant} size="lg" />
+                <Avatar
+                  user={activeConversation.participant}
+                  size="lg"
+                  showStatus
+                  isActive={isUserActive(activeConversation.participant)}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-slate-950">
                     {getDisplayName(activeConversation.participant)}
                   </p>
-                  <Link
-                    href={`/profile/${activeConversation.participant?.id}`}
-                    className="text-xs text-[#FF4E01] hover:underline"
-                  >
-                    View profile
-                  </Link>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span
+                      className={
+                        isUserActive(activeConversation.participant)
+                          ? "text-emerald-600"
+                          : "text-slate-400"
+                      }
+                    >
+                      {isUserActive(activeConversation.participant)
+                        ? "Active now"
+                        : "Offline"}
+                    </span>
+                    <span className="text-slate-300">|</span>
+                    <Link
+                      href={`/profile/${activeConversation.participant?.id}`}
+                      className="text-[#FF4E01] hover:underline"
+                    >
+                      View profile
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -673,6 +759,7 @@ export default function MessagesPage({
                                 <img
                                   src={message.imageUrl}
                                   alt={message.body || "Message image"}
+                                  onLoad={() => scrollToLatestMessage("smooth")}
                                   className="max-h-80 rounded-xl border border-orange-100 object-cover"
                                 />
                                 {message.body ? (
@@ -708,6 +795,7 @@ export default function MessagesPage({
                 {typingConversationId === activeConversation.id && (
                   <p className="mt-3 text-xs text-slate-500">Typing...</p>
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               <form

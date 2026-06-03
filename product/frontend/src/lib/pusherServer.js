@@ -2,9 +2,14 @@ import Pusher from "pusher";
 
 let pusherServer;
 const POST_EVENTS_CHANNEL = "public-posts";
+const MESSAGE_PRESENCE_CHANNEL = "presence-messages";
 
 export function getNotificationChannelName(userId) {
   return `private-user-${userId}`;
+}
+
+export function getMessagePresenceChannelName() {
+  return MESSAGE_PRESENCE_CHANNEL;
 }
 
 function getPusherServer() {
@@ -197,4 +202,24 @@ export function authorizeNotificationChannel({ socketId, channelName, userId }) 
   }
 
   return pusher.authorizeChannel(socketId, channelName);
+}
+
+export function authorizePusherChannel({ socketId, channelName, userId }) {
+  const pusher = getPusherServer();
+
+  if (!pusher) {
+    return null;
+  }
+
+  if (channelName === getNotificationChannelName(userId)) {
+    return pusher.authorizeChannel(socketId, channelName);
+  }
+
+  if (channelName === MESSAGE_PRESENCE_CHANNEL) {
+    return pusher.authorizeChannel(socketId, channelName, {
+      user_id: userId,
+    });
+  }
+
+  return null;
 }
