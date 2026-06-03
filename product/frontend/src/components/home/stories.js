@@ -252,11 +252,11 @@ const Stories = ({ user, stories }) => {
       {showCreateModal && (
         <div
           onClick={handleCloseCreateModal}
-          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="rounded-lg shadow-md w-[90%] sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%] p-4 relative"
+            className="relative w-[90%] rounded-lg p-4 shadow-md sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]"
           >
             <div className="relative flex flex-col items-center gap-4">
               <h3 className="absolute top-4 text-lg text-white">
@@ -291,7 +291,7 @@ const Stories = ({ user, stories }) => {
       {selectedUserStories && (
         <div
           onClick={handleCloseModal}
-          className="fixed w-screen h-screen bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
