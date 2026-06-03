@@ -150,14 +150,14 @@ export default async function Home() {
   }
 
   return (
-    <div className="h-[150vh] w-full flex items-start justify-center gap-4 p-4 lg:px-4 scrollbar-hide">
+    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:px-4">
       <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
 
-      <div className="flex w-screen px-2 flex-col shrink-0 lg:w-[50%]">
-        <div className="flex flex-col gap-5 w-full overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-screen shrink-0 flex-col px-2 lg:w-[50%]">
+        <div className="flex w-full flex-col gap-5">
           <Stories user={user} stories={finalStories} />
           <HomeFeedClient user={user} posts={posts} owner={userId} />
         </div>
