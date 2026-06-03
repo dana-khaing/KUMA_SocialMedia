@@ -1,5 +1,6 @@
 import {
   findOrCreateDirectConversation,
+  getUnreadMessageCount,
   markConversationRead,
   sendAudioMessage,
   sendImageMessage,
@@ -267,5 +268,14 @@ describe("messaging actions", () => {
         lastReadAt: expect.any(Date),
       },
     });
+  });
+
+  it("returns zero unread messages when the database is unavailable", async () => {
+    prisma.conversationParticipant.findMany.mockRejectedValue({
+      code: "P1001",
+      message: "Can't reach database server",
+    });
+
+    await expect(getUnreadMessageCount()).resolves.toBe(0);
   });
 });

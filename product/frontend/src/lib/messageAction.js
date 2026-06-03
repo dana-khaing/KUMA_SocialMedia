@@ -6,6 +6,7 @@ import {
   triggerMessageCreated,
   triggerMessageTyping,
 } from "@/lib/pusherServer";
+import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 const MESSAGE_LIMIT = 50;
 const CLOUDINARY_HOST_PATTERN = /(^|\.)res\.cloudinary\.com$/;
@@ -315,7 +316,18 @@ export async function listMessageConversations() {
 }
 
 export async function getUnreadMessageCount() {
-  const conversations = await listMessageConversations();
+  let conversations;
+
+  try {
+    conversations = await listMessageConversations();
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      console.error("Database unavailable while fetching unread message count:", error);
+      return 0;
+    }
+
+    throw error;
+  }
 
   return conversations.reduce(
     (total, conversation) => total + conversation.unreadCount,
