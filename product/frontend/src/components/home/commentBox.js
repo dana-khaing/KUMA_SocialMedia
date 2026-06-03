@@ -252,8 +252,14 @@ const CommentBox = ({ user, post, comments, onNewComment, owner }) => {
 
       {/* Delete Confirmation Popup */}
       {deleteCommentId && (
-        <div className="fixed top-0 left-0 w-full h-full bg-opacity-40 flex items-center justify-center z-30 backdrop-blur-[1px]">
-          <div className="bg-white w-[70%] md:w-[60%] lg:w-[35%] xl:w-[25%] h-[20%] md:h-[15%] rounded-lg flex flex-col gap-3 items-center justify-center p-5">
+        <div
+          onClick={closeDeletePopUp}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex min-h-36 w-[90%] flex-col items-center justify-center gap-3 rounded-lg bg-white p-5 md:w-[60%] lg:w-[35%] xl:w-[25%]"
+          >
             <p className="text-black">
               Are you sure to delete this comment, Kuma?
             </p>
