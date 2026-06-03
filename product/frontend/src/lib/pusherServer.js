@@ -193,6 +193,28 @@ export async function triggerPostCommentCreated({ comment, commentCount }) {
   }
 }
 
+export async function triggerFriendRequestSent({ senderId, receiverId, sender }) {
+  const pusher = getPusherServer();
+
+  if (!pusher || !receiverId || !senderId) {
+    return;
+  }
+
+  try {
+    await pusher.trigger(
+      getNotificationChannelName(receiverId),
+      "friend:request",
+      {
+        senderId,
+        sender: serializeUser(sender),
+        createdAt: new Date().toISOString(),
+      }
+    );
+  } catch (error) {
+    console.error("Error triggering friend request event:", error);
+  }
+}
+
 export function authorizeNotificationChannel({ socketId, channelName, userId }) {
   const pusher = getPusherServer();
   const expectedChannelName = getNotificationChannelName(userId);
