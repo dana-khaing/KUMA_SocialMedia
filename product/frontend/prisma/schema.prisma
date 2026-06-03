@@ -40,6 +40,7 @@ model User {
   notificationPreference   NotificationPreference?
   posts                    Post[]
   stories                  Story[]
+  storyViews               StoryView[]
 }
 
 model Post {
@@ -118,8 +119,22 @@ model Story {
   userId        String
   notifications Notification[]
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views         StoryView[]
 
   @@index([userId], map: "Story_userId_fkey")
+}
+
+model StoryView {
+  id       Int      @id @default(autoincrement())
+  storyId  Int
+  userId   String
+  viewedAt DateTime @default(now())
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId])
 }
 
 model Follower {
