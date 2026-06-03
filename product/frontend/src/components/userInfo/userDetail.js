@@ -14,6 +14,7 @@ export const UserDetail = async ({ user, owner }) => {
   let isUserFriend = false;
   let isRequestSent = false;
   let isRequestReceived = false;
+  let isFollowing = false;
 
   const { userId } = await auth();
   if (userId) {
@@ -36,6 +37,11 @@ export const UserDetail = async ({ user, owner }) => {
       where: { senderId: user?.id, receiverId: userId },
     });
     isRequestReceived = !!receivedReqRes;
+
+    const followingRes = await prisma.follower.findFirst({
+      where: { followerId: userId, followingId: user?.id },
+    });
+    isFollowing = !!followingRes;
   }
   return (
     <div className=" w-full bg-slate-50 rounded-2xl shadow-md text-sm border-[1px] flex-shrink-0 flex-col py-2 cursor-default">
@@ -168,6 +174,7 @@ export const UserDetail = async ({ user, owner }) => {
           isUserFriend={isUserFriend}
           isRequestSent={isRequestSent}
           isRequestReceived={isRequestReceived}
+          isFollowing={isFollowing}
         />
       </div>
     </div>
