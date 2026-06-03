@@ -4,7 +4,6 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import Notification from "./notification";
 import { generateBirthdayNotificationsForUser } from "@/lib/action";
-import BetaDatabaseFallback from "@/components/common/betaDatabaseFallback";
 import { isDatabaseUnavailableError } from "@/lib/databaseStatus";
 
 export const NotificationServer = async () => {
@@ -42,7 +41,7 @@ export const NotificationServer = async () => {
     );
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
-      return <BetaDatabaseFallback variant="compact" />;
+      return null;
     }
 
     throw error;
