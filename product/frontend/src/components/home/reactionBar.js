@@ -28,6 +28,8 @@ const ReactionBar = ({
   const [error, setError] = useState(null);
   const [isPending, startTransition] = useTransition();
   const [commentsLoaded, setCommentsLoaded] = useState(!!post.comments?.length);
+  const postLikes = Array.isArray(post.likes) ? post.likes : [];
+  const postLoves = Array.isArray(post.loves) ? post.loves : [];
 
   // Load comments immediately if comment box is open on mount
   useEffect(() => {
@@ -95,18 +97,29 @@ const ReactionBar = ({
 
   // Like and Love states
   const [liked, setLiked] = useState({
-    isLiked: user?.id
-      ? post.likes.some((like) => like.userId === user.id)
-      : false,
+    isLiked: user?.id ? postLikes.some((like) => like.userId === user.id) : false,
     likeCount: post._count?.likes || 0,
   });
 
   const [loved, setLoved] = useState({
-    isLoved: user?.id
-      ? post.loves.some((love) => love.userId === user.id)
-      : false,
+    isLoved: user?.id ? postLoves.some((love) => love.userId === user.id) : false,
     loveCount: post._count?.loves || 0,
   });
+
+  useEffect(() => {
+    setLiked({
+      isLiked: user?.id
+        ? postLikes.some((like) => like.userId === user.id)
+        : false,
+      likeCount: post._count?.likes || 0,
+    });
+    setLoved({
+      isLoved: user?.id
+        ? postLoves.some((love) => love.userId === user.id)
+        : false,
+      loveCount: post._count?.loves || 0,
+    });
+  }, [post.likes, post.loves, post._count?.likes, post._count?.loves, user?.id]);
 
   const [optimisticReactions, updateOptimisticReactions] = useOptimistic(
     { liked, loved },
@@ -165,11 +178,11 @@ const ReactionBar = ({
           onReactionUpdate({
             ...post,
             likes: newLikeState.isLiked
-              ? [...post.likes, { userId: user.id, createdAt: new Date() }]
-              : post.likes.filter((like) => like.userId !== user.id),
+              ? [...postLikes, { userId: user.id, createdAt: new Date() }]
+              : postLikes.filter((like) => like.userId !== user.id),
             loves: newLoveState.isLoved
-              ? post.loves
-              : post.loves.filter((love) => love.userId !== user.id),
+              ? postLoves
+              : postLoves.filter((love) => love.userId !== user.id),
             _count: {
               ...post._count,
               likes: newLikeState.likeCount,
@@ -212,11 +225,11 @@ const ReactionBar = ({
           onReactionUpdate({
             ...post,
             loves: newLoveState.isLoved
-              ? [...post.loves, { userId: user.id, createdAt: new Date() }]
-              : post.loves.filter((love) => love.userId !== user.id),
+              ? [...postLoves, { userId: user.id, createdAt: new Date() }]
+              : postLoves.filter((love) => love.userId !== user.id),
             likes: newLikeState.isLiked
-              ? post.likes
-              : post.likes.filter((like) => like.userId !== user.id),
+              ? postLikes
+              : postLikes.filter((like) => like.userId !== user.id),
             _count: {
               ...post._count,
               likes: newLikeState.likeCount,
