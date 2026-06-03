@@ -132,13 +132,13 @@ export default async function Post({ params }) {
   }
 
   return (
-    <div className="h-screen w-full flex items-start justify-center gap-4 p-4">
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
-      <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 overflow-y-scroll scrollbar-hide overscroll-x-none">
-        <div className="flex flex-col gap-5 h-screen overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-screen min-h-0 shrink-0 flex-col gap-5 px-2 lg:h-full lg:w-[50%] lg:overflow-y-auto lg:scrollbar-hide">
+        <div className="flex flex-col gap-5">
           <Newfeed
             posts={[chosenPost]}
             user={user}
@@ -147,7 +147,7 @@ export default async function Post({ params }) {
           />
         </div>
       </div>
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
         <FriendRequest />
         <Checkfriends />
       </div>

@@ -207,14 +207,14 @@ const ProfilePage = async ({ params }) => {
   }
 
   return (
-    <div className="h-screen w-full flex items-start justify-center gap-4 p-4">
+    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden">
       {/* Left */}
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
         {!isOwner ? <ProfileSmallCard user={user} /> : <FriendRequest />}
         <UsefulTool />
       </div>
       {/* Center */}
-      <div className="flex w-screen px-2 flex-col lg:w-[50%] shrink-0 gap-5 h-[180vh] overflow-y-scroll scrollbar-hide overscroll-x-none">
+      <div className="flex w-screen min-h-0 shrink-0 flex-col gap-5 px-2 lg:h-full lg:w-[50%] lg:overflow-y-auto lg:scrollbar-hide">
         <div className="h-fit">
           <ProfileBigCard user={user} owner={isOwner} />
         </div>
@@ -228,14 +228,14 @@ const ProfilePage = async ({ params }) => {
             <UserMedia user={user} postWithMedia={postWithMedia} />
           </Suspense>
         </div>
-        <div className="flex flex-col gap-5 w-full h-full">
+        <div className="flex w-full flex-col gap-5">
           <Suspense fallback={<div>Loading posts...</div>}>
             <Newfeed user={user} posts={posts} owner={userId} />
           </Suspense>
         </div>
       </div>
       {/* Right */}
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
         <Suspense fallback={<div>Loading...</div>}>
           <UserDetail user={user} owner={isOwner} />
         </Suspense>
