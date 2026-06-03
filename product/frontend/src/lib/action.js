@@ -678,6 +678,37 @@ export const deleteStory = async (storyId, userId) => {
   }
 };
 
+// record that a user viewed a story (upsert so duplicate views are ignored)
+export const recordStoryView = async (storyId, viewerId) => {
+  if (!storyId || !viewerId) return;
+  try {
+    await prisma.storyView.upsert({
+      where: { storyId_userId: { storyId, userId: viewerId } },
+      update: { viewedAt: new Date() },
+      create: { storyId, userId: viewerId },
+    });
+  } catch {
+    // non-critical, silently ignore
+  }
+};
+
+// fetch viewers for a story (only the owner should call this from the UI)
+export const getStoryViewers = async (storyId) => {
+  if (!storyId) return { success: false, viewers: [] };
+  try {
+    const views = await prisma.storyView.findMany({
+      where: { storyId },
+      include: {
+        user: { select: { id: true, name: true, avatar: true } },
+      },
+      orderBy: { viewedAt: "desc" },
+    });
+    return { success: true, viewers: views.map((v) => v.user) };
+  } catch {
+    return { success: false, viewers: [] };
+  }
+};
+
 export async function createNotification({
   type,
   message,
