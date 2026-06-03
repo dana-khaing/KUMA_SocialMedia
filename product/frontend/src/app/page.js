@@ -37,12 +37,12 @@ export default async function Home() {
       });
     }
 
-    const friends = await prisma.friend.findMany({
-      where: { userId },
-      select: { friendId: true },
+    const followings = await prisma.follower.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
     });
 
-    const followingIds = friends.map((f) => f.friendId);
+    const followingIds = followings.map((f) => f.followingId);
 
     posts =
       (await prisma.post.findMany({
@@ -151,7 +151,7 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden lg:px-4">
-      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
         <ProfileSmallCard />
         <UsefulTool />
       </div>
@@ -163,7 +163,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
         <FriendRequest />
         <Checkfriends />
       </div>
