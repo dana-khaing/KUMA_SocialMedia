@@ -1,29 +1,22 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faXmark, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import Autoplay from "embla-carousel-autoplay";
 import { CldUploadWidget } from "next-cloudinary";
 import { createStory, deleteStory, recordStoryView, getStoryViewers } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ModalPortal from "../ui/modalPortal";
 
+const STORY_DURATION = 5000;
+
 const Stories = ({ user, stories }) => {
   const [selectedUserStories, setSelectedUserStories] = useState(null);
-  const [api, setApi] = useState(null);
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
+  const [storyIndex, setStoryIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -32,104 +25,86 @@ const Stories = ({ user, stories }) => {
   const [showViewers, setShowViewers] = useState(false);
   const [viewers, setViewers] = useState([]);
   const [loadingViewers, setLoadingViewers] = useState(false);
+  const pointerDownAt = useRef(null);
   const router = useRouter();
 
-  const STORY_DURATION = 5000;
+  const storyCount = selectedUserStories?.stories.length ?? 0;
+  const currentStory = selectedUserStories?.stories[storyIndex] ?? null;
+  const isOwner = selectedUserStories?.user.id === user.id;
 
+  // ── close ──────────────────────────────────────────────────────────────
   const handleCloseModal = () => {
     setSelectedUserStories(null);
-    setCurrent(0);
+    setStoryIndex(0);
     setProgress(0);
     setIsHolding(false);
     setShowViewers(false);
     setViewers([]);
-    api?.plugins().autoplay?.stop();
   };
 
-  // Sync carousel state
-  useEffect(() => {
-    if (!api || !selectedUserStories) return;
-
-    const totalSlides = selectedUserStories.stories.length;
-    setCount(totalSlides);
-    const newIndex = api.selectedScrollSnap();
-    setCurrent(newIndex);
-
-    if (newIndex === totalSlides - 1) {
-      api.plugins().autoplay?.stop();
-    }
-
-    const handleSelect = () => {
-      const updatedIndex = api.selectedScrollSnap();
-      setCurrent(updatedIndex);
+  // ── navigation ─────────────────────────────────────────────────────────
+  const goNext = () => {
+    if (storyIndex < storyCount - 1) {
+      setStoryIndex((p) => p + 1);
       setProgress(0);
       setShowViewers(false);
-      if (updatedIndex === totalSlides - 1) {
-        api.plugins().autoplay?.stop();
-      }
-    };
-
-    api.on("select", handleSelect);
-    return () => api.off("select", handleSelect);
-  }, [api, selectedUserStories]);
-
-  // Record view when story slide becomes active (skip if viewer is the owner)
-  useEffect(() => {
-    if (!selectedUserStories) return;
-    const story = selectedUserStories.stories[current];
-    if (!story || story.userId === user.id) return;
-    recordStoryView(story.id, user.id);
-  }, [current, selectedUserStories]);
-
-  // Progress bar updates
-  useEffect(() => {
-    if (!selectedUserStories || isHolding) return;
-
-    const interval = setInterval(() => {
-      setProgress((prev) =>
-        prev >= 100 ? 100 : prev + 100 / (STORY_DURATION / 100)
-      );
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [selectedUserStories, isHolding]);
-
-  // Advance or close on progress completion
-  useEffect(() => {
-    if (!selectedUserStories || progress < 100 || isHolding) return;
-
-    const timer = setTimeout(() => {
-      if (current === count - 1) {
-        api?.plugins().autoplay?.stop();
-        handleCloseModal();
-      } else {
-        api?.scrollNext();
-        setProgress(0);
-      }
-    }, 200);
-
-    return () => clearTimeout(timer);
-  }, [progress, current, count, selectedUserStories, api, isHolding]);
-
-  const handleHoldStart = () => {
-    setIsHolding(true);
-    api?.plugins().autoplay?.stop();
-  };
-
-  const handleHoldEnd = () => {
-    setIsHolding(false);
-    if (current < count - 1) {
-      api?.plugins().autoplay?.play();
+    } else {
+      handleCloseModal();
     }
   };
 
+  const goPrev = () => {
+    if (storyIndex > 0) {
+      setStoryIndex((p) => p - 1);
+      setProgress(0);
+      setShowViewers(false);
+    }
+  };
+
+  // ── record view ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!currentStory || currentStory.userId === user.id) return;
+    recordStoryView(currentStory.id, user.id);
+  }, [currentStory?.id]);
+
+  // ── progress bar ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!selectedUserStories || isHolding) return;
+    const interval = setInterval(() => {
+      setProgress((p) => (p >= 100 ? 100 : p + 100 / (STORY_DURATION / 100)));
+    }, 100);
+    return () => clearInterval(interval);
+  }, [selectedUserStories, isHolding, storyIndex]);
+
+  // ── auto-advance ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!selectedUserStories || progress < 100 || isHolding) return;
+    const t = setTimeout(goNext, 200);
+    return () => clearTimeout(t);
+  }, [progress]);
+
+  // ── tap-zone pointer handlers ──────────────────────────────────────────
+  const onZoneDown = () => {
+    pointerDownAt.current = Date.now();
+    setIsHolding(true);
+  };
+
+  const onZoneUp = (dir) => {
+    setIsHolding(false);
+    const held = Date.now() - (pointerDownAt.current ?? Date.now());
+    if (held < 200) {
+      if (dir === "prev") goPrev();
+      else if (dir === "next") goNext();
+    }
+  };
+
+  // ── viewers ────────────────────────────────────────────────────────────
   const handleShowViewers = async () => {
-    const story = selectedUserStories?.stories[current];
-    if (!story) return;
+    if (!currentStory) return;
     setLoadingViewers(true);
     setShowViewers(true);
     try {
-      const result = await getStoryViewers(story.id);
+      const result = await getStoryViewers(currentStory.id);
       if (result.success) setViewers(result.viewers);
     } catch {
       setViewers([]);
@@ -138,36 +113,28 @@ const Stories = ({ user, stories }) => {
     }
   };
 
+  // ── story creation ─────────────────────────────────────────────────────
   const handleUploadSuccess = (result) => {
     const imageUrl = result?.info?.secure_url;
-    if (!imageUrl) {
-      toast("Failed to retrieve image URL from Cloudinary.");
-      return;
-    }
+    if (!imageUrl) { toast("Failed to retrieve image URL."); return; }
     setUploadedImageUrl(imageUrl);
     setShowCreateModal(true);
   };
 
   const handleCreateStory = () => {
-    if (!uploadedImageUrl) {
-      toast("No image URL available to create story.");
-      return;
-    }
-
+    if (!uploadedImageUrl) return;
     startTransition(async () => {
       try {
-        const payload = { userId: user.id, imageUrl: uploadedImageUrl };
-        const newStory = await createStory(payload);
-
+        const newStory = await createStory({ userId: user.id, imageUrl: uploadedImageUrl });
         if (newStory?.success) {
           router.refresh();
-          toast("Story created successfully!");
+          toast("Story created!");
           setShowCreateModal(false);
         } else {
           throw new Error(newStory?.error || "Story creation failed");
         }
-      } catch (error) {
-        toast(`Failed to create story: ${error.message}`);
+      } catch (err) {
+        toast(`Failed: ${err.message}`);
       } finally {
         setUploadedImageUrl(null);
       }
@@ -179,48 +146,49 @@ const Stories = ({ user, stories }) => {
     setUploadedImageUrl(null);
   };
 
+  // ── delete ─────────────────────────────────────────────────────────────
   const handleDeleteStory = (storyId) => {
     startTransition(async () => {
       try {
         const result = await deleteStory(storyId, user.id);
         if (result.success) {
           router.refresh();
-          toast("Story deleted successfully!");
-          const updatedStories = selectedUserStories.stories.filter(
-            (story) => story.id !== storyId
-          );
-          if (updatedStories.length === 0) {
+          toast("Story deleted!");
+          const updated = selectedUserStories.stories.filter((s) => s.id !== storyId);
+          if (updated.length === 0) {
             handleCloseModal();
           } else {
-            setSelectedUserStories({
-              ...selectedUserStories,
-              stories: updatedStories,
-            });
-            if (current >= updatedStories.length) {
-              setCurrent(updatedStories.length - 1);
-            }
+            setSelectedUserStories({ ...selectedUserStories, stories: updated });
+            if (storyIndex >= updated.length) setStoryIndex(updated.length - 1);
           }
         }
-      } catch (error) {
-        toast(`Failed to delete story: ${error.message}`);
+      } catch (err) {
+        toast(`Failed: ${err.message}`);
       }
     });
   };
 
-  const isOwner = selectedUserStories?.user.id === user.id;
+  // ── open story group ───────────────────────────────────────────────────
+  const openGroup = (group) => {
+    setSelectedUserStories(group);
+    setStoryIndex(0);
+    setProgress(0);
+    setShowViewers(false);
+    setViewers([]);
+  };
 
+  // ──────────────────────────────────────────────────────────────────────
   return (
     <div className="w-[95%] mx-auto h-fit rounded-2xl overflow-x-auto py-4 px-5 shadow-md text-xs border-[1px] bg-slate-50 scrollbar-hide">
-      {/* Stories List */}
+
+      {/* ── thumbnail strip ─────────────────────────────────────────────── */}
       <div className="flex gap-1 md:gap-4 items-center w-max">
+        {/* create button */}
         <div className="flex flex-col items-center gap-1 cursor-pointer w-[5rem]">
           <CldUploadWidget
             uploadPreset="kumasocialmedia"
             onSuccess={handleUploadSuccess}
-            onError={(error) => {
-              toast("Upload failed. Check console for details.");
-              console.error("Cloudinary upload error:", error);
-            }}
+            onError={(e) => { toast("Upload failed."); console.error(e); }}
           >
             {({ open, isLoading }) => (
               <Button
@@ -228,23 +196,18 @@ const Stories = ({ user, stories }) => {
                 className="w-[4rem] h-[4rem] rounded-full bg-white text-black hover:bg-slate-300"
                 disabled={isLoading || isPending}
               >
-                <FontAwesomeIcon
-                  icon={faPlus}
-                  size="lg"
-                  className="text-[#FF4E02]"
-                />
+                <FontAwesomeIcon icon={faPlus} size="lg" className="text-[#FF4E02]" />
               </Button>
             )}
           </CldUploadWidget>
-          <span className="text-black">
-            {isPending ? "Uploading..." : "Create Stories"}
-          </span>
+          <span className="text-black">{isPending ? "Uploading..." : "Create Stories"}</span>
         </div>
 
+        {/* thumbnails */}
         {stories.map((group) => (
           <div
             key={group.user.id}
-            onClick={() => setSelectedUserStories(group)}
+            onClick={() => openGroup(group)}
             className="flex flex-col items-center gap-1 cursor-pointer w-[5rem]"
           >
             <div className="w-[4.5rem] h-[4.5rem] rounded-full ring-2 hover:ring-4 ring-[#FF4E01]">
@@ -261,7 +224,7 @@ const Stories = ({ user, stories }) => {
         ))}
       </div>
 
-      {/* Create Story Modal */}
+      {/* ── create-story confirmation modal ─────────────────────────────── */}
       {showCreateModal && (
         <ModalPortal>
           <div
@@ -273,9 +236,7 @@ const Stories = ({ user, stories }) => {
               className="relative w-[90%] rounded-lg p-4 shadow-md sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[20%]"
             >
               <div className="relative flex flex-col items-center gap-4">
-                <h3 className="absolute top-4 text-lg text-white">
-                  Story Preview
-                </h3>
+                <h3 className="absolute top-4 text-lg text-white">Story Preview</h3>
                 <img
                   src={uploadedImageUrl}
                   alt="Uploaded story preview"
@@ -302,174 +263,174 @@ const Stories = ({ user, stories }) => {
         </ModalPortal>
       )}
 
-      {/* Story Viewing Modal */}
-      {selectedUserStories && (
+      {/* ── Facebook-style story viewer ──────────────────────────────────── */}
+      {selectedUserStories && currentStory && (
         <ModalPortal>
-          <div
-            onClick={handleCloseModal}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="relative rounded-xl shadow-xl overflow-hidden w-[96vw] sm:w-[400px]"
-            >
-              <Carousel
-                opts={{ loop: false }}
-                setApi={setApi}
-                plugins={[
-                  Autoplay({ delay: STORY_DURATION, stopOnInteraction: false }),
-                ]}
-              >
-                <CarouselContent>
-                  {selectedUserStories.stories.map((story) => (
-                    <CarouselItem key={story.id}>
-                      {/* Fixed-height portrait container */}
+          {/* Full-screen black backdrop */}
+          <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
+
+            {/* Story card: full-screen on mobile, portrait column on desktop */}
+            <div className="relative w-full h-full sm:w-[420px] overflow-hidden">
+
+              {/* Blurred background fill (prevents black bars on non-portrait images) */}
+              <img
+                key={`bg-${currentStory.id}`}
+                src={currentStory.image}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-50 select-none"
+                draggable={false}
+              />
+
+              {/* Main story image */}
+              <img
+                key={`img-${currentStory.id}`}
+                src={currentStory.image}
+                alt="Story"
+                className="absolute inset-0 w-full h-full object-contain select-none"
+                draggable={false}
+              />
+
+              {/* ── tap zones ── z-10, below all overlays */}
+              <div className="absolute inset-0 flex z-10">
+                <div
+                  className="w-1/3 h-full cursor-pointer"
+                  onPointerDown={onZoneDown}
+                  onPointerUp={() => onZoneUp("prev")}
+                />
+                <div
+                  className="flex-1 h-full"
+                  onPointerDown={onZoneDown}
+                  onPointerUp={() => onZoneUp(null)}
+                />
+                <div
+                  className="w-1/3 h-full cursor-pointer"
+                  onPointerDown={onZoneDown}
+                  onPointerUp={() => onZoneUp("next")}
+                />
+              </div>
+
+              {/* ── top overlay: progress + user info ── z-20 */}
+              <div className="absolute top-0 left-0 right-0 z-20 px-3 pt-4 pb-10 bg-gradient-to-b from-black/75 to-transparent pointer-events-none">
+                {/* Progress bars */}
+                <div className="flex gap-1 mb-3">
+                  {selectedUserStories.stories.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="flex-1 h-[2px] bg-white/35 rounded-full overflow-hidden"
+                    >
                       <div
-                        className="relative w-full bg-black rounded-xl"
-                        style={{ height: "min(85vh, 750px)" }}
-                      >
-                        <img
-                          src={story.image}
-                          alt="Story"
-                          className="w-full h-full object-contain select-none"
-                          onMouseDown={handleHoldStart}
-                          onMouseUp={handleHoldEnd}
-                          onTouchStart={handleHoldStart}
-                          onTouchEnd={handleHoldEnd}
-                          draggable={false}
-                        />
-
-                        {/* Top: progress bars + header */}
-                        <div className="absolute top-0 left-0 right-0 px-3 pt-3 pb-2 bg-gradient-to-b from-black/70 to-transparent">
-                          <div className="flex gap-1 mb-2">
-                            {selectedUserStories.stories.map((_, idx) => (
-                              <Progress
-                                key={idx}
-                                value={
-                                  idx < current
-                                    ? 100
-                                    : idx === current
-                                    ? progress
-                                    : 0
-                                }
-                                className="flex-1 h-[3px] bg-white/30 [&>*]:bg-white"
-                              />
-                            ))}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Link
-                                href={`/profile/${selectedUserStories.user.id}`}
-                              >
-                                <img
-                                  src={
-                                    selectedUserStories.user?.avatar ||
-                                    "/user-default.png"
-                                  }
-                                  alt="profile"
-                                  className="h-9 w-9 rounded-full object-cover ring-2 ring-[#FF4E01]"
-                                />
-                              </Link>
-                              <div className="flex flex-col">
-                                <span className="text-white text-sm font-semibold leading-tight">
-                                  {selectedUserStories.user.name}
-                                </span>
-                                <span className="text-white/70 text-xs">
-                                  {formatDistanceToNow(
-                                    new Date(story.createdAt),
-                                    { addSuffix: true }
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition"
-                              onClick={handleCloseModal}
-                            >
-                              <FontAwesomeIcon icon={faXmark} />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Bottom: viewers icon + delete */}
-                        <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 bg-gradient-to-t from-black/60 to-transparent">
-                          <div className="flex items-center justify-between">
-                            {isOwner ? (
-                              <button
-                                onClick={handleShowViewers}
-                                className="flex items-center gap-1.5 text-white/80 hover:text-white transition text-sm"
-                              >
-                                <FontAwesomeIcon icon={faEye} />
-                                <span>Viewers</span>
-                              </button>
-                            ) : (
-                              <div />
-                            )}
-                            {story.userId === user.id && (
-                              <Button
-                                onClick={() => handleDeleteStory(story.id)}
-                                className="bg-transparent text-white hover:bg-white/10 px-3 py-1.5 text-sm rounded-lg shadow-none"
-                                disabled={isPending}
-                              >
-                                {isPending ? "Deleting..." : "Delete"}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Viewers panel (owner only) */}
-                        {showViewers && isOwner && (
-                          <div
-                            className="absolute inset-x-0 bottom-0 bg-black/85 backdrop-blur-sm rounded-t-2xl px-4 pt-3 pb-6 z-10"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-white text-sm font-semibold">
-                                {loadingViewers
-                                  ? "Loading..."
-                                  : `${viewers.length} viewer${viewers.length !== 1 ? "s" : ""}`}
-                              </span>
-                              <button
-                                onClick={() => setShowViewers(false)}
-                                className="text-white/60 hover:text-white"
-                              >
-                                <FontAwesomeIcon icon={faXmark} size="sm" />
-                              </button>
-                            </div>
-                            <div className="max-h-48 overflow-y-auto flex flex-col gap-2.5">
-                              {loadingViewers ? (
-                                <p className="text-white/50 text-xs text-center py-4">
-                                  Loading viewers...
-                                </p>
-                              ) : viewers.length === 0 ? (
-                                <p className="text-white/50 text-xs text-center py-4">
-                                  No viewers yet
-                                </p>
-                              ) : (
-                                viewers.map((viewer) => (
-                                  <div
-                                    key={viewer.id}
-                                    className="flex items-center gap-3"
-                                  >
-                                    <img
-                                      src={viewer.avatar || "/user-default.png"}
-                                      alt={viewer.name}
-                                      className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                                    />
-                                    <span className="text-white text-sm">
-                                      {viewer.name}
-                                    </span>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CarouselItem>
+                        className="h-full bg-white rounded-full"
+                        style={{
+                          width: `${
+                            idx < storyIndex ? 100 : idx === storyIndex ? progress : 0
+                          }%`,
+                          transition: idx === storyIndex ? "width 100ms linear" : "none",
+                        }}
+                      />
+                    </div>
                   ))}
-                </CarouselContent>
-              </Carousel>
+                </div>
+
+                {/* User row */}
+                <div className="flex items-center justify-between pointer-events-auto">
+                  <div className="flex items-center gap-2">
+                    <Link href={`/profile/${selectedUserStories.user.id}`}>
+                      <img
+                        src={selectedUserStories.user?.avatar || "/user-default.png"}
+                        alt="profile"
+                        className="h-10 w-10 rounded-full object-cover ring-2 ring-[#FF4E01]"
+                      />
+                    </Link>
+                    <div className="flex flex-col">
+                      <span className="text-white text-sm font-semibold leading-tight">
+                        {selectedUserStories.user.name}
+                      </span>
+                      <span className="text-white/65 text-xs">
+                        {formatDistanceToNow(new Date(currentStory.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleCloseModal}
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faXmark} size="lg" />
+                  </button>
+                </div>
+              </div>
+
+              {/* ── bottom overlay: viewers + delete ── z-20 */}
+              <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-8 pt-14 bg-gradient-to-t from-black/75 to-transparent">
+                <div className="flex items-center justify-between">
+                  {isOwner ? (
+                    <button
+                      onClick={handleShowViewers}
+                      className="flex items-center gap-2 text-white/85 hover:text-white transition-colors text-sm font-medium"
+                    >
+                      <FontAwesomeIcon icon={faEye} />
+                      <span>Viewers</span>
+                    </button>
+                  ) : (
+                    <div />
+                  )}
+                  {currentStory.userId === user.id && (
+                    <Button
+                      onClick={() => handleDeleteStory(currentStory.id)}
+                      disabled={isPending}
+                      className="h-auto px-4 py-1.5 text-sm rounded-full bg-transparent border border-white/40 text-white hover:bg-white/10 shadow-none"
+                    >
+                      {isPending ? "Deleting…" : "Delete"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* ── viewers panel (slides up from bottom) ── z-30 */}
+              {showViewers && isOwner && (
+                <div
+                  className="absolute inset-x-0 bottom-0 z-30 bg-zinc-900/95 backdrop-blur-md rounded-t-3xl px-5 pt-4 pb-10"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* drag pill */}
+                  <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mb-4" />
+
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-white font-semibold text-base">
+                      {loadingViewers
+                        ? "Loading…"
+                        : `${viewers.length} viewer${viewers.length !== 1 ? "s" : ""}`}
+                    </span>
+                    <button
+                      onClick={() => setShowViewers(false)}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faXmark} size="sm" />
+                    </button>
+                  </div>
+
+                  <div className="max-h-60 overflow-y-auto flex flex-col gap-3">
+                    {loadingViewers ? (
+                      <p className="text-white/50 text-sm text-center py-6">Loading…</p>
+                    ) : viewers.length === 0 ? (
+                      <p className="text-white/50 text-sm text-center py-6">No viewers yet</p>
+                    ) : (
+                      viewers.map((viewer) => (
+                        <div key={viewer.id} className="flex items-center gap-3">
+                          <img
+                            src={viewer.avatar || "/user-default.png"}
+                            alt={viewer.name}
+                            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                          />
+                          <span className="text-white text-sm font-medium">{viewer.name}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </ModalPortal>
