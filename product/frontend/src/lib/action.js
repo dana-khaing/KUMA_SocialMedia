@@ -2,7 +2,11 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
-import { triggerNotificationCreated } from "./pusherServer";
+import {
+  triggerNotificationCreated,
+  triggerPostCommentCreated,
+  triggerPostReactionUpdated,
+} from "./pusherServer";
 import { isDatabaseUnavailableError } from "./databaseStatus";
 
 // Follow action
@@ -280,6 +284,8 @@ export const switchReaction = async (postId, userId, reactionType) => {
 
   try {
     let reactionId;
+    let action = "added";
+    let removedOppositeType = null;
     await prisma.$transaction(async (tx) => {
       const oppositeType = reactionType === "like" ? "love" : "like";
 
@@ -302,6 +308,7 @@ export const switchReaction = async (postId, userId, reactionType) => {
             });
 
       if (oppositeReaction) {
+        removedOppositeType = oppositeType;
         if (oppositeType === "like") {
           await tx.like.delete({
             where: { id: oppositeReaction.id },
@@ -314,6 +321,7 @@ export const switchReaction = async (postId, userId, reactionType) => {
       }
 
       if (existingReaction) {
+        action = "removed";
         if (reactionType === "like") {
           await tx.like.delete({
             where: { id: existingReaction.id },
@@ -343,7 +351,26 @@ export const switchReaction = async (postId, userId, reactionType) => {
       await notifyReactionCreated(reactionType.toUpperCase(), reactionId);
     }
 
-    return { success: true, reactionType };
+    const [likeCount, loveCount] = await Promise.all([
+      prisma.like.count({ where: { postId } }),
+      prisma.love.count({ where: { postId } }),
+    ]);
+
+    const payload = {
+      postId,
+      userId,
+      reactionType,
+      action,
+      removedOppositeType,
+      counts: {
+        likes: likeCount,
+        loves: loveCount,
+      },
+    };
+
+    await triggerPostReactionUpdated(payload);
+
+    return { success: true, ...payload };
   } catch (error) {
     console.error("Error switching reaction:", error);
     throw new Error("Something went wrong, Kuma");
@@ -418,6 +445,8 @@ export const createComment = async (postId, userId, desc) => {
     });
     // Notify the post owner about the new comment
     await notifyCommentCreated(comment.id);
+    const commentCount = await prisma.comment.count({ where: { postId } });
+    await triggerPostCommentCreated({ comment, commentCount });
     return { success: true, comment };
   } catch (error) {
     //console.error("Error creating comment:", error);

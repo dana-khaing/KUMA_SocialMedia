@@ -4,6 +4,7 @@ import Pusher from "pusher-js";
 
 let pusherClient;
 const channelSubscriptions = new Map();
+const POST_EVENTS_CHANNEL = "public-posts";
 
 export function getNotificationChannelName(userId) {
   return `private-user-${userId}`;
@@ -117,6 +118,57 @@ export function subscribeToMessageEvents(userId, { onMessageCreated, onTyping })
     if (currentSubscription.count < 1) {
       pusher.unsubscribe(channelName);
       channelSubscriptions.delete(channelName);
+    }
+  };
+}
+
+export function subscribeToPostEvents({ onReactionUpdated, onCommentCreated }) {
+  const pusher = getPusherClient();
+
+  if (!pusher) {
+    return () => {};
+  }
+
+  let subscription = channelSubscriptions.get(POST_EVENTS_CHANNEL);
+
+  if (!subscription) {
+    subscription = {
+      channel: pusher.subscribe(POST_EVENTS_CHANNEL),
+      count: 0,
+    };
+    channelSubscriptions.set(POST_EVENTS_CHANNEL, subscription);
+  }
+
+  subscription.count += 1;
+
+  if (onReactionUpdated) {
+    subscription.channel.bind("post:reaction", onReactionUpdated);
+  }
+
+  if (onCommentCreated) {
+    subscription.channel.bind("post:comment", onCommentCreated);
+  }
+
+  return () => {
+    const currentSubscription = channelSubscriptions.get(POST_EVENTS_CHANNEL);
+
+    if (!currentSubscription) {
+      return;
+    }
+
+    if (onReactionUpdated) {
+      currentSubscription.channel.unbind("post:reaction", onReactionUpdated);
+    }
+
+    if (onCommentCreated) {
+      currentSubscription.channel.unbind("post:comment", onCommentCreated);
+    }
+
+    currentSubscription.count -= 1;
+
+    if (currentSubscription.count < 1) {
+      pusher.unsubscribe(POST_EVENTS_CHANNEL);
+      channelSubscriptions.delete(POST_EVENTS_CHANNEL);
     }
   };
 }
