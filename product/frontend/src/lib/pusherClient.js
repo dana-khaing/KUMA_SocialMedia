@@ -191,6 +191,50 @@ export function subscribeToMessagePresence(userId, onMembersChanged) {
   };
 }
 
+export function subscribeToFriendEvents(userId, { onFriendRequestReceived }) {
+  const pusher = getPusherClient();
+
+  if (!pusher || !userId) {
+    return () => {};
+  }
+
+  const channelName = getNotificationChannelName(userId);
+  let subscription = channelSubscriptions.get(channelName);
+
+  if (!subscription) {
+    subscription = {
+      channel: pusher.subscribe(channelName),
+      count: 0,
+    };
+    channelSubscriptions.set(channelName, subscription);
+  }
+
+  subscription.count += 1;
+
+  if (onFriendRequestReceived) {
+    subscription.channel.bind("friend:request", onFriendRequestReceived);
+  }
+
+  return () => {
+    const currentSubscription = channelSubscriptions.get(channelName);
+
+    if (!currentSubscription) {
+      return;
+    }
+
+    if (onFriendRequestReceived) {
+      currentSubscription.channel.unbind("friend:request", onFriendRequestReceived);
+    }
+
+    currentSubscription.count -= 1;
+
+    if (currentSubscription.count < 1) {
+      pusher.unsubscribe(channelName);
+      channelSubscriptions.delete(channelName);
+    }
+  };
+}
+
 export function subscribeToPostEvents({ onReactionUpdated, onCommentCreated }) {
   const pusher = getPusherClient();
 

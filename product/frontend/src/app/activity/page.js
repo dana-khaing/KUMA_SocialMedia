@@ -7,20 +7,20 @@ import NotificationServer from "@/components/activity/notificationServer";
 
 export const Activity = async () => {
   return (
-    <div className="w-full min-h-screen flex items-start grow-0 justify-center gap-4 p-4">
+    <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden lg:px-4">
       {/* left */}
-      <div className="hidden lg:flex grow-0 flex-col gap-5 w-[25%]">
-        <ProfileSmallCard />
-        <UsefulTool />
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
+        <div className="shrink-0"><ProfileSmallCard /></div>
+        <div className="shrink-0"><UsefulTool /></div>
       </div>
       {/* center */}
-      <div className="flex w-full px-2 flex-col shrink-0 lg:w-[50%] gap-5">
+      <div className="flex w-screen min-h-0 shrink-0 flex-col px-2 lg:h-full lg:w-[50%] lg:overflow-y-auto lg:scrollbar-hide">
         <NotificationServer />
       </div>
       {/* right */}
-      <div className="hidden lg:flex flex-col grow-0 gap-5 w-[25%]">
-        <FriendRequest />
-        <Checkfriends />
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
+        <div className="shrink-0"><FriendRequest /></div>
+        <div className="shrink-0"><Checkfriends /></div>
       </div>
     </div>
   );

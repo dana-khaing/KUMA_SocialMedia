@@ -42,7 +42,7 @@ export default async function Home() {
       select: { followingId: true },
     });
 
-    const followingIds = followings.map((following) => following.followingId);
+    const followingIds = followings.map((f) => f.followingId);
 
     posts =
       (await prisma.post.findMany({
@@ -151,9 +151,9 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-[calc(100vh-5rem)] w-full items-start justify-center gap-4 p-4 lg:h-[calc(100vh-5rem)] lg:overflow-hidden lg:px-4">
-      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
-        <ProfileSmallCard />
-        <UsefulTool />
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
+        <div className="shrink-0"><ProfileSmallCard /></div>
+        <div className="shrink-0"><UsefulTool /></div>
       </div>
 
       <div className="flex w-screen min-h-0 shrink-0 flex-col px-2 lg:h-full lg:w-[50%] lg:overflow-y-auto lg:scrollbar-hide">
@@ -163,9 +163,9 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%]">
-        <FriendRequest />
-        <Checkfriends />
+      <div className="hidden min-h-0 grow-0 flex-col gap-5 overflow-y-auto scrollbar-hide lg:flex lg:w-[25%] lg:h-full">
+        <div className="shrink-0"><FriendRequest /></div>
+        <div className="shrink-0"><Checkfriends /></div>
       </div>
     </div>
   );
