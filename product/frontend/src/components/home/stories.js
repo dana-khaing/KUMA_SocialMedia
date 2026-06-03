@@ -67,29 +67,37 @@ const Stories = ({ user, stories }) => {
     recordStoryView(currentStory.id, user.id);
   }, [currentStory?.id]);
 
-  // ── progress bar ───────────────────────────────────────────────────────
+  // ── progress bar (pauses while viewers panel is open) ─────────────────
   useEffect(() => {
-    if (!selectedUserStories || isHolding) return;
+    if (!selectedUserStories || isHolding || showViewers) return;
     const interval = setInterval(() => {
       setProgress((p) => (p >= 100 ? 100 : p + 100 / (STORY_DURATION / 100)));
     }, 100);
     return () => clearInterval(interval);
-  }, [selectedUserStories, isHolding, storyIndex]);
+  }, [selectedUserStories, isHolding, storyIndex, showViewers]);
 
-  // ── auto-advance ───────────────────────────────────────────────────────
+  // ── auto-advance (blocked while viewers panel is open) ────────────────
   useEffect(() => {
-    if (!selectedUserStories || progress < 100 || isHolding) return;
+    if (!selectedUserStories || progress < 100 || isHolding || showViewers) return;
     const t = setTimeout(goNext, 200);
     return () => clearTimeout(t);
-  }, [progress]);
+  }, [progress, showViewers]);
 
   // ── tap-zone pointer handlers ──────────────────────────────────────────
-  const onZoneDown = () => {
+  const onZoneDown = (e) => {
+    e.stopPropagation();
     pointerDownAt.current = Date.now();
     setIsHolding(true);
   };
 
-  const onZoneUp = (dir) => {
+  const onZoneUp = (e, dir) => {
+    e.stopPropagation();
+    // if viewers panel is open, any tap just closes it
+    if (showViewers) {
+      setShowViewers(false);
+      setIsHolding(false);
+      return;
+    }
     setIsHolding(false);
     const held = Date.now() - (pointerDownAt.current ?? Date.now());
     if (held < 200) {
@@ -296,17 +304,17 @@ const Stories = ({ user, stories }) => {
                 <div
                   className="w-1/3 h-full cursor-pointer"
                   onPointerDown={onZoneDown}
-                  onPointerUp={() => onZoneUp("prev")}
+                  onPointerUp={(e) => onZoneUp(e, "prev")}
                 />
                 <div
                   className="flex-1 h-full"
                   onPointerDown={onZoneDown}
-                  onPointerUp={() => onZoneUp(null)}
+                  onPointerUp={(e) => onZoneUp(e, null)}
                 />
                 <div
                   className="w-1/3 h-full cursor-pointer"
                   onPointerDown={onZoneDown}
-                  onPointerUp={() => onZoneUp("next")}
+                  onPointerUp={(e) => onZoneUp(e, "next")}
                 />
               </div>
 
@@ -333,7 +341,11 @@ const Stories = ({ user, stories }) => {
                 </div>
 
                 {/* User row */}
-                <div className="flex items-center justify-between pointer-events-auto">
+                <div
+                  className="flex items-center justify-between pointer-events-auto"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onPointerUp={(e) => e.stopPropagation()}
+                >
                   <div className="flex items-center gap-2">
                     <Link href={`/profile/${selectedUserStories.user.id}`}>
                       <img
@@ -363,7 +375,11 @@ const Stories = ({ user, stories }) => {
               </div>
 
               {/* ── bottom overlay: viewers + delete ── z-20 */}
-              <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-8 pt-14 bg-gradient-to-t from-black/75 to-transparent">
+              <div
+                className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-8 pt-14 bg-gradient-to-t from-black/75 to-transparent"
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+              >
                 <div className="flex items-center justify-between">
                   {isOwner ? (
                     <button
