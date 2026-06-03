@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
 import { triggerNotificationCreated } from "./pusherServer";
+import { isDatabaseUnavailableError } from "./databaseStatus";
 
 // Follow action
 export const followAction = async (userId) => {
@@ -1135,6 +1136,11 @@ export const getUnreadNotificationCount = async () => {
       },
     });
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      console.error("Database unavailable while fetching unread notification count:", error);
+      return 0;
+    }
+
     console.error("Error fetching unread notification count:", error);
     throw new Error("Failed to fetch unread notification count");
   }
