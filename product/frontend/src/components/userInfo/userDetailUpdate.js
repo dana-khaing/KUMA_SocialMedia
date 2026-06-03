@@ -223,9 +223,9 @@ const UserDetailUpdate = ({ user }) => {
               />
             </div>
 
-            <div className="flex h-8 justify-center items-center">
+            <div className="mt-3 flex justify-center pb-2">
               <Button
-                className="flex items-center w-32 absolute rounded-full bg-[#FF4E01] text-white hover:text-[#FF4E01] hover:drop-shadow-lg hover:bg-white h-fit cursor-pointer gap-2 text-center justify-center"
+                className="flex h-fit w-32 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#FF4E01] text-center text-white hover:bg-white hover:text-[#FF4E01] hover:drop-shadow-lg"
                 type="submit"
               >
                 Update Info
