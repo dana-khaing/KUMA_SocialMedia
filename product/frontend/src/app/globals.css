@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Strip Clerk's card shell on auth pages */
+.auth-page .cl-card {
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+.auth-page .cl-rootBox {
+  width: 100% !important;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

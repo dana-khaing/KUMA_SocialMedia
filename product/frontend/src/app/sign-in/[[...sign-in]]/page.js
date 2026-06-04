@@ -1,113 +1,116 @@
 import { SignIn } from "@clerk/nextjs";
-import { Separator } from "../../../components/ui/separator";
 
 export default function Page() {
   return (
-    <div className="p-4 flex-col gap-1 text-center text-white bg-slate-400 rounded-xl">
-      <div>
-        <span className="relative text-5xl font-bold pb-3 text-white font-sans italic pointer-events-none">
-          Welcome to{" "}
-          <span className="relative inline-block">
-            <span className="absolute inset-0 bg-[#ff4e02] transform -skew-x-12 rounded-md"></span>
-            <span className="relative p-3">KUMA</span>
-          </span>{" "}
-          !
-        </span>
-
-        <h1 className="text-xl pb-5 pt-2 rounded-t-xl italic font-bold pointer-events-none">
-          Share. Learn. Grow and Connect.
-        </h1>
-        <p className=" text-s text-center px-5 italic pointer-events-none">
-          KUMA is your dedicated space for academic and professional networking,
-          designed to connect you with a thriving community of students and
-          professionals. Share your knowledge, seek answers, and build lasting
-          connections.
-        </p>
-      </div>
-      <div className="flex rounded-b-xl">
-        <div className="hidden md:w-[50%] md:flex flex-col gap-5 justify-center items-center">
-          <img
-            src="/sign-in4.svg"
-            alt="Sign in"
-            className="w-[80%] h-[80%] flex justify-center items-center  p-4 rounded-3xl "
-          />
-        </div>
-        <div className=" w-[100%] my-5 h-full md:w-[50%] flex justify-center items-center">
-          <SignIn
-            appearance={{
-              variables: {
-                colorPrimary: "#FF4E02", // Customize the primary color
-              },
+    <>
+      <div className="flex bg-[#F0F2F5]" style={{ height: "calc(100vh - 5rem)" }}>
+        {/* Left: Brand Panel */}
+        <div className="hidden lg:flex lg:w-[58%] relative flex-col justify-between p-12 overflow-hidden bg-[#0D0603]">
+          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-[#FF4E02]/20 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 -left-24 w-96 h-96 rounded-full bg-[#FF4E02]/10 blur-[100px] pointer-events-none" />
+          <div
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(circle, #FF4E02 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
             }}
           />
+
+          {/* Logo */}
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#FF4E02] rounded-xl flex items-center justify-center shadow-lg shadow-[#FF4E02]/40">
+              <span className="text-white font-black text-xl leading-none">K</span>
+            </div>
+            <span className="text-white font-black text-2xl tracking-tight">KUMA</span>
+          </div>
+
+          {/* Main content */}
+          <div className="relative z-10 flex flex-col gap-8">
+            <div>
+              <h1 className="text-6xl font-black text-white leading-[1.05] tracking-tight">
+                Connect.<br />
+                <span className="text-[#FF4E02]">Share.</span><br />
+                Grow.
+              </h1>
+              <p className="mt-5 text-white/50 text-lg leading-relaxed max-w-sm">
+                Your dedicated space for academic and professional networking.
+                Join a thriving community of students and professionals.
+              </p>
+            </div>
+
+            <div className="flex gap-10">
+              {[
+                { value: "10K+", label: "Members" },
+                { value: "50K+", label: "Posts" },
+                { value: "100+", label: "Topics" },
+              ].map(({ value, label }) => (
+                <div key={label}>
+                  <p className="text-3xl font-black text-[#FF4E02]">{value}</p>
+                  <p className="text-white/40 text-sm mt-0.5">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {["Share Knowledge", "Ask Questions", "Build Connections", "Grow Together"].map((tag) => (
+                <span key={tag} className="px-3 py-1.5 rounded-full text-sm font-medium bg-white/5 text-white/60 border border-white/10">
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <img src="/sign-in4.svg" alt="" aria-hidden="true" className="w-full max-w-xs opacity-75" />
+          </div>
+
+          <p className="relative z-10 text-white/20 text-sm">© 2025 KUMA. All rights reserved.</p>
+        </div>
+
+        {/* Right: Auth Panel */}
+        <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-8 py-10 bg-[#F0F2F5]">
+          <div className="lg:hidden flex items-center gap-2 mb-10">
+            <div className="w-9 h-9 bg-[#FF4E02] rounded-xl flex items-center justify-center shadow-md shadow-[#FF4E02]/30">
+              <span className="text-white font-black text-lg leading-none">K</span>
+            </div>
+            <span className="text-gray-900 font-black text-xl tracking-tight">KUMA</span>
+          </div>
+
+          <div className="w-full max-w-[400px]">
+            <div className="mb-8">
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight">Welcome back</h2>
+              <p className="text-gray-400 mt-2 text-base">Sign in to continue to your KUMA account</p>
+            </div>
+
+            <SignIn
+              appearance={{
+                variables: {
+                  colorPrimary: "#FF4E02",
+                  colorBackground: "#FFFFFF",
+                  colorText: "#111827",
+                  colorTextSecondary: "#6B7280",
+                  colorInputBackground: "#FFFFFF",
+                  colorInputText: "#111827",
+                  colorNeutral: "#E5E7EB",
+                  borderRadius: "0.75rem",
+                  spacingUnit: "1rem",
+                },
+                elements: {
+                  rootBox: { style: { width: "100%" } },
+                  card: { style: { boxShadow: "none", border: "none", background: "transparent", padding: 0 } },
+                  headerTitle: { style: { display: "none" } },
+                  headerSubtitle: { style: { display: "none" } },
+                  socialButtonsBlockButton: "border-2 border-gray-200 hover:border-[#FF4E02] hover:bg-orange-50 transition-all duration-150 font-semibold text-gray-700 bg-white",
+                  formButtonPrimary: "bg-[#FF4E02] hover:bg-[#e04500] text-white font-bold transition-colors duration-150",
+                  footerActionLink: "text-[#FF4E02] font-semibold hover:text-[#e04500]",
+                  formFieldInput: { style: { border: "1.5px solid #D1D5DB", borderRadius: "0.75rem", backgroundColor: "#FFFFFF", color: "#111827" } },
+                  formFieldLabel: "text-gray-700 font-medium text-sm",
+                  dividerLine: "bg-gray-300",
+                  dividerText: "text-gray-400 text-sm",
+                },
+              }}
+            />
+          </div>
         </div>
       </div>
-      <Separator className="w-[95%] h-[0.05rem] m-5 mx-auto bg-[#ff4e02]" />
-      <h1 className="text-3xl pb-5 pt-2 rounded-t-xl italic font-bold pointer-events-none">
-        Where Ideas Come to Life
-      </h1>
-      <p className=" text-lg text-center px-5 italic pointer-events-none">
-        Join this platform built for collaboration, discovery, and inspiration.
-        Here, your ideas and experiences meet a community eager to learn, share,
-        and grow together.
-      </p>
-      <div className="flex">
-        <div className="flex flex-col gap-5 px-5 w-[50%] h-auto py-5">
-          <h1 className=" text-xl text-center italic pointer-events-none text-[#ff4e02]">
-            Share your thoughts, experiences, and knowledge with the community.
-          </h1>
-          <img src="/post.svg" alt="post" className=" w-64 h-54 mx-auto" />
-        </div>
-        <div className="flex items-center">
-          <Separator
-            className="w-[0.05rem] m-5 h-[70%] my-auto bg-[#ff4e02]"
-            orientation="vertical"
-          />
-        </div>
-        <div className="flex flex-col gap-5 px-5 w-[50%] h-auto py-5">
-          <h1 className=" text-xl text-center italic pointer-events-none text-[#ff4e02]">
-            Learn from the experiences and knowledge of others.
-          </h1>
-          <img src="/video.svg" alt="video" className=" w-64 h-54 mx-auto" />
-        </div>
-      </div>
-      <Separator className="w-[95%] h-[0.05rem] m-5 mx-auto bg-[#ff4e02]" />
-      <p className=" text-lg text-center px-5 italic pointer-events-none">
-        Connect with like-minded individuals and build lasting relationships.
-        Here, you can engage in meaningful conversations, share your
-        experiences, and learn from others.
-      </p>
-      <div className="flex">
-        <div className="flex flex-col gap-5 px-5 w-[50%] h-auto py-5">
-          <h1 className=" text-xl text-center italic pointer-events-none text-[#ff4e02]">
-            Engage in meaningful conversations
-          </h1>
-          <img src="/message.svg" alt="post" className=" w-64 h-54 mx-auto" />
-        </div>
-        <div className="flex items-center">
-          <Separator
-            className="w-[0.05rem] m-5 h-[70%] my-auto bg-[#ff4e02]"
-            orientation="vertical"
-          />
-        </div>
-        <div className="flex flex-col gap-5 px-5 w-[50%] h-auto py-5">
-          <h1 className=" text-xl text-center italic pointer-events-none text-[#ff4e02]">
-            Connect with others through video calls.
-          </h1>
-          <img
-            src="/video_call.svg"
-            alt="video"
-            className=" w-64 h-54 mx-auto"
-          />
-        </div>
-      </div>
-      <Separator className="w-[95%] h-[0.05rem] m-5 mx-auto bg-[#ff4e02]" />
-      {/* footer */}
-      <div className="flex justify-center items-center text-lg text-center text-white ">
-        <p className="italic pointer-events-none">
-          © 2021 KUMA. All rights reserved.
-        </p>
-      </div>
-    </div>
+    </>
   );
 }
