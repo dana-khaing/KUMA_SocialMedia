@@ -373,7 +373,10 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                 )}
                 {/* Embedded original post (when this is a share) */}
                 {post.sharedPost && (
-                  <div className="my-2 rounded-xl border border-gray-200 overflow-hidden bg-gray-50">
+                  <Link
+                    href={`/post/${post.sharedPost.id}`}
+                    className="block my-2 rounded-xl border border-gray-200 overflow-hidden bg-gray-50 hover:border-[#FF4E01] transition-colors"
+                  >
                     <div className="flex items-center gap-2.5 px-4 pt-3 pb-1">
                       <img
                         src={post.sharedPost.user?.avatar || "/user-default.png"}
@@ -420,7 +423,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                     {!post.sharedPost.desc && !post.sharedPost.poll && (!post.sharedPost.images || post.sharedPost.images.length === 0) && (
                       <p className="px-4 pb-3 text-sm text-gray-400 italic">Original content unavailable</p>
                     )}
-                  </div>
+                  </Link>
                 )}
                 {post.poll && (
                   <PollDisplay poll={post.poll} currentUserId={user.id} />
