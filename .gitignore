@@ -47,3 +47,6 @@ build/
 .netlify
 documents/*.pptx
 documents/
+
+# Claude Code
+.claude/
