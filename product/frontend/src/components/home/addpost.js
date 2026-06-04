@@ -7,18 +7,19 @@ import {
   faVideo,
   faT,
   faXmark,
+  faTag,
 } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
 import { useState, useTransition } from "react";
 import { CldUploadWidget } from "next-cloudinary";
-import { createPost } from "@/lib/action";
+import { createPost, searchAction } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ModalPortal from "../ui/modalPortal";
 import CameraCapture from "./cameraCapture";
 
-const createOptimisticPost = ({ desc, imageUrls, user }) => {
+const createOptimisticPost = ({ desc, imageUrls, taggedUsers = [], user }) => {
   const timestamp = Date.now();
   const tempId = `temp-post-${timestamp}`;
 
@@ -39,6 +40,7 @@ const createOptimisticPost = ({ desc, imageUrls, user }) => {
       url,
       postId: tempId,
     })),
+    tags: taggedUsers.map((u) => ({ user: u })),
     likes: [],
     loves: [],
     comments: [],
@@ -63,6 +65,10 @@ const Addpost = ({
   const [success, setSuccess] = useState(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
+  const [taggedUsers, setTaggedUsers] = useState([]);
+  const [tagQuery, setTagQuery] = useState("");
+  const [tagResults, setTagResults] = useState([]);
+  const [showTagSearch, setShowTagSearch] = useState(false);
 
   const router = useRouter();
 
@@ -80,15 +86,21 @@ const Addpost = ({
 
     const optimisticDesc = desc.trim();
     const imageUrls = images.map((img) => img.secure_url);
+    const taggedUserIds = taggedUsers.map((u) => u.id);
     const tempPost = createOptimisticPost({
       desc: optimisticDesc,
       imageUrls,
+      taggedUsers,
       user,
     });
 
     onOptimisticPost?.(tempPost);
     setDesc("");
     setImages([]);
+    setTaggedUsers([]);
+    setTagQuery("");
+    setTagResults([]);
+    setShowTagSearch(false);
     setError(null);
     setSuccess(null);
     setShowPostModal(false);
@@ -99,6 +111,7 @@ const Addpost = ({
           userId: user.id,
           desc: optimisticDesc,
           imageUrls,
+          taggedUserIds,
         });
         if (result.success) {
           onPostConfirmed?.(tempPost.id, result.post);
@@ -120,7 +133,11 @@ const Addpost = ({
 
   const handleClosePostModal = () => {
     setShowPostModal(false);
-    setImages([]); // Clear images on close
+    setImages([]);
+    setTaggedUsers([]);
+    setTagQuery("");
+    setTagResults([]);
+    setShowTagSearch(false);
   };
 
   const handleImageUpload = (result) => {
@@ -138,6 +155,34 @@ const Addpost = ({
   const handleCameraCapture = (cloudinaryData) => {
     setImages((prev) => [...prev, cloudinaryData]);
     setShowPostModal(true);
+  };
+
+  const handleTagSearch = async (value) => {
+    setTagQuery(value);
+    if (value.trim().length < 2) {
+      setTagResults([]);
+      return;
+    }
+    try {
+      const results = await searchAction(value.trim());
+      setTagResults(
+        results.filter(
+          (u) => u.id !== user.id && !taggedUsers.some((t) => t.id === u.id)
+        )
+      );
+    } catch {
+      setTagResults([]);
+    }
+  };
+
+  const addTag = (tagUser) => {
+    setTaggedUsers((prev) => [...prev, tagUser]);
+    setTagQuery("");
+    setTagResults([]);
+  };
+
+  const removeTag = (userId) => {
+    setTaggedUsers((prev) => prev.filter((u) => u.id !== userId));
   };
 
   return (
@@ -297,6 +342,76 @@ const Addpost = ({
                   disabled={isPending}
                 ></textarea>
               </div>
+              {/* Tag People */}
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTagSearch((v) => !v)}
+                  className="flex items-center gap-2 text-[#FF4E01] text-sm w-fit"
+                >
+                  <FontAwesomeIcon icon={faTag} size="sm" />
+                  <span>{taggedUsers.length > 0 ? "Edit tags" : "Tag people"}</span>
+                </button>
+
+                {showTagSearch && (
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search by name or username…"
+                      value={tagQuery}
+                      onChange={(e) => handleTagSearch(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#FF4E01]"
+                      autoFocus
+                    />
+                    {tagResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto mt-1">
+                        {tagResults.map((u) => (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => addTag(u)}
+                            className="flex items-center gap-2 px-3 py-2 hover:bg-orange-50 w-full text-left"
+                          >
+                            <img
+                              src={u.avatar || "/user-default.png"}
+                              alt={u.name}
+                              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                            />
+                            <span className="text-sm font-medium">{u.name} {u.surname}</span>
+                            <span className="text-xs text-gray-400 ml-auto">@{u.username}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {taggedUsers.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {taggedUsers.map((u) => (
+                      <span
+                        key={u.id}
+                        className="flex items-center gap-1 bg-orange-50 border border-orange-200 text-[#FF4E01] px-2.5 py-1 rounded-full text-xs font-medium"
+                      >
+                        <img
+                          src={u.avatar || "/user-default.png"}
+                          alt={u.name}
+                          className="w-4 h-4 rounded-full object-cover"
+                        />
+                        {u.name}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(u.id)}
+                          className="ml-0.5 hover:text-red-500 transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faXmark} size="xs" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Image Previews */}
               {images.length > 0 && (
                 <div className="grid grid-cols-2 gap-2">
