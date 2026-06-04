@@ -180,29 +180,15 @@ const Addpost = ({
         </div>
 
         <div className="w-full h-10 flex gap-2 items-center justify-start md:justify-center mt-2 overflow-x-auto flex-nowrap scrollbar-hide">
-          <CldUploadWidget
-            uploadPreset="kumasocialmedia"
-            options={{ multiple: true, maxFiles: 10 }} // Allow multiple uploads
-            onSuccess={handleImageUpload}
-            onError={(error) => {
-              console.log("Error:", error);
-              setError("Upload failed. Check console for details.");
-              toast("Upload failed. Check console for details.");
-            }}
-            onClose={() => console.log("Widget closed")}
+          <Button
+            type="button"
+            onClick={() => setShowCameraModal(true)}
+            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
+            disabled={isPending}
           >
-            {({ open, isLoading }) => (
-              <Button
-                type="button"
-                onClick={() => open()}
-                className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
-                disabled={isLoading || isPending}
-              >
-                <FontAwesomeIcon icon={faCamera} size="lg" />
-                <span>Photo</span>
-              </Button>
-            )}
-          </CldUploadWidget>
+            <FontAwesomeIcon icon={faCamera} size="lg" />
+            <span>Photo</span>
+          </Button>
 
           <Separator orientation="vertical" className="bg-[#FF4E01]" />
 
@@ -265,17 +251,6 @@ const Addpost = ({
             )}
           </CldUploadWidget>
 
-          <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
-
-          <Button
-            type="button"
-            onClick={() => setShowCameraModal(true)}
-            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
-            disabled={isPending}
-          >
-            <FontAwesomeIcon icon={faCamera} size="lg" />
-            <span>Camera</span>
-          </Button>
         </div>
       </form>
 
