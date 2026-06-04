@@ -42,6 +42,7 @@ model User {
   stories                  Story[]
   storyViews               StoryView[]
   postTags                 PostTag[]
+  pollVotes                PollVote[]
 }
 
 model Post {
@@ -57,8 +58,44 @@ model Post {
   user          User           @relation(fields: [userId], references: [id])
   images        PostImage[]
   tags          PostTag[]
+  poll          Poll?
 
   @@index([userId], map: "Post_userId_fkey")
+}
+
+model Poll {
+  id        Int          @id @default(autoincrement())
+  postId    Int          @unique
+  question  String?
+  createdAt DateTime     @default(now())
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  votes     PollVote[]
+}
+
+model PollOption {
+  id     Int        @id @default(autoincrement())
+  pollId Int
+  text   String
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id           Int        @id @default(autoincrement())
+  pollId       Int
+  pollOptionId Int
+  userId       String
+  createdAt    DateTime   @default(now())
+  poll         Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option       PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@index([pollOptionId])
+  @@index([userId])
 }
 
 model PostTag {
