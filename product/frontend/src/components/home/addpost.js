@@ -16,6 +16,7 @@ import { createPost } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ModalPortal from "../ui/modalPortal";
+import CameraCapture from "./cameraCapture";
 
 const createOptimisticPost = ({ desc, imageUrls, user }) => {
   const timestamp = Date.now();
@@ -61,6 +62,7 @@ const Addpost = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showPostModal, setShowPostModal] = useState(false);
+  const [showCameraModal, setShowCameraModal] = useState(false);
 
   const router = useRouter();
 
@@ -131,6 +133,11 @@ const Addpost = ({
   const removeImage = (index) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
     if (images.length === 1) setShowPostModal(false);
+  };
+
+  const handleCameraCapture = (cloudinaryData) => {
+    setImages((prev) => [...prev, cloudinaryData]);
+    setShowPostModal(true);
   };
 
   return (
@@ -257,8 +264,28 @@ const Addpost = ({
               </Button>
             )}
           </CldUploadWidget>
+
+          <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
+
+          <Button
+            type="button"
+            onClick={() => setShowCameraModal(true)}
+            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
+            disabled={isPending}
+          >
+            <FontAwesomeIcon icon={faCamera} size="lg" />
+            <span>Camera</span>
+          </Button>
         </div>
       </form>
+
+      {/* Camera Capture Modal */}
+      {showCameraModal && (
+        <CameraCapture
+          onCapture={handleCameraCapture}
+          onClose={() => setShowCameraModal(false)}
+        />
+      )}
 
       {/* Post Confirmation Modal */}
       {showPostModal && (
