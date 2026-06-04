@@ -8,6 +8,8 @@ import {
   faT,
   faXmark,
   faTag,
+  faChartBar,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
@@ -19,9 +21,10 @@ import { toast } from "sonner";
 import ModalPortal from "../ui/modalPortal";
 import CameraCapture from "./cameraCapture";
 
-const createOptimisticPost = ({ desc, imageUrls, taggedUsers = [], user }) => {
+const createOptimisticPost = ({ desc, imageUrls, taggedUsers = [], pollData, user }) => {
   const timestamp = Date.now();
   const tempId = `temp-post-${timestamp}`;
+  const validPollOptions = pollData?.options?.filter((o) => o.trim()) ?? [];
 
   return {
     id: tempId,
@@ -41,14 +44,24 @@ const createOptimisticPost = ({ desc, imageUrls, taggedUsers = [], user }) => {
       postId: tempId,
     })),
     tags: taggedUsers.map((u) => ({ user: u })),
+    poll:
+      pollData && validPollOptions.length >= 2
+        ? {
+            id: `temp-poll-${timestamp}`,
+            question: pollData.question?.trim() || null,
+            isOptimistic: true,
+            options: validPollOptions.map((text, i) => ({
+              id: `temp-opt-${timestamp}-${i}`,
+              text,
+              votes: [],
+            })),
+            votes: [],
+          }
+        : null,
     likes: [],
     loves: [],
     comments: [],
-    _count: {
-      likes: 0,
-      loves: 0,
-      comments: 0,
-    },
+    _count: { likes: 0, loves: 0, comments: 0 },
   };
 };
 
@@ -69,6 +82,9 @@ const Addpost = ({
   const [tagQuery, setTagQuery] = useState("");
   const [tagResults, setTagResults] = useState([]);
   const [showTagSearch, setShowTagSearch] = useState(false);
+  const [showPollBuilder, setShowPollBuilder] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState("");
+  const [pollOptions, setPollOptions] = useState(["", ""]);
 
   const router = useRouter();
 
@@ -87,10 +103,17 @@ const Addpost = ({
     const optimisticDesc = desc.trim();
     const imageUrls = images.map((img) => img.secure_url);
     const taggedUserIds = taggedUsers.map((u) => u.id);
+    const validOptions = pollOptions.filter((o) => o.trim());
+    const pollData =
+      showPollBuilder && validOptions.length >= 2
+        ? { question: pollQuestion, options: validOptions }
+        : null;
+
     const tempPost = createOptimisticPost({
       desc: optimisticDesc,
       imageUrls,
       taggedUsers,
+      pollData,
       user,
     });
 
@@ -101,6 +124,9 @@ const Addpost = ({
     setTagQuery("");
     setTagResults([]);
     setShowTagSearch(false);
+    setShowPollBuilder(false);
+    setPollQuestion("");
+    setPollOptions(["", ""]);
     setError(null);
     setSuccess(null);
     setShowPostModal(false);
@@ -112,6 +138,7 @@ const Addpost = ({
           desc: optimisticDesc,
           imageUrls,
           taggedUserIds,
+          pollData,
         });
         if (result.success) {
           onPostConfirmed?.(tempPost.id, result.post);
@@ -138,6 +165,9 @@ const Addpost = ({
     setTagQuery("");
     setTagResults([]);
     setShowTagSearch(false);
+    setShowPollBuilder(false);
+    setPollQuestion("");
+    setPollOptions(["", ""]);
   };
 
   const handleImageUpload = (result) => {
@@ -421,6 +451,57 @@ const Addpost = ({
                   </div>
                 )}
 
+                {/* Poll builder */}
+                {showPollBuilder && (
+                  <div className="px-5 pb-3 flex flex-col gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ask a question… (optional)"
+                      value={pollQuestion}
+                      onChange={(e) => setPollQuestion(e.target.value)}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:border-[#FF4E01]"
+                    />
+                    {pollOptions.map((opt, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder={`Option ${i + 1}`}
+                          value={opt}
+                          onChange={(e) => {
+                            const next = [...pollOptions];
+                            next[i] = e.target.value;
+                            setPollOptions(next);
+                          }}
+                          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:border-[#FF4E01]"
+                        />
+                        {pollOptions.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPollOptions((prev) =>
+                                prev.filter((_, idx) => idx !== i)
+                              )
+                            }
+                            className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                          >
+                            <FontAwesomeIcon icon={faXmark} size="xs" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {pollOptions.length < 4 && (
+                      <button
+                        type="button"
+                        onClick={() => setPollOptions((prev) => [...prev, ""])}
+                        className="flex items-center gap-1.5 text-[#FF4E01] text-sm w-fit px-3 py-1.5 rounded-xl border border-dashed border-[#FF4E01]/40 hover:bg-orange-50 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faPlus} size="xs" />
+                        <span>Add option</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {/* Image previews */}
                 {images.length > 0 && (
                   <div
@@ -488,6 +569,20 @@ const Addpost = ({
                     }`}
                   >
                     <FontAwesomeIcon icon={faTag} />
+                  </button>
+
+                  {/* Poll toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPollBuilder((v) => !v)}
+                    title="Create poll"
+                    className={`w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors ${
+                      showPollBuilder
+                        ? "text-[#FF4E01]"
+                        : "text-gray-500 hover:text-[#FF4E01]"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faChartBar} />
                   </button>
                 </div>
 
