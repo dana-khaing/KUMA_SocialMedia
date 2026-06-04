@@ -16,6 +16,7 @@ import { createPost } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ModalPortal from "../ui/modalPortal";
+import CameraCapture from "./cameraCapture";
 
 const createOptimisticPost = ({ desc, imageUrls, user }) => {
   const timestamp = Date.now();
@@ -61,6 +62,7 @@ const Addpost = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showPostModal, setShowPostModal] = useState(false);
+  const [showCameraModal, setShowCameraModal] = useState(false);
 
   const router = useRouter();
 
@@ -133,6 +135,11 @@ const Addpost = ({
     if (images.length === 1) setShowPostModal(false);
   };
 
+  const handleCameraCapture = (cloudinaryData) => {
+    setImages((prev) => [...prev, cloudinaryData]);
+    setShowPostModal(true);
+  };
+
   return (
     <div className="w-[95%] mx-auto h-fit flex-shrink-0 rounded-2xl flex-col justify-center items-center py-4 px-5 shadow-md text-sm border-[1px] bg-slate-50">
       <form onSubmit={(e) => e.preventDefault()}>
@@ -173,29 +180,15 @@ const Addpost = ({
         </div>
 
         <div className="w-full h-10 flex gap-2 items-center justify-start md:justify-center mt-2 overflow-x-auto flex-nowrap scrollbar-hide">
-          <CldUploadWidget
-            uploadPreset="kumasocialmedia"
-            options={{ multiple: true, maxFiles: 10 }} // Allow multiple uploads
-            onSuccess={handleImageUpload}
-            onError={(error) => {
-              console.log("Error:", error);
-              setError("Upload failed. Check console for details.");
-              toast("Upload failed. Check console for details.");
-            }}
-            onClose={() => console.log("Widget closed")}
+          <Button
+            type="button"
+            onClick={() => setShowCameraModal(true)}
+            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
+            disabled={isPending}
           >
-            {({ open, isLoading }) => (
-              <Button
-                type="button"
-                onClick={() => open()}
-                className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
-                disabled={isLoading || isPending}
-              >
-                <FontAwesomeIcon icon={faCamera} size="lg" />
-                <span>Photo</span>
-              </Button>
-            )}
-          </CldUploadWidget>
+            <FontAwesomeIcon icon={faCamera} size="lg" />
+            <span>Photo</span>
+          </Button>
 
           <Separator orientation="vertical" className="bg-[#FF4E01]" />
 
@@ -257,8 +250,17 @@ const Addpost = ({
               </Button>
             )}
           </CldUploadWidget>
+
         </div>
       </form>
+
+      {/* Camera Capture Modal */}
+      {showCameraModal && (
+        <CameraCapture
+          onCapture={handleCameraCapture}
+          onClose={() => setShowCameraModal(false)}
+        />
+      )}
 
       {/* Post Confirmation Modal */}
       {showPostModal && (
