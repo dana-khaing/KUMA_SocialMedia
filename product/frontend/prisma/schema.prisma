@@ -51,16 +51,20 @@ model Post {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   userId        String
+  sharedPostId  Int?
   comments      Comment[]
   likes         Like[]
   loves         Love[]
   notifications Notification[]
   poll          Poll?
+  sharedPost    Post?          @relation("PostShares", fields: [sharedPostId], references: [id])
+  shares        Post[]         @relation("PostShares")
   user          User           @relation(fields: [userId], references: [id])
   images        PostImage[]
   tags          PostTag[]
 
   @@index([userId], map: "Post_userId_fkey")
+  @@index([sharedPostId])
 }
 
 model Poll {

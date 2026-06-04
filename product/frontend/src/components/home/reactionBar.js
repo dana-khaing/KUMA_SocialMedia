@@ -13,6 +13,8 @@ import { Separator } from "../ui/separator";
 import { useOptimistic } from "react";
 import CommentBox from "./commentBox";
 import { switchReaction, loadComments } from "@/lib/action";
+import { toast } from "sonner";
+import ShareModal from "./shareModal";
 
 const ReactionBar = ({
   post,
@@ -23,6 +25,7 @@ const ReactionBar = ({
   onCommentBoxToggle,
 }) => {
   const [showCommentbox, setShowCommentbox] = useState(isCommentOpen);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [comments, setComments] = useState(post.comments || []);
   const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
   const [error, setError] = useState(null);
@@ -246,6 +249,8 @@ const ReactionBar = ({
     }
   };
 
+  const handleShare = () => setShowShareModal(true);
+
   return (
     <>
       <div className="flex w-full gap-3 md:gap-1 items-around justify-center pb-2">
@@ -294,11 +299,25 @@ const ReactionBar = ({
           className="h-3 bg-slate-400 my-auto"
           orientation="vertical"
         />
-        <Button className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black">
+        <Button
+          onClick={handleShare}
+          disabled={!user?.id || post.isOptimistic}
+          className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black"
+        >
           <FontAwesomeIcon icon={faShare} size="sm" />
+          {post._count?.shares > 0 && <span>{post._count.shares}</span>}
           <span className="hidden md:block">Share</span>
         </Button>
       </div>
+
+      {showShareModal && (
+        <ShareModal
+          post={post}
+          user={user}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
+
       {showCommentbox && (
         <>
           {error && <p className="text-red-500 p-2">{error}</p>}

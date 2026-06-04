@@ -655,6 +655,71 @@ export const castPollVote = async (pollId, pollOptionId, userId) => {
   }
 };
 
+// share a post to the current user's feed
+export const sharePost = async (originalPostId, userId, desc) => {
+  if (!originalPostId || !userId) throw new Error("Missing required fields");
+  try {
+    // always link to the root post — never share a share of a share
+    const original = await prisma.post.findUnique({
+      where: { id: originalPostId },
+      select: { sharedPostId: true, userId: true, user: true },
+    });
+    if (!original) throw new Error("Post not found");
+    const rootPostId = original.sharedPostId ?? originalPostId;
+    const rootOwnerId = original.sharedPostId ? null : original.userId;
+
+    const shared = await prisma.post.create({
+      data: {
+        userId,
+        desc: desc?.trim() || null,
+        sharedPostId: rootPostId,
+      },
+      include: {
+        user: { select: { id: true, name: true, surname: true, username: true, avatar: true } },
+        images: true,
+        tags: { include: { user: { select: { id: true, name: true, avatar: true } } } },
+        poll: {
+          include: {
+            options: { include: { votes: { select: { userId: true } } } },
+            votes: { select: { userId: true, pollOptionId: true } },
+          },
+        },
+        sharedPost: {
+          include: {
+            user: { select: { id: true, name: true, surname: true, username: true, avatar: true } },
+            images: true,
+            tags: { include: { user: { select: { id: true, name: true, avatar: true } } } },
+            poll: {
+              include: {
+                options: { include: { votes: { select: { userId: true } } } },
+                votes: { select: { userId: true, pollOptionId: true } },
+              },
+            },
+          },
+        },
+        _count: { select: { likes: true, loves: true, comments: true, shares: true } },
+      },
+    });
+
+    // notify the original post owner (not if sharing your own post)
+    const ownerId = rootOwnerId ?? original.userId;
+    if (ownerId && ownerId !== userId) {
+      await createNotification({
+        type: "POST_SHARED",
+        message: `${original.user?.name ?? "Someone"} shared your post.`,
+        senderId: userId,
+        receiverId: ownerId,
+        postId: rootPostId,
+      });
+    }
+
+    return { success: true, post: shared };
+  } catch (error) {
+    console.error("Error sharing post:", error);
+    throw new Error("Failed to share post");
+  }
+};
+
 // create story
 export const createStory = async (payload) => {
   if (!payload || typeof payload !== "object") {
@@ -828,6 +893,7 @@ const notificationPreferenceTypeMap = {
   USER_CREATED: "newUsers",
   POST_CREATED: "posts",
   POST_TAGGED: "posts",
+  POST_SHARED: "posts",
   STORY_CREATED: "stories",
   COMMENT: "comments",
   POST_COMMENTED: "comments",

@@ -65,7 +65,31 @@ async function fetchPost(postId, userId) {
         orderBy: { createdAt: "desc" },
       },
       images: true,
-      _count: { select: { likes: true, loves: true, comments: true } },
+      tags: {
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
+      },
+      poll: {
+        include: {
+          options: { include: { votes: { select: { userId: true } } } },
+          votes: { select: { userId: true, pollOptionId: true } },
+        },
+      },
+      sharedPost: {
+        include: {
+          user: { select: { id: true, name: true, surname: true, username: true, avatar: true } },
+          images: true,
+          tags: { include: { user: { select: { id: true, name: true, avatar: true } } } },
+          poll: {
+            include: {
+              options: { include: { votes: { select: { userId: true } } } },
+              votes: { select: { userId: true, pollOptionId: true } },
+            },
+          },
+        },
+      },
+      _count: { select: { likes: true, loves: true, comments: true, shares: true } },
     },
   });
 
