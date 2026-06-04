@@ -395,23 +395,10 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                       </p>
                     )}
                     {post.sharedPost.poll && (
-                      <div className="px-4 pb-2">
-                        {post.sharedPost.poll.question && (
-                          <p className="text-sm font-medium text-gray-700 mb-1.5">
-                            {post.sharedPost.poll.question}
-                          </p>
-                        )}
-                        <div className="flex flex-col gap-1">
-                          {post.sharedPost.poll.options.map((opt) => (
-                            <div
-                              key={opt.id}
-                              className="text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white"
-                            >
-                              {opt.text}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      <PollDisplay
+                        poll={post.sharedPost.poll}
+                        currentUserId={user.id}
+                      />
                     )}
                     {post.sharedPost.images && post.sharedPost.images.length > 0 && (
                       <img
