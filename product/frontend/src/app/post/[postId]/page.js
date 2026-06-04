@@ -81,7 +81,12 @@ async function fetchPost(postId, userId) {
           user: { select: { id: true, name: true, surname: true, username: true, avatar: true } },
           images: true,
           tags: { include: { user: { select: { id: true, name: true, avatar: true } } } },
-          poll: { include: { options: true } },
+          poll: {
+            include: {
+              options: { include: { votes: { select: { userId: true } } } },
+              votes: { select: { userId: true, pollOptionId: true } },
+            },
+          },
         },
       },
       _count: { select: { likes: true, loves: true, comments: true, shares: true } },
