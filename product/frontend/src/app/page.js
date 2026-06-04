@@ -103,8 +103,15 @@ export default async function Home() {
               votes: { select: { userId: true, pollOptionId: true } },
             },
           },
+          sharedPost: {
+            include: {
+              user: { select: { id: true, name: true, surname: true, username: true, avatar: true } },
+              images: true,
+              tags: { include: { user: { select: { id: true, name: true, avatar: true } } } },
+            },
+          },
           _count: {
-            select: { likes: true, loves: true, comments: true },
+            select: { likes: true, loves: true, comments: true, shares: true },
           },
         },
         orderBy: { createdAt: "desc" },
