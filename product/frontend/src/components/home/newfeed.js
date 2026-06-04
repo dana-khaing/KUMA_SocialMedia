@@ -346,6 +346,22 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                 >
                   {post.desc}
                 </p>
+                {post.tags && post.tags.length > 0 && (
+                  <div className="px-2 pb-1 flex items-center gap-1 flex-wrap text-sm text-gray-500">
+                    <span>— with</span>
+                    {post.tags.map((tag, i) => (
+                      <span key={tag.user.id} className="flex items-center gap-1">
+                        <Link
+                          href={`/profile/${tag.user.id}`}
+                          className="font-medium text-[#FF4E02] hover:underline"
+                        >
+                          {tag.user.name}
+                        </Link>
+                        {i < post.tags.length - 1 && <span>,</span>}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {post.desc?.length > 100 && (
                   <button
                     onClick={() => toggleExpand(post.id)}

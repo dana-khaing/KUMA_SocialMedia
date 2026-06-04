@@ -557,7 +557,7 @@ export const createPost = async (payload) => {
     throw new Error("Invalid payload: must be an object");
   }
 
-  const { userId, desc, imageUrls } = payload;
+  const { userId, desc, imageUrls, taggedUserIds } = payload;
 
   if (!userId) {
     throw new Error("User not authenticated");
@@ -577,27 +577,36 @@ export const createPost = async (payload) => {
       throw new Error("Post must contain text or at least one image");
     }
 
-    // Create the post with related images if provided
+    // Create the post with related images and tags if provided
     const post = await prisma.post.create({
       data: {
         ...postData,
         images:
           imageUrls && imageUrls.length > 0
-            ? {
-                create: imageUrls.map((url) => ({
-                  url,
-                })),
-              }
+            ? { create: imageUrls.map((url) => ({ url })) }
+            : undefined,
+        tags:
+          taggedUserIds && taggedUserIds.length > 0
+            ? { create: taggedUserIds.map((uid) => ({ userId: uid })) }
             : undefined,
       },
       include: {
         user: true,
         images: true,
+        tags: {
+          include: {
+            user: { select: { id: true, name: true, avatar: true } },
+          },
+        },
         _count: { select: { likes: true, loves: true, comments: true } },
       },
     });
     // Notify followers about the new post
     await notifyPostCreated(post.id);
+    // Notify tagged users
+    if (taggedUserIds && taggedUserIds.length > 0) {
+      await notifyPostTagged(post.id, taggedUserIds, userId);
+    }
 
     return { success: true, post };
   } catch (error) {
@@ -778,6 +787,7 @@ export async function createNotification({
 const notificationPreferenceTypeMap = {
   USER_CREATED: "newUsers",
   POST_CREATED: "posts",
+  POST_TAGGED: "posts",
   STORY_CREATED: "stories",
   COMMENT: "comments",
   POST_COMMENTED: "comments",
@@ -1003,6 +1013,27 @@ export async function notifyPostCreated(postId) {
       message,
       senderId: post.userId,
       receiverId: follower.followerId,
+      postId,
+    });
+  }
+}
+
+async function notifyPostTagged(postId, taggedUserIds, taggerId) {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: { user: true },
+  });
+  if (!post) return;
+
+  const message = `${getUserDisplayName(post.user)} tagged you in a post.`;
+
+  for (const taggedUserId of taggedUserIds) {
+    if (taggedUserId === taggerId) continue;
+    await createNotification({
+      type: "POST_TAGGED",
+      message,
+      senderId: taggerId,
+      receiverId: taggedUserId,
       postId,
     });
   }
