@@ -431,14 +431,12 @@ const Addpost = ({
                     {images.map((image, index) => (
                       <div
                         key={index}
-                        className={`relative rounded-xl overflow-hidden ${
-                          images.length === 1 ? "h-56" : "h-32"
-                        }`}
+                        className="relative rounded-xl overflow-hidden bg-gray-100"
                       >
                         <img
                           src={image.secure_url}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-auto object-contain"
                         />
                         <button
                           onClick={() => removeImage(index)}
