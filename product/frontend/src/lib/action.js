@@ -557,27 +557,28 @@ export const createPost = async (payload) => {
     throw new Error("Invalid payload: must be an object");
   }
 
-  const { userId, desc, imageUrls, taggedUserIds } = payload;
+  const { userId, desc, imageUrls, taggedUserIds, pollData } = payload;
 
   if (!userId) {
     throw new Error("User not authenticated");
   }
 
   try {
-    const postData = {
-      userId,
-    };
+    const postData = { userId };
 
     if (desc && desc.trim()) {
       postData.desc = desc.trim();
     }
 
-    // Validate that there's either a description or at least one image
-    if (!postData.desc && (!imageUrls || imageUrls.length === 0)) {
-      throw new Error("Post must contain text or at least one image");
+    const validPollOptions = pollData?.options?.filter((o) => o.trim()) ?? [];
+    const hasPoll = validPollOptions.length >= 2;
+
+    // Validate: post must have text, image, or a poll
+    if (!postData.desc && (!imageUrls || imageUrls.length === 0) && !hasPoll) {
+      throw new Error("Post must contain text, at least one image, or a poll");
     }
 
-    // Create the post with related images and tags if provided
+    // Create the post with related images, tags, and optional poll
     const post = await prisma.post.create({
       data: {
         ...postData,
@@ -589,6 +590,16 @@ export const createPost = async (payload) => {
           taggedUserIds && taggedUserIds.length > 0
             ? { create: taggedUserIds.map((uid) => ({ userId: uid })) }
             : undefined,
+        poll: hasPoll
+          ? {
+              create: {
+                question: pollData.question?.trim() || null,
+                options: {
+                  create: validPollOptions.map((text) => ({ text: text.trim() })),
+                },
+              },
+            }
+          : undefined,
       },
       include: {
         user: true,
@@ -596,6 +607,12 @@ export const createPost = async (payload) => {
         tags: {
           include: {
             user: { select: { id: true, name: true, avatar: true } },
+          },
+        },
+        poll: {
+          include: {
+            options: { include: { votes: { select: { userId: true } } } },
+            votes: { select: { userId: true, pollOptionId: true } },
           },
         },
         _count: { select: { likes: true, loves: true, comments: true } },
@@ -612,6 +629,29 @@ export const createPost = async (payload) => {
   } catch (error) {
     console.error("Error creating post:", error);
     throw new Error("Failed to create post");
+  }
+};
+
+// cast a vote on a poll option (one vote per user per poll, cannot change after voting)
+export const castPollVote = async (pollId, pollOptionId, userId) => {
+  if (!pollId || !pollOptionId || !userId) return { success: false };
+  try {
+    const existing = await prisma.pollVote.findUnique({
+      where: { pollId_userId: { pollId, userId } },
+    });
+    if (!existing) {
+      await prisma.pollVote.create({ data: { pollId, pollOptionId, userId } });
+    }
+    const poll = await prisma.poll.findUnique({
+      where: { id: pollId },
+      include: {
+        options: { include: { votes: { select: { userId: true } } } },
+        votes: { select: { userId: true, pollOptionId: true } },
+      },
+    });
+    return { success: true, poll };
+  } catch {
+    return { success: false };
   }
 };
 
