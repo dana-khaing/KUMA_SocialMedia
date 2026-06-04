@@ -13,6 +13,7 @@ import PostPopup from "./postPopup";
 import { useRouter } from "next/navigation";
 import { subscribeToPostEvents } from "@/lib/pusherClient";
 import ModalPortal from "../ui/modalPortal";
+import PollDisplay from "./pollDisplay";
 
 function normalizePost(post) {
   return {
@@ -369,6 +370,9 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                   >
                     {expanded[post.id] ? "See less" : "See more"}
                   </button>
+                )}
+                {post.poll && (
+                  <PollDisplay poll={post.poll} currentUserId={user.id} />
                 )}
                 {post.images && post.images.length > 0 && (
                   <PostImagePreview
