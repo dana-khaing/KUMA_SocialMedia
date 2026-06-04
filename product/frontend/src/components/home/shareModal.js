@@ -129,7 +129,7 @@ const ShareModal = ({ post, user, onClose }) => {
                 <img
                   src={original.images[0].url}
                   alt="Original post"
-                  className="w-full max-h-48 object-cover"
+                  className="w-full h-auto object-contain bg-gray-100"
                 />
               )}
 
