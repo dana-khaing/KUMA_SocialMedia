@@ -404,7 +404,7 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                       <img
                         src={post.sharedPost.images[0].url}
                         alt="Shared post"
-                        className="w-full max-h-56 object-cover"
+                        className="w-full h-auto object-contain bg-gray-100"
                       />
                     )}
                     {!post.sharedPost.desc && !post.sharedPost.poll && (!post.sharedPost.images || post.sharedPost.images.length === 0) && (
