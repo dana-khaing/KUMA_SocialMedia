@@ -371,6 +371,47 @@ const Newfeed = ({ user, posts = [], owner, autoOpenCommentId }) => {
                     {expanded[post.id] ? "See less" : "See more"}
                   </button>
                 )}
+                {/* Embedded original post (when this is a share) */}
+                {post.sharedPost && (
+                  <Link
+                    href={`/post/${post.sharedPost.id}`}
+                    className="block my-2 rounded-xl border border-gray-200 overflow-hidden bg-gray-50 hover:border-[#FF4E01] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 px-4 pt-3 pb-1">
+                      <img
+                        src={post.sharedPost.user?.avatar || "/user-default.png"}
+                        alt="original poster"
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-[#FF4E01]"
+                      />
+                      <span className="text-sm font-semibold text-gray-800 truncate">
+                        {[post.sharedPost.user?.name, post.sharedPost.user?.surname]
+                          .filter(Boolean)
+                          .join(" ") || post.sharedPost.user?.username || "Kuma User"}
+                      </span>
+                    </div>
+                    {post.sharedPost.desc && (
+                      <p className="px-4 pb-2 text-sm text-gray-700 line-clamp-3">
+                        {post.sharedPost.desc}
+                      </p>
+                    )}
+                    {post.sharedPost.poll && (
+                      <PollDisplay
+                        poll={post.sharedPost.poll}
+                        currentUserId={user.id}
+                      />
+                    )}
+                    {post.sharedPost.images && post.sharedPost.images.length > 0 && (
+                      <img
+                        src={post.sharedPost.images[0].url}
+                        alt="Shared post"
+                        className="w-full h-auto object-contain bg-gray-100"
+                      />
+                    )}
+                    {!post.sharedPost.desc && !post.sharedPost.poll && (!post.sharedPost.images || post.sharedPost.images.length === 0) && (
+                      <p className="px-4 pb-3 text-sm text-gray-400 italic">Original content unavailable</p>
+                    )}
+                  </Link>
+                )}
                 {post.poll && (
                   <PollDisplay poll={post.poll} currentUserId={user.id} />
                 )}
