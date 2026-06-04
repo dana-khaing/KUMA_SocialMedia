@@ -12,8 +12,8 @@
   <a href="https://kuma-social-media.netlify.app">
     <img alt="Live app" src="https://img.shields.io/badge/live%20app-kuma--social--media.netlify.app-FF4E01?style=for-the-badge&logo=netlify&logoColor=white">
   </a>
-  <a href="https://github.com/dana-khaing/KUMA_SocialMedia/releases/tag/v0.1-beta">
-    <img alt="Release" src="https://img.shields.io/badge/release-v0.1--beta-111827?style=for-the-badge&logo=github">
+  <a href="https://github.com/dana-khaing/KUMA_SocialMedia/releases/tag/v2.0-beta">
+    <img alt="Release" src="https://img.shields.io/badge/release-v2.0--beta-111827?style=for-the-badge&logo=github">
   </a>
   <img alt="Status" src="https://img.shields.io/badge/status-deployed%20beta-16A34A?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-2563EB?style=for-the-badge">
@@ -37,7 +37,7 @@ It gives RHUL students a familiar place to create profiles, connect with classma
 
 **Live beta:** [kuma-social-media.netlify.app](https://kuma-social-media.netlify.app)
 
-**Release:** [v0.1-beta](https://github.com/dana-khaing/KUMA_SocialMedia/releases/tag/v0.1-beta)
+**Release:** [v2.0-beta](https://github.com/dana-khaing/KUMA_SocialMedia/releases/tag/v2.0-beta)
 
 **Tags:** `social-media` `student-community` `server-side-rendering` `nextjs` `react` `prisma` `mysql` `clerk` `pusher` `cloudinary` `tailwindcss` `notification-system` `final-year-project`
 
