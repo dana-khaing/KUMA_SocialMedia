@@ -103,6 +103,27 @@ const ShareModal = ({ post, user, onClose }) => {
                 </p>
               )}
 
+              {/* Poll preview */}
+              {original.poll && (
+                <div className="px-4 pb-2">
+                  {original.poll.question && (
+                    <p className="text-sm font-medium text-gray-700 mb-1.5">
+                      {original.poll.question}
+                    </p>
+                  )}
+                  <div className="flex flex-col gap-1">
+                    {original.poll.options.map((opt) => (
+                      <div
+                        key={opt.id}
+                        className="text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50"
+                      >
+                        {opt.text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Original post first image */}
               {original.images && original.images.length > 0 && (
                 <img
@@ -113,7 +134,7 @@ const ShareModal = ({ post, user, onClose }) => {
               )}
 
               {/* No content fallback */}
-              {!original.desc && (!original.images || original.images.length === 0) && (
+              {!original.desc && !original.poll && (!original.images || original.images.length === 0) && (
                 <p className="px-4 pb-3 text-sm text-gray-400 italic">
                   No preview available
                 </p>

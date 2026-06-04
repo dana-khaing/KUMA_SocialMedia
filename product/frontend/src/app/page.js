@@ -108,6 +108,7 @@ export default async function Home() {
               user: { select: { id: true, name: true, surname: true, username: true, avatar: true } },
               images: true,
               tags: { include: { user: { select: { id: true, name: true, avatar: true } } } },
+              poll: { include: { options: true } },
             },
           },
           _count: {
