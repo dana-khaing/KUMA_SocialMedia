@@ -41,6 +41,7 @@ model User {
   posts                    Post[]
   stories                  Story[]
   storyViews               StoryView[]
+  postTags                 PostTag[]
 }
 
 model Post {
@@ -55,8 +56,22 @@ model Post {
   notifications Notification[]
   user          User           @relation(fields: [userId], references: [id])
   images        PostImage[]
+  tags          PostTag[]
 
   @@index([userId], map: "Post_userId_fkey")
+}
+
+model PostTag {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
 }
 
 model PostImage {

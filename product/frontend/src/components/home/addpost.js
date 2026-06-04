@@ -7,18 +7,19 @@ import {
   faVideo,
   faT,
   faXmark,
+  faTag,
 } from "@fortawesome/free-solid-svg-icons";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
 import { useState, useTransition } from "react";
 import { CldUploadWidget } from "next-cloudinary";
-import { createPost } from "@/lib/action";
+import { createPost, searchAction } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ModalPortal from "../ui/modalPortal";
 import CameraCapture from "./cameraCapture";
 
-const createOptimisticPost = ({ desc, imageUrls, user }) => {
+const createOptimisticPost = ({ desc, imageUrls, taggedUsers = [], user }) => {
   const timestamp = Date.now();
   const tempId = `temp-post-${timestamp}`;
 
@@ -39,6 +40,7 @@ const createOptimisticPost = ({ desc, imageUrls, user }) => {
       url,
       postId: tempId,
     })),
+    tags: taggedUsers.map((u) => ({ user: u })),
     likes: [],
     loves: [],
     comments: [],
@@ -63,6 +65,10 @@ const Addpost = ({
   const [success, setSuccess] = useState(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
+  const [taggedUsers, setTaggedUsers] = useState([]);
+  const [tagQuery, setTagQuery] = useState("");
+  const [tagResults, setTagResults] = useState([]);
+  const [showTagSearch, setShowTagSearch] = useState(false);
 
   const router = useRouter();
 
@@ -80,15 +86,21 @@ const Addpost = ({
 
     const optimisticDesc = desc.trim();
     const imageUrls = images.map((img) => img.secure_url);
+    const taggedUserIds = taggedUsers.map((u) => u.id);
     const tempPost = createOptimisticPost({
       desc: optimisticDesc,
       imageUrls,
+      taggedUsers,
       user,
     });
 
     onOptimisticPost?.(tempPost);
     setDesc("");
     setImages([]);
+    setTaggedUsers([]);
+    setTagQuery("");
+    setTagResults([]);
+    setShowTagSearch(false);
     setError(null);
     setSuccess(null);
     setShowPostModal(false);
@@ -99,6 +111,7 @@ const Addpost = ({
           userId: user.id,
           desc: optimisticDesc,
           imageUrls,
+          taggedUserIds,
         });
         if (result.success) {
           onPostConfirmed?.(tempPost.id, result.post);
@@ -120,7 +133,11 @@ const Addpost = ({
 
   const handleClosePostModal = () => {
     setShowPostModal(false);
-    setImages([]); // Clear images on close
+    setImages([]);
+    setTaggedUsers([]);
+    setTagQuery("");
+    setTagResults([]);
+    setShowTagSearch(false);
   };
 
   const handleImageUpload = (result) => {
@@ -138,6 +155,34 @@ const Addpost = ({
   const handleCameraCapture = (cloudinaryData) => {
     setImages((prev) => [...prev, cloudinaryData]);
     setShowPostModal(true);
+  };
+
+  const handleTagSearch = async (value) => {
+    setTagQuery(value);
+    if (value.trim().length < 2) {
+      setTagResults([]);
+      return;
+    }
+    try {
+      const results = await searchAction(value.trim());
+      setTagResults(
+        results.filter(
+          (u) => u.id !== user.id && !taggedUsers.some((t) => t.id === u.id)
+        )
+      );
+    } catch {
+      setTagResults([]);
+    }
+  };
+
+  const addTag = (tagUser) => {
+    setTaggedUsers((prev) => [...prev, tagUser]);
+    setTagQuery("");
+    setTagResults([]);
+  };
+
+  const removeTag = (userId) => {
+    setTaggedUsers((prev) => prev.filter((u) => u.id !== userId));
   };
 
   return (
@@ -265,78 +310,197 @@ const Addpost = ({
       {/* Post Confirmation Modal */}
       {showPostModal && (
         <ModalPortal>
-        <div
-          onClick={handleClosePostModal}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
-        >
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-h-[90vh] w-[90%] overflow-y-auto rounded-lg bg-white p-4 shadow-md sm:w-[80%] md:w-[50%] lg:w-[35%] xl:w-[25%]"
+            onClick={handleClosePostModal}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
           >
-            <div className="flex flex-col gap-4">
-              {/* User Info and Description */}
-              <div className="flex items-center gap-3">
-                <img
-                  src={user?.avatar || "/user-default.png"}
-                  alt="profile"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div className="flex flex-col">
-                  <span className="text-gray-800 text-md font-semibold">
-                    {user?.name + " " + user?.surname || "User"}
-                  </span>
-                </div>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
+            >
+              {/* ── Header ─────────────────────────────────────────────── */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 flex-shrink-0">
+                <h2 className="text-base font-semibold text-gray-800">Create Post</h2>
+                <button
+                  onClick={handleClosePostModal}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faXmark} />
+                </button>
               </div>
-              <div className="flex-1 flex-col">
+
+              {/* ── Scrollable body ─────────────────────────────────────── */}
+              <div className="flex-1 overflow-y-auto">
+                {/* User row */}
+                <div className="flex items-center gap-3 px-5 pt-4">
+                  <img
+                    src={user?.avatar || "/user-default.png"}
+                    alt="profile"
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                  <p className="text-sm font-semibold text-gray-800">
+                    {[user?.name, user?.surname].filter(Boolean).join(" ") || "User"}
+                  </p>
+                </div>
+
+                {/* Textarea */}
                 <textarea
                   placeholder="What's on your mind, Kuma?"
                   onChange={(e) => setDesc(e.target.value)}
                   value={desc}
                   name="desc"
-                  className="w-full h-20 p-3 px-4 resize-none scrollbar-hide rounded-lg border-2 border-[#FF4E01] hover:border-[#FF4E01] focus:border-[#FF4E01]"
+                  rows={4}
+                  className="w-full px-5 pt-3 pb-2 resize-none text-gray-800 placeholder-gray-400 text-base focus:outline-none"
                   disabled={isPending}
-                ></textarea>
-              </div>
-              {/* Image Previews */}
-              {images.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={image.secure_url}
-                        alt={`Preview ${index + 1}`}
-                        className="rounded-lg object-cover w-full h-32"
-                      />
-                      <button
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                        disabled={isPending}
+                  autoFocus
+                />
+
+                {/* Tagged user chips */}
+                {taggedUsers.length > 0 && (
+                  <div className="px-5 pb-3 flex flex-wrap gap-1.5">
+                    {taggedUsers.map((u) => (
+                      <span
+                        key={u.id}
+                        className="flex items-center gap-1 bg-orange-50 border border-orange-200 text-[#FF4E01] px-2.5 py-1 rounded-full text-xs font-medium"
                       >
-                        <FontAwesomeIcon icon={faXmark} size="sm" />
-                      </button>
+                        <img
+                          src={u.avatar || "/user-default.png"}
+                          alt={u.name}
+                          className="w-4 h-4 rounded-full object-cover"
+                        />
+                        {u.name}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(u.id)}
+                          className="ml-0.5 hover:text-red-500 transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faXmark} size="xs" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Tag search (inline, shown when tag icon is active) */}
+                {showTagSearch && (
+                  <div className="px-5 pb-3">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search by name or username…"
+                        value={tagQuery}
+                        onChange={(e) => handleTagSearch(e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:border-[#FF4E01]"
+                        autoFocus
+                      />
+                      {tagResults.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-44 overflow-y-auto mt-1">
+                          {tagResults.map((u) => (
+                            <button
+                              key={u.id}
+                              type="button"
+                              onClick={() => addTag(u)}
+                              className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-orange-50 w-full text-left"
+                            >
+                              <img
+                                src={u.avatar || "/user-default.png"}
+                                alt={u.name}
+                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                              />
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-medium text-gray-800 truncate">
+                                  {u.name} {u.surname}
+                                </span>
+                                <span className="text-xs text-gray-400">@{u.username}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  </div>
+                )}
+
+                {/* Image previews */}
+                {images.length > 0 && (
+                  <div
+                    className={`px-5 pb-4 grid gap-2 ${
+                      images.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                    }`}
+                  >
+                    {images.map((image, index) => (
+                      <div
+                        key={index}
+                        className="relative rounded-xl overflow-hidden bg-gray-100"
+                      >
+                        <img
+                          src={image.secure_url}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-auto object-contain"
+                        />
+                        <button
+                          onClick={() => removeImage(index)}
+                          disabled={isPending}
+                          className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faXmark} size="xs" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Footer ─────────────────────────────────────────────── */}
+              <div className="border-t border-gray-100 px-5 py-3 flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-gray-400 mr-1">Add:</span>
+
+                  {/* Add more images */}
+                  <CldUploadWidget
+                    uploadPreset="kumasocialmedia"
+                    options={{ multiple: true, maxFiles: 10 }}
+                    onSuccess={handleImageUpload}
+                    onError={() => toast("Upload failed.")}
+                  >
+                    {({ open, isLoading }) => (
+                      <button
+                        type="button"
+                        onClick={() => open()}
+                        disabled={isLoading || isPending}
+                        title="Add image"
+                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#FF4E01] transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faImage} />
+                      </button>
+                    )}
+                  </CldUploadWidget>
+
+                  {/* Tag people toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setShowTagSearch((v) => !v)}
+                    title="Tag people"
+                    className={`w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors ${
+                      showTagSearch || taggedUsers.length > 0
+                        ? "text-[#FF4E01]"
+                        : "text-gray-500 hover:text-[#FF4E01]"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faTag} />
+                  </button>
                 </div>
-              )}
-              {/* Post Button */}
-              <div className="flex justify-end mt-2">
+
                 <Button
                   onClick={handleConfirmPost}
-                  className="bg-[#FF4E02] text-white hover:bg-[#e04300] px-4 py-2 rounded-lg shadow-md"
-                  disabled={isPending}
+                  disabled={isPending || (!desc.trim() && images.length === 0)}
+                  className="bg-[#FF4E02] text-white hover:bg-[#e04300] px-5 py-2 rounded-full text-sm font-medium shadow-md"
                 >
-                  {isPending ? "Posting..." : "Post"}
+                  {isPending ? "Posting…" : "Post"}
                 </Button>
               </div>
             </div>
-            <div
-              className="absolute top-2 right-2 w-8 h-8 hover:bg-gray-200 hover:text-black text-gray-600 rounded-full flex items-center justify-center cursor-pointer"
-              onClick={handleClosePostModal}
-            >
-              <FontAwesomeIcon icon={faXmark} size="md" />
-            </div>
           </div>
-        </div>
         </ModalPortal>
       )}
     </div>

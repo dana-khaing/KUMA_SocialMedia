@@ -92,6 +92,11 @@ export default async function Home() {
             orderBy: { createdAt: "desc" },
           },
           images: true,
+          tags: {
+            include: {
+              user: { select: { id: true, name: true, avatar: true } },
+            },
+          },
           _count: {
             select: { likes: true, loves: true, comments: true },
           },
