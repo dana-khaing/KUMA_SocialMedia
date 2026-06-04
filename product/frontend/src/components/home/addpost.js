@@ -326,6 +326,19 @@ const Addpost = ({
             )}
           </CldUploadWidget>
 
+          <Separator orientation="vertical" className="h-9 bg-[#FF4E01]" />
+          <Button
+            type="button"
+            onClick={() => {
+              setShowPollBuilder(true);
+              setShowPostModal(true);
+            }}
+            className="flex items-center w-24 rounded-full text-[#FF4E01] hover:bg-[#FF4E01] hover:text-white bg-transparent h-fit cursor-pointer gap-2 text-center justify-center"
+            disabled={isPending}
+          >
+            <FontAwesomeIcon icon={faChartBar} size="lg" />
+            <span>Poll</span>
+          </Button>
         </div>
       </form>
 
