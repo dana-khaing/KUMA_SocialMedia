@@ -7,6 +7,7 @@ import ReactionBar from "./reactionBar";
 import { formatDistanceToNow, differenceInDays, format } from "date-fns";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import ModalPortal from "../ui/modalPortal";
+import PollDisplay from "./pollDisplay";
 
 const PostPopup = ({ post, user, owner, onClose, onReactionUpdate }) => {
   const formatPostTimestamp = (createdAt) => {
@@ -87,6 +88,11 @@ const PostPopup = ({ post, user, owner, onClose, onReactionUpdate }) => {
                   {i < post.tags.length - 1 && <span>,</span>}
                 </span>
               ))}
+            </div>
+          )}
+          {post.poll && (
+            <div className="px-2 pb-1">
+              <PollDisplay poll={post.poll} currentUserId={user.id} />
             </div>
           )}
 
