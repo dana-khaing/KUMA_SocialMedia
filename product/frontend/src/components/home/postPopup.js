@@ -73,6 +73,22 @@ const PostPopup = ({ post, user, owner, onClose, onReactionUpdate }) => {
           <p className="text-justify py-2 px-5">
             {post.desc || "No description"}
           </p>
+          {post.tags && post.tags.length > 0 && (
+            <div className="px-5 pb-2 flex items-center gap-1 flex-wrap text-sm text-gray-500">
+              <span>— with</span>
+              {post.tags.map((tag, i) => (
+                <span key={tag.user.id} className="flex items-center gap-1">
+                  <a
+                    href={`/profile/${tag.user.id}`}
+                    className="font-medium text-[#FF4E02] hover:underline"
+                  >
+                    {tag.user.name}
+                  </a>
+                  {i < post.tags.length - 1 && <span>,</span>}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Image Carousel */}
           <div className="w-full h-[500px] overflow-hidden rounded-lg">
