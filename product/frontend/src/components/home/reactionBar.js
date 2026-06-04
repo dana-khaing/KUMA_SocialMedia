@@ -14,6 +14,7 @@ import { useOptimistic } from "react";
 import CommentBox from "./commentBox";
 import { switchReaction, loadComments } from "@/lib/action";
 import { toast } from "sonner";
+import ShareModal from "./shareModal";
 
 const ReactionBar = ({
   post,
@@ -24,6 +25,7 @@ const ReactionBar = ({
   onCommentBoxToggle,
 }) => {
   const [showCommentbox, setShowCommentbox] = useState(isCommentOpen);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [comments, setComments] = useState(post.comments || []);
   const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
   const [error, setError] = useState(null);
@@ -247,27 +249,7 @@ const ReactionBar = ({
     }
   };
 
-  const handleShare = async () => {
-    const postUrl = `${window.location.origin}/post/${post.id}`;
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: "KUMA Social",
-          text: post.desc || "Check out this post on KUMA!",
-          url: postUrl,
-        });
-      } catch {
-        // user cancelled the share sheet — no action needed
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(postUrl);
-        toast("Link copied to clipboard!");
-      } catch {
-        toast("Could not copy link. Please copy it manually: " + postUrl);
-      }
-    }
-  };
+  const handleShare = () => setShowShareModal(true);
 
   return (
     <>
@@ -319,12 +301,23 @@ const ReactionBar = ({
         />
         <Button
           onClick={handleShare}
+          disabled={!user?.id || post.isOptimistic}
           className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black"
         >
           <FontAwesomeIcon icon={faShare} size="sm" />
+          {post._count?.shares > 0 && <span>{post._count.shares}</span>}
           <span className="hidden md:block">Share</span>
         </Button>
       </div>
+
+      {showShareModal && (
+        <ShareModal
+          post={post}
+          user={user}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
+
       {showCommentbox && (
         <>
           {error && <p className="text-red-500 p-2">{error}</p>}
