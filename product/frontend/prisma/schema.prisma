@@ -30,19 +30,19 @@ model User {
   followRequestsSent       FollowRequest[]           @relation("FollowRequestsSent")
   followings               Follower[]                @relation("UserFollowers")
   followers                Follower[]                @relation("UserFollowings")
-  friendsAsUser            Friend[]                  @relation("UserFriends")
   friendsAsFriend          Friend[]                  @relation("FriendOf")
+  friendsAsUser            Friend[]                  @relation("UserFriends")
   likes                    Like[]
   loves                    Love[]
   sentMessages             Message[]                 @relation("MessageSender")
   receivedNotifications    Notification[]            @relation("NotificationReceiver")
   sentNotifications        Notification[]            @relation("NotificationSender")
   notificationPreference   NotificationPreference?
+  pollVotes                PollVote[]
   posts                    Post[]
+  postTags                 PostTag[]
   stories                  Story[]
   storyViews               StoryView[]
-  postTags                 PostTag[]
-  pollVotes                PollVote[]
 }
 
 model Post {
@@ -55,10 +55,10 @@ model Post {
   likes         Like[]
   loves         Love[]
   notifications Notification[]
+  poll          Poll?
   user          User           @relation(fields: [userId], references: [id])
   images        PostImage[]
   tags          PostTag[]
-  poll          Poll?
 
   @@index([userId], map: "Post_userId_fkey")
 }
@@ -218,8 +218,8 @@ model Friend {
   createdAt DateTime @default(now())
   userId    String
   friendId  String
-  user      User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
   friend    User     @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, friendId])
   @@index([userId], map: "Friend_userId_fkey")
@@ -304,18 +304,18 @@ model ConversationParticipant {
 }
 
 model Message {
-  id             Int          @id @default(autoincrement())
-  conversationId Int
-  senderId       String
-  kind           MessageKind  @default(TEXT)
-  body           String       @db.Text
-  audioUrl       String?
+  id              Int          @id @default(autoincrement())
+  conversationId  Int
+  senderId        String
+  body            String       @db.Text
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  kind            MessageKind  @default(TEXT)
+  audioUrl        String?
   audioDurationMs Int?
-  imageUrl       String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  imageUrl        String?
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([conversationId, createdAt], map: "Message_conversation_createdAt_idx")
   @@index([senderId])
