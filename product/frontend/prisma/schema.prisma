@@ -59,8 +59,12 @@ model Post {
   user          User           @relation(fields: [userId], references: [id])
   images        PostImage[]
   tags          PostTag[]
+  sharedPostId  Int?
+  sharedPost    Post?          @relation("PostShares", fields: [sharedPostId], references: [id], onDelete: SetNull)
+  shares        Post[]         @relation("PostShares")
 
   @@index([userId], map: "Post_userId_fkey")
+  @@index([sharedPostId])
 }
 
 model Poll {
