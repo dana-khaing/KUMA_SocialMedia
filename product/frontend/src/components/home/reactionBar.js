@@ -13,6 +13,7 @@ import { Separator } from "../ui/separator";
 import { useOptimistic } from "react";
 import CommentBox from "./commentBox";
 import { switchReaction, loadComments } from "@/lib/action";
+import { toast } from "sonner";
 
 const ReactionBar = ({
   post,
@@ -246,6 +247,28 @@ const ReactionBar = ({
     }
   };
 
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/post/${post.id}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "KUMA Social",
+          text: post.desc || "Check out this post on KUMA!",
+          url: postUrl,
+        });
+      } catch {
+        // user cancelled the share sheet — no action needed
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(postUrl);
+        toast("Link copied to clipboard!");
+      } catch {
+        toast("Could not copy link. Please copy it manually: " + postUrl);
+      }
+    }
+  };
+
   return (
     <>
       <div className="flex w-full gap-3 md:gap-1 items-around justify-center pb-2">
@@ -294,7 +317,10 @@ const ReactionBar = ({
           className="h-3 bg-slate-400 my-auto"
           orientation="vertical"
         />
-        <Button className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black">
+        <Button
+          onClick={handleShare}
+          className="bg-inherit w-fit shadow-none hover:bg-slate-200 rounded-full text-black"
+        >
           <FontAwesomeIcon icon={faShare} size="sm" />
           <span className="hidden md:block">Share</span>
         </Button>
