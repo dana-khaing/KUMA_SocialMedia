@@ -1,3 +1,17 @@
+#### 4 June
+
+- add camera capture with live preview, camera flipping, photo capture, and Cloudinary upload
+- add user tagging to posts with live search, selected-user chips, tagged-user display, and notifications
+- add poll creation and voting with poll models, server actions, and interactive poll displays
+- redesign the post creation modal with a cleaner header, borderless text area, footer action bar, and improved image layout
+- fix image cropping in the post modal, shared-post cards, and share preview
+- add post sharing with mobile Web Share support and desktop clipboard fallback
+- add shared posts to the feed with embedded original-post cards, share counts, poll support, and links to original posts
+- add notifications when a post is shared
+- update the single-post page to include polls, tags, shared posts, and share counts
+- redesign sign-in and sign-up pages with a responsive split-screen layout
+- update the project release version to v2.0-beta
+
 #### 3 June
 
 - improve feed photo layout and scrolling
